@@ -21,13 +21,11 @@ Figures -@fig:slab-composition-660-b01 to -@fig:plume-composition-660-b50 show s
 
 # Material Model (Figures S1--S3) {.unnumbered #sec:material-model}
 
+\clearpage
+
 ![Reference material properties used in ASPECT simulations showing density ($\bar{\rho}$), thermal expansivity ($\bar{\alpha}$), compressibility ($\bar{\beta}$), and specific heat capacity ($\bar{C}_p$). Colored profiles are for pure Mg olivine (ol), wadsleyite (wd), ringwoodite (ri), and the post-spinel (ps) assemblage bridgmanite + periclase. Profiles are computed using the methods described in see Section 2.2.1 in the main text. Gray bands indicate the 410, 520, and 660 transitions.](../figs/adiabat/material-property-profiles.png){#fig:material-property-profiles width=100%}
 
-\clearpage
-
 ![Reference thermodynamic properties used in our ASPECT simulations. Colored profiles are for pure Mg olivine (ol), wadsleyite (wd), ringwoodite (ri), and the post-spinel (ps) assemblage bridgmanite + periclase. Profiles are computed using the same methods as described in @fig:material-property-profiles (see Section 2.2.1 in the main text). Gray bands indicate the 410, 520, and 660 transitions.](../figs/adiabat/thermodynamic-property-profiles.png){#fig:thermodynamic-property-profiles width=80%}
-
-\clearpage
 
 ![Monte Carlo regression of high-overpressure experimental data from @kubo2002. The best-fit activation energy $E^{\ast}$ = 310 $\pm$ 233 kJ mol$^{-1}$ (2$\sigma$) and growth-rate prefactor $\ln(K^{\prime})$ = -29.8 $\pm$ 22.1 are both consistent with @kubo2002 within uncertainty. The large uncertainties in $E^{\ast}$ and $\ln(K^{\prime})$ reflect few data points with relatively high experimental $T$ uncertainties. Our exploration over five orders of magnitude in $Z_\mathrm{ri}$ roughly captures this broad uncertainty.](../figs/kubo/regression.png){#fig:regression width=68%}
 
@@ -54,6 +52,8 @@ Figures -@fig:slab-composition-660-b01 to -@fig:plume-composition-660-b50 show s
 \clearpage
 
 # Structure of the 660: Displacement and Width {.unnumbered #sec:structure-of-the-660}
+
+\clearpage
 
 |Type  | Scenario| $Z_\mathrm{ri}$| Displacement| Width| $\dot{X}_\mathrm{max}$| $\vec{v}_\mathrm{max}$| Regime|
 |:-----|--------:|---------------:|------------:|-----:|----------------------:|----------------------:|------:|
