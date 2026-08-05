@@ -1,0 +1,5 @@
+subsection Adiabatic conditions model
+  subsection Compute profile
+    set Number of points = 10000
+  end
+end

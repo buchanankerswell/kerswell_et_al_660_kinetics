@@ -1,0 +1,14 @@
+name: kerswell-et-al-mtz-kinetics
+channels:
+  - conda-forge
+dependencies:
+  - tqdm
+  - scipy
+  - pip
+  - numba<0.59
+  - python=3.11
+  - pandas
+  - pyvista
+  - pip:
+      - autograd
+      - burnman

@@ -1,0 +1,20 @@
+subsection Boundary temperature model
+  set List of model names                   = initial temperature
+  set Fixed temperature boundary indicators = top
+end
+
+subsection Initial temperature model
+  set List of model names = adiabatic, function
+
+  subsection Function
+    set Variable names      = x, y
+    set Function constants  = x0={x0-slab}, y0={y0-slab}, dx={dx-slab}, dy={dy-slab}, L={l-slab}, W={w-slab}, dT=-{dt-anomaly}, A={a-slab}
+    set Function expression = dT * exp(-(((x-x0)*(-dy)+(y-y0)*dx)/L)^2/(2*W^2)) * 0.5*(1+tanh((L-((x-x0)*dx+(y-y0)*dy)/L)/A))
+  end
+
+  subsection Adiabatic
+    subsection Function
+      set Function expression = 0; 0; 0; 3500
+    end
+  end
+end

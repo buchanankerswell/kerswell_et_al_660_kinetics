@@ -1,0 +1,20 @@
+composition_system     wt
+composition_phase      wt
+intermediate_savdyn    T
+intermediate_savrpc    T
+warn_no_limit          F
+grid_levels            1 1
+x_nodes                32 128
+y_nodes                32 128
+bounds                 VRH
+vrh/hs_weighting       0.5
+Anderson-Gruneisen     T
+explicit_bulk_modulus  T
+melt_is_fluid          T
+T_melt                 default
+poisson_test           F
+poisson_ratio          on 0.31
+seismic_output         some
+auto_refine_file       F
+seismic_data_file      F
+sample_on_grid         F

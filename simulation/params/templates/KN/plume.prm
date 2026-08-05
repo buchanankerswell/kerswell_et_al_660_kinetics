@@ -1,0 +1,18 @@
+# This cookbook illustrates the effects of growth kinetics on the olivine --> wadsleyite phase transition
+# and diffusion-controlled kinetics on the ringwoodite --> postspinel phase transition.
+# It features a simplified thermal plume, induced by warm material entering the model with a prescribed temperature.
+
+set Output directory = results/plume_{uid}
+
+include configs/{uid}/globals.prm
+include configs/{uid}/solver.prm
+include configs/{uid}/geometry.prm
+include configs/{uid}/velocity-plume.prm
+include configs/{uid}/composition.prm
+include configs/{uid}/temperature-plume.prm
+include params/static/heating.prm
+include params/static/traction-plume.prm
+include params/static/gravity.prm
+include params/static/adiabat.prm
+include configs/{uid}/material.prm
+include configs/{uid}/postprocess.prm

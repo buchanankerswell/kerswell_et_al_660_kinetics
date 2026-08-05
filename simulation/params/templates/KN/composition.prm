@@ -1,0 +1,30 @@
+subsection Boundary composition model
+  set List of model names                   = function
+  set Fixed composition boundary indicators = top, right, bottom, left
+
+  subsection Function
+    set Variable names      = x, y
+    set Function expression = (y<{transition-ol-wd} ? 1 : 0); \
+                              (y<{transition-wd-ri} ? 1 : 0); \
+                              (y<{transition-ri-ps} ? 1 : 0); \
+                              3500
+  end
+end
+
+subsection Initial composition model
+  set List of model names = function
+
+  subsection Function
+    set Variable names      = x, y
+    set Function expression = (y<{transition-ol-wd} ? 1 : 0); \
+                              (y<{transition-wd-ri} ? 1 : 0); \
+                              (y<{transition-ri-ps} ? 1 : 0); \
+                              3500
+  end
+end
+
+subsection Compositional fields
+  set Number of fields            = 4
+  set Names of fields             = xi_ol_wd, xi_wd_ri, xi_ri_ps, density_field
+  set Compositional field methods = field, field, field, prescribed field
+end

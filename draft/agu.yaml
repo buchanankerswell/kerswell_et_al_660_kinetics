@@ -1,0 +1,50 @@
+---
+journal: "JGR: Solid Earth"
+classoption: "draft,linenumbers"
+title: "Beyond Equilibrium II: Ringwoodite Decomposition Kinetics Amplify 660 km Discontinuity Depressions and Offer an Independent Control on Slab Stagnation"
+authors:
+  - name: "Buchanan Kerswell"
+    affil: 1
+  - name: "John Wheeler"
+    affil: 1
+  - name: "Rene Gassmöller"
+    affil: 2
+  - name: "J. Huw Davies"
+    affil: 3
+  - name: "Isabel Papanagnou"
+    affil: 4
+  - name: "Sanne Cottaar"
+    affil: 4
+  - name: "David P. Dobson"
+    affil: 5
+affiliations:
+  - number: 1
+    name: "Department of Earth, Oceans and Ecological Sciences, University of Liverpool, Liverpool L69 3BX, UK"
+  - number: 2
+    name: "GEOMAR Helmholtz Centre for Ocean Research Kiel, Kiel, Germany"
+  - number: 3
+    name: "School of Earth and Environmental Sciences, Cardiff University, Park Place, Cardiff, CF10 3AT, UK"
+  - number: 4
+    name: "Bullard Laboratories, Department of Earth Sciences, University of Cambridge, Cambridge CB3 0EZ, UK"
+  - number: 5
+    name: "Department of Earth Sciences, University College London, London WC1E 6BS, UK"
+corresponding_author:
+  - name: "Buchanan Kerswell"
+    email: "b.kerswell@liverpool.ac.uk"
+keypoints:
+  - "Plumes consistently uplift the 660; slabs show kinetically controlled deepening and broadening across three distinct regimes"
+  - "Diffusion-controlled kinetics in cold slabs produce monotonically broader and deeper 660s as reaction rates slow"
+  - "Ringwoodite kinetics amplify 660 depressions and reduce slabs velocities, partially explaining slab stagnation and 660 topography"
+abstract: |
+  The 660 km seismic discontinuity ('660') varies beneath subduction zones, ranging from modest depressions consistent with equilibrium thermodynamics to anomalously deep, broad transitions challenging purely thermal interpretations. Laboratory experiments establish that the ringwoodite decomposition responsible for the 660 proceeds via diffusion-controlled kinetics, yet their quantitative effects on 660 structure and slab dynamics have not been evaluated in compressible mantle flow simulations. We couple ringwoodite decomposition kinetics to simulations of mantle plumes and subducting slabs, varying kinetic parameters across six orders of magnitude. Results reveal a fundamental asymmetry between hot and cold environments. In plumes, elevated temperatures produce uplifted, narrow 660s that are relatively insensitive to kinetics due to rapid reaction rates. In slabs, kinetics exert strong control through three regimes: 1) a quasi-equilibrium regime producing 660s consistent with Clapeyron-slope predictions; 2) an intermediate regime where metastable ringwoodite accumulates within a broadening buoyant zone, slowing slab descent; and 3) a stagnation regime where slabs pond above the 660, producing the deepest, broadest 660s and slowest descent velocities. The endothermic Clapeyron slope and kinetic inhibition reinforce each other, amplifying temperature-driven 660 deflection by a factor of 2--4 while independently promoting slab stagnation. Slabs smoothly transition through each regime as reaction rates slow, without abrupt reactions at overstepped metastable conditions. These findings establish ringwoodite kinetics as a first-order control on slab stagnation dynamics and 660 seismic structure under Earth-like conditions, explaining the diverse slab behaviors observed at the base of the mantle transition zone.
+plain_language_summary: |
+  Earth has a boundary 660 kilometers underground where the mineral ringwoodite transforms into two new minerals. Beneath sinking tectonic plates, this boundary is often deeper and thicker than expected. Scientists assumed cold sinking plates were the main cause, but laboratory experiments show the ringwoodite transformation is also limited by how quickly silicon atoms move through rock---a speed limit whose effect on mantle flow was untested. We used computer simulations of rising mantle plumes and sinking slabs to test how reaction speed affects slab motion and the seismic appearance of the 660 km boundary. In hot plumes, high temperatures allow rapid transformation, so the 660 shifts slightly upward and remains narrow regardless of reaction speed. In cold slabs, however, reaction speed strongly affects flow behavior. Fast reactions allow slabs to sink steadily through the 660 with modest deepening. Slower reactions cause untransformed ringwoodite to build up inside the slab, slowing its descent while pushing the 660 deeper and wider. When reactions are very slow, slabs can stall above the 660 instead of sinking into the lower mantle, producing the deepest, broadest seismic signals without abrupt re-sharpening. Our results show that ringwoodite transformation speed is a major control on tectonic plate movement through Earth's interior. It can amplify temperature-driven boundary deflection by a factor of 2 to 4 and slow slab descent by up to ten times, explaining why some slabs sink into the lower mantle while others flatten and temporarily stagnate above the transition zone.
+figPrefix: "Figure"
+eqnPrefix: "Equation"
+secPrefix: "Section"
+tblPrefix: "Table"
+header-includes:
+  - \usepackage{amsmath}
+  - \usepackage{amssymb}
+  - \usepackage{amsfonts}
+---

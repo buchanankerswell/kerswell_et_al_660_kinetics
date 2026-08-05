@@ -1,0 +1,7 @@
+subsection Boundary traction model
+  set Prescribed traction boundary indicators = top y:initial lithostatic pressure, right y:initial lithostatic pressure, left y:initial lithostatic pressure
+
+  subsection Initial lithostatic pressure
+    set Representative point = 0, 0
+  end
+end

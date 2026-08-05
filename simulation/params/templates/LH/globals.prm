@@ -1,0 +1,11 @@
+set Dimension                     = 2
+set Use years instead of seconds  = true
+set End time                      = {end-time}
+set Adiabatic surface temperature = {surface-temperature}
+set Surface pressure              = {surface-pressure}
+set Nonlinear solver scheme       = iterated Advection and Stokes
+set Nonlinear solver tolerance    = {solver-tolerance}
+set Use operator splitting        = false
+set Max nonlinear iterations      = {max-solver-iter}
+set CFL number                    = 0.7
+set Resume computation            = auto

@@ -1,0 +1,45 @@
+subsection Material model
+  set Model name = MTZ kinetics
+
+  subsection MTZ kinetics
+    set Enable olivine wadsleyite transformation     = true
+    set Enable wadsleyite ringwoodite transformation = true
+    set Enable ringwoodite postspinel transformation = true
+
+    set Use dynamic pressure correction for density  = false
+    set Use dynamic pressure correction for gibbs    = {dynp-gibbs}
+
+    set Viscosity                                    = {eta-ref}
+    set Minimum viscosity                            = {eta-min}
+    set Maximum viscosity                            = {eta-max}
+    set Gibbs viscosity width                        = {eta-gibbs}
+    set Thermal viscosity exponent                   = {eta-thermal-exp}
+    set Viscosity prefactor olivine                  = {eta-pref-olivine}
+    set Viscosity prefactor wadsleyite               = {eta-pref-wadsleyite}
+    set Viscosity prefactor ringwoodite              = {eta-pref-ringwoodite}
+    set Viscosity prefactor postspinel               = {eta-pref-postspinel}
+
+    subsection Olivine wadsleyite
+      set Kinetic factor                             = {z-ol}
+      set Activation enthalpy                        = {h-ol}
+      set Activation volume                          = {v-ol}
+      set Data directory                             = data/
+      set Data file name                             = olivine-wadsleyite-profile-Mg{mg-num}.tsv
+    end
+
+    subsection Wadsleyite ringwoodite
+      set Kinetic factor                             = {z-wd}
+      set Activation enthalpy                        = {h-wd}
+      set Activation volume                          = {v-wd}
+      set Data directory                             = data/
+      set Data file name                             = wadsleyite-ringwoodite-profile-Mg{mg-num}.tsv
+    end
+
+    subsection Ringwoodite postspinel
+      set Kinetic factor                             = {z-ri}
+      set Activation energy                          = {e-ri}
+      set Data directory                             = data/
+      set Data file name                             = ringwoodite-postspinel-profile-Mg{mg-num}.tsv
+    end
+  end
+end

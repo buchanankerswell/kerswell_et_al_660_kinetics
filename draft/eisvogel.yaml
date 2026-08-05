@@ -1,0 +1,30 @@
+---
+title: "Beyond Equilibrium II"
+subtitle: "Ringwoodite Decomposition Kinetics Amplify 660 km Discontinuity Depressions and Offer an Independent Control on Slab Stagnation"
+author: ["Kerswell B.", "Wheeler J.", "Gassmöller R.", "Davies, J.H.", "Papanagnou, I.", "Cottaar, S.", "Dobson, D.P."]
+date: "05 August 2026"
+subject: "Mantle Convection"
+keywords: [mantle convection, phase transition, reaction kinetics, geodynamics, numerical modeling]
+lang: "en-US"
+titlepage: true
+titlepage-color: "2E7A40"
+titlepage-text-color: "FFFFFF"
+titlepage-rule-color: "FFFFFF"
+titlepage-rule-height: 2
+tables: true
+graphics: true
+caption-justification: "justified"
+figPrefix: "Figure"
+eqnPrefix: "Equation"
+secPrefix: "Section"
+tblPrefix: "Table"
+numbersections: true
+toc: true
+toc-own-page: true
+colorlinks: true
+link-citations: true
+header-includes:
+  - \usepackage{amsmath}
+  - \usepackage{amssymb}
+  - \usepackage{amsfonts}
+---

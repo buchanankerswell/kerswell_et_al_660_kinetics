@@ -1,0 +1,2046 @@
+\documentclass[draft,linenumbers]{agujournal2019}
+\usepackage{url}
+\usepackage{lineno}
+\usepackage{soul}
+
+\usepackage{xcolor}
+\definecolor{default-linkcolor}{HTML}{A50000}
+\definecolor{default-filecolor}{HTML}{A50000}
+\definecolor{default-citecolor}{HTML}{4077C0}
+\definecolor{default-urlcolor}{HTML}{4077C0}
+
+\usepackage{hyperref}
+\hypersetup{
+  hidelinks,
+  breaklinks=true
+}
+
+
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\providecommand{\listfigurename}{List of Figures}
+\providecommand{\listtablename}{List of Tables}
+\newcounter{none}
+\setcounter{none}{0}
+
+\makeatletter
+\@ifundefined{pandocbounded}{
+  \usepackage{graphicx}
+  \newcommand{\pandocbounded}[1]{\setbox0=\hbox{#1}\ifdim\wd0>\linewidth\resizebox{\linewidth}{!}{#1}\else#1\fi}
+}{}
+\makeatother
+
+\usepackage{longtable,booktabs,array}
+\usepackage{calc}
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+
+\NewDocumentCommand\citeproctext{}{}
+\NewDocumentCommand\citeproc{mm}{\begingroup\def\citeproctext{#2}\cite{#1}\endgroup}
+\makeatletter
+ \let\@cite@ofmt\@firstofone
+ \def\@biblabel#1{}
+ \def\@cite#1#2{{#1\if@tempswa , #2\fi}}
+\makeatother
+
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newenvironment{CSLReferences}[2]
+ {\begin{list}{}{
+  \setlength{\itemindent}{0pt}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\parsep}{0pt}
+  \ifodd #1
+   \setlength{\leftmargin}{\cslhangindent}
+   \setlength{\itemindent}{-\cslhangindent}
+  \fi
+  \setlength{\itemsep}{#2\baselineskip}
+  }
+  \item\relax}
+ {\end{list}}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{#1\hfill\break}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\makeatletter
+\@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\captionsetup[subfigure]{margin=0.5em}
+\AtBeginDocument{%
+\renewcommand*\figurename{Figure}
+\renewcommand*\tablename{Table}
+}
+\AtBeginDocument{%
+\renewcommand*\listfigurename{List of Figures}
+\renewcommand*\listtablename{List of Tables}
+}
+\newcounter{pandoccrossref@subfigures@footnote@counter}
+\newenvironment{pandoccrossrefsubfigures}{%
+\setcounter{pandoccrossref@subfigures@footnote@counter}{0}
+\begin{figure}\centering%
+\gdef\global@pandoccrossref@subfigures@footnotes{}%
+\DeclareRobustCommand{\footnote}[1]{\footnotemark%
+\stepcounter{pandoccrossref@subfigures@footnote@counter}%
+\ifx\global@pandoccrossref@subfigures@footnotes\empty%
+\gdef\global@pandoccrossref@subfigures@footnotes{{##1}}%
+\else%
+\g@addto@macro\global@pandoccrossref@subfigures@footnotes{, {##1}}%
+\fi}}%
+{\end{figure}%
+\addtocounter{footnote}{-\value{pandoccrossref@subfigures@footnote@counter}}
+\@for\f:=\global@pandoccrossref@subfigures@footnotes\do{\stepcounter{footnote}\footnotetext{\f}}%
+\gdef\global@pandoccrossref@subfigures@footnotes{}}
+\@ifpackageloaded{float}{}{\usepackage{float}}
+\floatstyle{ruled}
+\@ifundefined{c@chapter}{\newfloat{codelisting}{h}{lop}}{\newfloat{codelisting}{h}{lop}[chapter]}
+\floatname{codelisting}{Listing}
+\newcommand*\listoflistings{\listof{codelisting}{List of Listings}}
+\makeatother
+
+\journalname{JGR: Solid Earth}
+
+\begin{document}
+
+
+\title{Beyond Equilibrium II: Ringwoodite Decomposition Kinetics Amplify
+660 km Discontinuity Depressions and Offer an Independent Control on
+Slab Stagnation}
+
+\authors{Buchanan Kerswell\affil{1}, John Wheeler\affil{1}, Rene
+Gassmöller\affil{2}, J. Huw Davies\affil{3}, Isabel
+Papanagnou\affil{4}, Sanne Cottaar\affil{4}, David P. Dobson\affil{5}}
+
+\affiliation{1}{Department of Earth, Oceans and Ecological Sciences,
+University of Liverpool, Liverpool L69 3BX, UK}
+\affiliation{2}{GEOMAR Helmholtz Centre for Ocean Research Kiel, Kiel,
+Germany}
+\affiliation{3}{School of Earth and Environmental Sciences, Cardiff
+University, Park Place, Cardiff, CF10 3AT, UK}
+\affiliation{4}{Bullard Laboratories, Department of Earth Sciences,
+University of Cambridge, Cambridge CB3 0EZ, UK}
+\affiliation{5}{Department of Earth Sciences, University College London,
+London WC1E 6BS, UK}
+
+\correspondingauthor{Buchanan Kerswell}{b.kerswell@liverpool.ac.uk}
+
+\begin{keypoints}
+\item Plumes consistently uplift the 660; slabs show kinetically
+controlled deepening and broadening across three distinct regimes
+\item Diffusion-controlled kinetics in cold slabs produce monotonically
+broader and deeper 660s as reaction rates slow
+\item Ringwoodite kinetics amplify 660 depressions and reduce slabs
+velocities, partially explaining slab stagnation and 660 topography
+\end{keypoints}
+
+\begin{abstract}
+The 660 km seismic discontinuity (`660') varies beneath subduction
+zones, ranging from modest depressions consistent with equilibrium
+thermodynamics to anomalously deep, broad transitions challenging purely
+thermal interpretations. Laboratory experiments establish that the
+ringwoodite decomposition responsible for the 660 proceeds via
+diffusion-controlled kinetics, yet their quantitative effects on 660
+structure and slab dynamics have not been evaluated in compressible
+mantle flow simulations. We couple ringwoodite decomposition kinetics to
+simulations of mantle plumes and subducting slabs, varying kinetic
+parameters across six orders of magnitude. Results reveal a fundamental
+asymmetry between hot and cold environments. In plumes, elevated
+temperatures produce uplifted, narrow 660s that are relatively
+insensitive to kinetics due to rapid reaction rates. In slabs, kinetics
+exert strong control through three regimes: 1) a quasi-equilibrium
+regime producing 660s consistent with Clapeyron-slope predictions; 2) an
+intermediate regime where metastable ringwoodite accumulates within a
+broadening buoyant zone, slowing slab descent; and 3) a stagnation
+regime where slabs pond above the 660, producing the deepest, broadest
+660s and slowest descent velocities. The endothermic Clapeyron slope and
+kinetic inhibition reinforce each other, amplifying temperature-driven
+660 deflection by a factor of 2--4 while independently promoting slab
+stagnation. Slabs smoothly transition through each regime as reaction
+rates slow, without abrupt reactions at overstepped metastable
+conditions. These findings establish ringwoodite kinetics as a
+first-order control on slab stagnation dynamics and 660 seismic
+structure under Earth-like conditions, explaining the diverse slab
+behaviors observed at the base of the mantle transition zone.
+\end{abstract}
+
+\section*{Plain Language Summary}
+Earth has a boundary 660 kilometers underground where the mineral
+ringwoodite transforms into two new minerals. Beneath sinking tectonic
+plates, this boundary is often deeper and thicker than expected.
+Scientists assumed cold sinking plates were the main cause, but
+laboratory experiments show the ringwoodite transformation is also
+limited by how quickly silicon atoms move through rock---a speed limit
+whose effect on mantle flow was untested. We used computer simulations
+of rising mantle plumes and sinking slabs to test how reaction speed
+affects slab motion and the seismic appearance of the 660 km boundary.
+In hot plumes, high temperatures allow rapid transformation, so the 660
+shifts slightly upward and remains narrow regardless of reaction speed.
+In cold slabs, however, reaction speed strongly affects flow behavior.
+Fast reactions allow slabs to sink steadily through the 660 with modest
+deepening. Slower reactions cause untransformed ringwoodite to build up
+inside the slab, slowing its descent while pushing the 660 deeper and
+wider. When reactions are very slow, slabs can stall above the 660
+instead of sinking into the lower mantle, producing the deepest,
+broadest seismic signals without abrupt re-sharpening. Our results show
+that ringwoodite transformation speed is a major control on tectonic
+plate movement through Earth's interior. It can amplify
+temperature-driven boundary deflection by a factor of 2 to 4 and slow
+slab descent by up to ten times, explaining why some slabs sink into the
+lower mantle while others flatten and temporarily stagnate above the
+transition zone.
+
+\clearpage
+
+\section*{Definition of Symbols}\label{sec:definition-of-symbols}
+\addcontentsline{toc}{section}{Definition of Symbols}
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.4688}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2188}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.1562}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.1562}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Parameter
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Symbol
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Unit
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Equations
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Activation energy & \(E^{\ast}\) & J mol\(^{-1}\) &
+\ref{eq:growth-rate-660}, \ref{eq:reaction-rate-660} \\
+Activation enthalpy & \(H^{\ast}\) & J mol\(^{-1}\) &
+\ref{eq:reaction-rate-410} \\
+Activation volume & \(V^{\ast}\) & m\(^3\) mol\(^{-1}\) &
+\ref{eq:reaction-rate-410} \\
+Activation factor (rheology) & \(B\) & - & \ref{eq:rheological-model} \\
+Compressibility (reference) & \(\bar{\beta}\) & Pa\(^{-1}\) &
+\ref{eq:density-ala} \\
+Density & \(\rho\) & kg m\(^{-3}\) &
+\ref{eq:navier-stokes-no-inertia}, \ref{eq:continuity-compressible}, \ref{eq:energy}, \ref{eq:continuity-expanded}, \ref{eq:density-ala} \\
+Density (reference) & \(\bar{\rho}\) & kg m\(^{-3}\) &
+\ref{eq:adiabatic-pressure}, \ref{eq:density-ala} \\
+Density (dynamic) & \(\hat{\rho}\) & kg m\(^{-3}\) & - \\
+Deviatoric stress tensor & \(\sigma^{\prime}\) & Pa &
+\ref{eq:navier-stokes-no-inertia}, \ref{eq:energy} \\
+Deviatoric strain rate tensor & \(\dot{\epsilon}^{\prime}\) & s\(^{-1}\)
+& \ref{eq:energy} \\
+Gas constant & \(R\) & J mol\(^{-1}\) K\(^{-1}\) &
+\ref{eq:growth-rate-660}, \ref{eq:rheological-model} \\
+Gibbs width factor & \(w\) & J mol\(^{-1}\) &
+\ref{eq:transition-function} \\
+Grain size & \(d\) & m & - \\
+Gravitational acceleration & \(g\) & m s\(^{-2}\) &
+\ref{eq:navier-stokes-no-inertia}, \ref{eq:adiabatic-temperature}, \ref{eq:adiabatic-pressure} \\
+Growth rate & \(\dot{x}\) & m s\(^{-1}\) &
+\ref{eq:volume-fraction}, \ref{eq:volume-transformation-rate}, \ref{eq:growth-rate-660} \\
+Growth rate prefactor & \(K^{\prime}\) & m\(^7\) J\(^{-2}\) s\(^{-1}\) &
+\ref{eq:growth-rate-660} \\
+Kinetic prefactor (olivine \(\Leftrightarrow\) wadsleyite) &
+\(Z_\mathrm{ol}\) & K s\(^{-1}\) & \ref{eq:reaction-rate-410} \\
+Kinetic prefactor (wadsleyite \(\Leftrightarrow\) ringwoodite) &
+\(Z_\mathrm{wd}\) & K s\(^{-1}\) & \ref{eq:reaction-rate-410} \\
+Kinetic prefactor (ringwoodite \(\Leftrightarrow\) bridgmanite +
+periclase) & \(Z_\mathrm{ri}\) & mol\(^2\) J\(^{-2}\) s\(^{-1}\) &
+\ref{eq:reaction-rate-660} \\
+Latent heat & \(Q_L\) & J kg\(^{-1}\) & \ref{eq:energy} \\
+Molar entropy & \(\bar{S}\) & J mol\(^{-1}\) K\(^{-1}\) &
+\ref{eq:gibbs} \\
+Molar Gibbs free energy & \(\bar{G}\) & J mol\(^{-1}\) &
+\ref{eq:gibbs}, \ref{eq:transition-function} \\
+Molar volume & \(\bar{V}\) & m\(^{3}\) mol\(^{-1}\) & \ref{eq:gibbs} \\
+Nucleation site factor & \(N\) & m\(^{-1}\) &
+\ref{eq:volume-fraction}, \ref{eq:volume-transformation-rate} \\
+Pressure & \(P\) & Pa &
+\ref{eq:navier-stokes-no-inertia}, \ref{eq:energy} \\
+Pressure (reference) & \(\bar{P}\) & Pa & \ref{eq:adiabatic-pressure} \\
+Pressure (dynamic) & \(\hat{P}\) & Pa &
+\ref{eq:density-ala}, \ref{eq:gibbs} \\
+Reaction rate & \(\frac{dX}{dt}\); \(\dot{X}\) & s\(^{-1}\) &
+\ref{eq:volume-transformation-rate}, \ref{eq:reaction-rate-410}, \ref{eq:reaction-rate-660}, \ref{eq:composition} \\
+Reaction completion timescale & \(\tau\) & Ma & - \\
+Reaction completion length scale & \(L\) & km & - \\
+Specific heat capacity (reference) & \(\bar{C}_p\) & J kg\(^{-1}\)
+K\(^{-1}\) & \ref{eq:energy}, \ref{eq:adiabatic-temperature} \\
+Temperature & \(T\) & K &
+\ref{eq:energy}, \ref{eq:growth-rate-660}, \ref{eq:rheological-model} \\
+Temperature (reference) & \(\bar{T}\) & K &
+\ref{eq:adiabatic-temperature}, \ref{eq:rheological-model} \\
+Temperature (dynamic) & \(\hat{T}\) & K &
+\ref{eq:density-ala}, \ref{eq:gibbs}, \ref{eq:rheological-model} \\
+Thermal conductivity (reference) & \(\bar{k}\) & W m\(^{-1}\) K\(^{-1}\)
+& \ref{eq:energy} \\
+Thermal expansivity (reference) & \(\bar{\alpha}\) & K\(^{-1}\) &
+\ref{eq:energy}, \ref{eq:adiabatic-temperature}, \ref{eq:density-ala} \\
+Time & \(t\) & s &
+\ref{eq:continuity-compressible}, \ref{eq:energy}, \ref{eq:continuity-expanded}, \ref{eq:volume-fraction}, \ref{eq:composition} \\
+Transition function & \(f_j\) & - &
+\ref{eq:transition-function}, \ref{eq:equilibrium-fractions} \\
+Velocity (field) & \(\vec{u}\) & m s\(^{-1}\) &
+\ref{eq:continuity-compressible}, \ref{eq:energy}, \ref{eq:continuity-expanded}, \ref{eq:composition} \\
+Velocity (boundary) & \(\vec{u}_\mathrm{in}\) & cm yr\(^{-1}\) & - \\
+Velocity (maximum through 660) & \(\vec{v}_\mathrm{max}\) & cm
+yr\(^{-1}\) & - \\
+Viscosity & \(\eta\) & Pa s & \ref{eq:rheological-model} \\
+Viscosity (reference) & \(\bar{\eta}\) & Pa s &
+\ref{eq:rheological-model} \\
+Viscosity jump factor (lower mantle) & \(b\) & - &
+\ref{eq:rheological-model}, \ref{eq:rheological-jump-factor} \\
+Viscosity prefactor (phase \(i\)) & \(\nu\) & - &
+\ref{eq:rheological-jump-factor} \\
+Volume fraction (actual) & \(X\) & - &
+\ref{eq:volume-fraction}, \ref{eq:volume-transformation-rate}, \ref{eq:reaction-rate-410}, \ref{eq:reaction-rate-660}, \ref{eq:composition} \\
+Volume fraction (equilibrium) & \(\phi\) & - &
+\ref{eq:equilibrium-fractions}, \ref{eq:rheological-jump-factor} \\
+\end{longtable}
+}
+
+\clearpage
+
+\section{Introduction}\label{sec:introduction}
+
+Earth's 660 km seismic discontinuity (hereafter the `660') marks the
+base of the mantle transition zone (MTZ), where ringwoodite decomposes
+into bridgmanite and periclase (the `post-spinel' reaction). Two
+shallower discontinuities, near 410 and 520 km depth (hereafter the
+`410' and `520'), mark the olivine \(\Leftrightarrow\) wadsleyite and
+wadsleyite \(\Leftrightarrow\) ringwoodite transitions that further
+define the MTZ. High-pressure experiments constrain the Clapeyron slope
+of the post-spinel reaction to -1 to -3 MPa/K ({Ishii et al.}, 2019;
+Litasov et al., 2005), which deepens the phase transition beneath cold
+subducting slabs and has long been recognized as a potential barrier to
+whole-mantle convection (Ita \& Stixrude, 1992; Ringwood, 1991).
+
+Equilibrium thermodynamics explains the 660's first-order behavior, but
+two observations suggest it is incomplete. First, 660 structure itself
+is more variable than purely thermal effects predict. While global
+seismic studies show patterns broadly consistent with the thermal
+modulation expected from a negative Clapeyron slope (e.g., Flanagan \&
+Shearer, 1998; Lebedev et al., 2002), amplitude variations point to
+additional compositional heterogeneity ({Goes et al.}, 2022; Waszek et
+al., 2021; {Yu et al.}, 2023), and local 660 structures in many
+subduction zones show stronger than predicted deflections (e.g., Cottaar
+\& Deuss, 2016; Ba et al., 2025; Tang et al., 2014). Proposed
+explanations include water in ringwoodite (Muir et al., 2021), the
+akimotoite \(\Leftrightarrow\) bridgmanite transition ({Chanyshev et
+al.}, 2022; Cottaar \& Deuss, 2016), and grain-size-dependent viscosity
+reduction (Kubo et al., 2000; Mao \& Zhong, 2021). Second, slab dynamics
+at the 660 depend on more than the Clapeyron slope alone. Numerical
+geodynamic studies show that slab stagnation above the 660 requires a
+negative Clapeyron slope, a lower-mantle viscosity increase, and trench
+retreat acting jointly (Garel et al., 2014; {Goes et al.}, 2017).
+Whether reaction kinetics can independently explain these observations
+has not been evaluated. Few studies have moved beyond the equilibrium
+paradigm to test how much microscale reaction kinetics influence
+macroscale flow dynamics and seismic structures.
+
+Laboratory experiments establish that the 410 olivine
+\(\Leftrightarrow\) wadsleyite reaction and the 660 post-spinel reaction
+are governed by fundamentally different physical mechanisms (Dobson \&
+Mariani, 2014; Hosoya et al., 2005; Kubo et al., 2002; Lessing et al.,
+2022), which translate into different semi-empirical kinetic rate
+equations with distinct mathematical formulations and parameter
+dependencies. In a companion study, Kerswell et al. (2026) coupled
+\emph{interface-controlled} olivine \(\Leftrightarrow\) wadsleyite
+kinetics to compressible mantle flow simulations and identified three
+distinct kinetic regimes in cold slabs with diagnostic seismic
+signatures at the 410. Because \emph{diffusion-controlled} ringwoodite
+decomposition kinetics takes a different mathematical form, it is
+expected to produce qualitatively different dynamic behavior at the 660.
+Whether these two reaction mechanisms produce different flow dynamics
+and discontinuity structures, and whether reaction kinetics at the 660
+matter at all for large-scale mantle flow, has not been systematically
+evaluated in geodynamic simulations of Earth's upper mantle.
+
+Here, we couple experimentally calibrated ringwoodite decomposition
+kinetics (after Kubo et al., 2002) to compressible mantle flow
+simulations using ASPECT (Heister et al., 2017; Kronbichler et al.,
+2012). Our simulations simultaneously resolve the 410, 520, and 660
+transitions, enabling the first direct comparison between reaction
+mechanisms in a consistent dynamic framework. We hypothesize that
+ringwoodite decomposition kinetics control whether slabs penetrate or
+stagnate at the 660, such that slower reaction rates sustain a buoyant
+metastable zone that impedes descent while faster rates facilitate
+continuous penetration. We further hypothesize that kinetic inhibition
+thickens and flattens slabs above the 660, producing seismically broad,
+deeply displaced discontinuities in stagnant settings and narrow,
+modestly displaced signals where kinetics are fast. These hypotheses
+motivate three specific questions:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Do ringwoodite decomposition kinetics control 660 structure and slab
+  dynamics, and how do these effects differ from those at the 410?
+\item
+  How do rheological strength contrasts and slab kinematics modulate
+  kinetic effects on 660 structure?
+\item
+  Can seismic observations of 660 structure independently constrain
+  ringwoodite decomposition kinetics?
+\end{enumerate}
+
+We vary ringwoodite decomposition kinetics across six orders of
+magnitude, spanning the range permitted by typical grain sizes under
+nominally dry conditions (Karato, 1984, 2008; Kubo et al., 2002). We
+also vary rheological strength contrasts, inflow velocities, and
+lower-mantle viscosity contrasts. The results show three kinetic regimes
+at the 660 that amplify temperature-driven 660 displacements by a factor
+of 2--4 and reduce slab descent rates by up to an order of magnitude.
+Unlike the kinetic regimes at the 410, which include an abrupt reaction
+threshold at highly-overstepped metastable conditions, the 660 regimes
+change monotonically from quasi-equilibrium to stagnation. We discuss
+how the differences between the two reaction mechanisms produce
+fundamentally different slab dynamics and discontinuity structures, and
+how jointly observing the 410 and 660 in the same slab column offers a
+seismological pathway toward discriminating kinetic from thermal and
+compositional contributions to MTZ structure.
+
+\section{Methods}\label{sec:methods}
+
+\subsection{Governing Equations for Compressible Mantle
+Flow}\label{sec:governing-equations-for-compressible-mantle-flow}
+
+We solve the same governing equations for compressible mantle flow as
+Kerswell et al. (2026), summarized here for completeness. We simulate
+mantle flow using the finite-element geodynamic code ASPECT v3.0.0
+(Bangerth et al., 2018, 2024; Clevenger \& Heister, 2021; {Fraters et
+al.}, 2019; Fraters, 2020; Gassmöller et al., 2018) to determine the
+velocity \(\vec{u}\), pressure \(P\), and temperature \(T\) fields that
+satisfy the following equations:
+
+\begin{equation}\protect\phantomsection\label{eq:navier-stokes-no-inertia}{
+  \nabla P - \nabla \cdot \sigma^{\prime} = \rho\, g
+}\end{equation}
+
+\begin{equation}\protect\phantomsection\label{eq:continuity-compressible}{
+  \frac{\partial \rho}{\partial t} + \nabla \cdot (\rho\, \vec{u}) = 0
+}\end{equation}
+
+\begin{equation}\protect\phantomsection\label{eq:energy}{
+  \rho\, \bar{C}_p \left(\frac{\partial T}{\partial t} + \vec{u} \cdot \nabla T \right) - \nabla \cdot \left(\bar{k}\, \nabla T \right) = \sigma^{\prime} : \dot{\epsilon}^{\prime} + \bar{\alpha}\, T \left(\vec{u} \cdot \nabla P \right) + Q_L
+}\end{equation}
+
+where \(\sigma^{\prime}\) is the deviatoric stress tensor,
+\(\dot{\epsilon}^{\prime}\) is the deviatoric strain rate tensor,
+\(\rho\) is density, \(g\) is gravitational acceleration, \(t\) is time,
+and \(\bar{C}_p\), \(\bar{k}\), \(\bar{\alpha}\) are reference specific
+heat capacity, thermal conductivity, and thermal expansivity
+respectively. The term \(Q_L\) captures latent heat from phase
+transitions. We adopt the projected density approximation (Gassmöller et
+al., 2020), reformulating Equation~\ref{eq:continuity-compressible} as:
+
+\begin{equation}\protect\phantomsection\label{eq:continuity-expanded}{
+  \frac{1}{\rho} \frac{\partial \rho}{\partial t} + \nabla \cdot \vec{u} + \left(\frac{1}{\rho} \nabla \rho \right) \cdot \vec{u} = 0
+}\end{equation}
+
+The projected density \(\rho(T, P, X)\) varies with temperature,
+pressure, and volume fractions of the relevant mineral phases, ensuring
+that local density changes from both pressure-temperature (PT)
+variations and phase transitions influence the flow through buoyancy,
+volumetric expansion, and compression. See Gassmöller et al. (2020) for
+a detailed discussion of this compressible formulation.
+
+\subsection{Numerical Setup}\label{sec:numerical-setup}
+
+\subsubsection{Adiabatic Reference
+Conditions}\label{sec:adiabatic-reference-conditions}
+
+We compute adiabatic reference conditions using the same approach as
+Kerswell et al. (2026), extended to encompass the full MTZ and uppermost
+lower mantle (Figure~\ref{fig:PYR-material-table}). We evaluate entropy
+changes over a PT range of 1053--2673 K and 0.001--43 GPa using Gibbs
+free energy minimization with Perple\_X (v7.0.9, Connolly, 2009),
+assuming a dry pyrolitic bulk composition (Green et al., 1979) in the
+Na\(_2\)O-CaO-FeO-MgO-Al\(_2\)O\(_3\)-SiO\(_2\) (NCFMAS) chemical system
+with the equations of state and solution models of Stixrude \&
+Lithgow-Bertelloni (2022). We determine an isentropic adiabat using the
+Newton-Raphson method and evaluate reference material properties
+(\(\bar{\rho}\), \(\bar{\alpha}\), \(\bar{C}_p\), \(\bar{\beta}\)) along
+the adiabat using BurnMan (Cottaar et al., 2014; Myhill et al., 2023)
+with equations of state from Stixrude \& Lithgow-Bertelloni (2022) for
+pure Mg ringwoodite, bridgmanite, and periclase (Figure S1).
+
+\begin{figure}
+\centering
+\includegraphics[width=0.65\linewidth,height=\textheight,keepaspectratio,alt={Entropy (left) and density (right) changes across Earth's MTZ under thermodynamic equilibrium and hydrostatic stress conditions. The black box indicates the approximate PT range within our ASPECT simulations. The white line indicates the isentropic adiabat used to calculate reference material properties.}]{../figs/adiabat/PYR-material-table.png}
+\caption{Entropy (left) and density (right) changes across Earth's MTZ
+under thermodynamic equilibrium and hydrostatic stress conditions. The
+black box indicates the approximate PT range within our ASPECT
+simulations. The white line indicates the isentropic adiabat used to
+calculate reference material properties.}\label{fig:PYR-material-table}
+\end{figure}
+
+\subsubsection{Initialization and Boundary
+Conditions}\label{sec:initialization-and-boundary-conditions}
+
+We conduct simulations in a 1500 \(\times\) 1000 km rectangular model
+domain initialized with equilibrium mineral assemblages across the
+olivine, wadsleyite, ringwoodite, and post-spinel stability fields. An
+applied surface pressure of 10 GPa and surface temperature of 1706 K
+places the 410, 520, and 660 transitions at approximately the center of
+the model domain (Figure~\ref{fig:initial-setup-diagram}). We compute
+initial adiabatic PT profiles by numerically integrating:
+
+\begin{equation}\protect\phantomsection\label{eq:adiabatic-temperature}{
+  \frac{d\bar{T}}{dy} = \frac{\bar{\alpha}\, \bar{T}\, g}{\bar{C}_p}
+}\end{equation}
+
+\begin{equation}\protect\phantomsection\label{eq:adiabatic-pressure}{
+  \frac{d\bar{P}}{dy} = \bar{\rho}\, g
+}\end{equation}
+
+where the material properties \(\bar{\rho}\), \(\bar{\alpha}\), and
+\(\bar{C}_p\) are determined from the stable equilibrium assemblage
+evaluated along the adiabatic reference conditions (Figure S1).
+
+We superimpose Gaussian thermal anomalies of \(\pm\) 500 K on the
+adiabatic profile using linear features with 15 km half-width Gaussian
+cross-sections and 5 km tanh-tapered ends. Slab anomalies extend 105 km
+horizontally and 175 km downward from the top boundary, while plume
+anomalies extend 280 km upward from the bottom boundary. We prescribe
+constant inflow velocities \(\vec{u}_\mathrm{in}\) of 5 or 10 cm
+yr\(^{-1}\) parallel to the thermal anomalies. Boundary conditions on
+lateral walls apply zero horizontal velocity with a lithostatic normal
+traction, and the (open) top and bottom boundaries apply constant normal
+traction equal to the initial lithostatic pressure.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.45\linewidth,height=\textheight,keepaspectratio,alt={Initial setup for slab (top) and plume (bottom) simulations follows Kerswell et al. (2026), but with an extended 1500 \textbackslash times 1000 km model domain and additional phase transitions (410, 520, and 660; gray bands). Slabs extend 105 km horizontally and 175 km downward from the top boundary, while plumes extend 280 km upward from the bottom boundary. All other boundary conditions are consistent with Kerswell et al. (2026).}]{../figs/setup/initial-setup-diagram.png}
+\caption{Initial setup for slab (top) and plume (bottom) simulations
+follows Kerswell et al. (2026), but with an extended 1500 \(\times\)
+1000 km model domain and additional phase transitions (410, 520, and
+660; gray bands). Slabs extend 105 km horizontally and 175 km downward
+from the top boundary, while plumes extend 280 km upward from the bottom
+boundary. All other boundary conditions are consistent with Kerswell et
+al. (2026).}\label{fig:initial-setup-diagram}
+\end{figure}
+
+\subsubsection{Material Model}\label{sec:material-model}
+
+\paragraph{Material Properties}\label{sec:material-properties}
+
+We compute material properties with BurnMan with equations of state from
+Stixrude \& Lithgow-Bertelloni (2022) for pure Mg ringwoodite,
+bridgmanite, and periclase (see
+Section~\ref{sec:adiabatic-reference-conditions}), and all properties
+except density are held at their adiabatic reference values (Figure S1).
+We correct density using a first-order Taylor expansion:
+
+\begin{equation}\protect\phantomsection\label{eq:density-ala}{
+  \rho \approx \bar{\rho} \left(1 + \bar{\beta}\, \hat{P} - \bar{\alpha}\, \hat{T} \right)
+}\end{equation}
+
+where \(\hat{P} = P - \bar{P}\) and \(\hat{T} = T - \bar{T}\) are the
+dynamic pressure and temperature. The volume fraction fields
+\(X_\mathrm{wd}\), \(X_\mathrm{ri}\), and \(X_\mathrm{ps}\) account for
+phase-transition density jumps and evolve according to the kinetic
+models described in Section~\ref{sec:reaction-kinetics}. We hold thermal
+conductivity \(\bar{k}\) = 4.0 W m\(^{-1}\)K\(^{-1}\) constant in all
+numerical experiments.
+
+\paragraph{Reaction Kinetics}\label{sec:reaction-kinetics}
+
+We treat reaction rates for all three MTZ phase transitions using the
+site-saturated nucleation framework of Cahn (1956):
+
+\begin{equation}\protect\phantomsection\label{eq:volume-fraction}{
+  X = 1 - \exp\!\left(-N\, \dot{x}\, t \right)
+}\end{equation}
+
+\begin{equation}\protect\phantomsection\label{eq:volume-transformation-rate}{
+  \dot{X} = N\, \dot{x}\, \left(1 - X \right)
+}\end{equation}
+
+where \(X\) is the volume fraction of the product phase, \(\dot{X}\) is
+the volume transformation rate, \(N = \text{6.67}\, /\, d\) m\(^{-1}\)
+is a geometric factor accounting for grain-boundary nucleation sites
+with grain size \(d\), \(\dot{x}\) is the phase-specific growth rate,
+and \(t\) is elapsed time after site saturation.
+
+We formulate the 410 and 520 transitions using the interface-controlled
+growth model of Hosoya et al. (2005), with macroscopic reaction rates
+governed by:
+
+\begin{equation}\protect\phantomsection\label{eq:reaction-rate-410}{
+  \dot{X} = Z_\mathrm{ol}\, T\, \exp\!\left(-\frac{H^{\ast} + P V^{\ast}}{R\, T}\right) \left(1 - \exp\!\left[-\frac{\Delta G}{R\, T}\right] \right)\, \left(1 - X \right)
+}\end{equation}
+
+where \(H^{\ast}\) = 274 kJ mol\(^{-1}\), \(V^{\ast}\) = 3.0 \(\times\)
+10\(^{-6}\) m\(^3\) mol\(^{-1}\), and we hold the kinetic prefactors
+fixed at \(Z_\mathrm{ol}\) = \(Z_\mathrm{wd}\) = 1.4 \(\times\) 10\(^4\)
+K s\(^{-1}\). These coefficients correspond to relatively fast,
+quasi-equilibrium 410 and 520 reaction rates (Kerswell et al., 2026),
+and we choose them deliberately to avoid interfering with the kinetic
+signal investigated at the 660.
+
+The molar Gibbs free energy difference for each phase transformation is
+approximated by:
+
+\begin{equation}\protect\phantomsection\label{eq:gibbs}{
+  \Delta G \approx \Delta \bar{G} + \hat{P}\, \Delta \bar{V} - \hat{T}\, \Delta \bar{S}
+}\end{equation}
+
+where we compute the thermodynamic quantities \(\Delta \bar{G}\),
+\(\Delta \bar{V}\), and \(\Delta \bar{S}\) for each major reaction along
+the adiabatic reference profile (Figure S2).
+
+The 660 post-spinel reaction requires a fundamentally different kinetic
+formulation. Because one phase breaks down to two phases of different
+compositions, diffusion must play a role regardless of whether interface
+control has an effect. Microstructural observations show that the
+forward ringwoodite \(\Rightarrow\) bridgmanite + periclase
+transformation proceeds via diffusion-controlled lamellar decomposition.
+Bridgmanite and periclase lamellae nucleate rapidly at grain boundaries
+and grow at rates limited by silicon self-diffusion through the parent
+ringwoodite (Kubo et al., 2002; Zener, 1946). Following the
+diffusion-controlled Zener-Hillert decomposition model (Burke, 1965;
+Zener, 1946), the growth rate for the post-spinel assemblage is:
+
+\begin{equation}\protect\phantomsection\label{eq:growth-rate-660}{
+  \dot{x} = K^{\prime}\, \exp\!\left(-\frac{E^{\ast}}{R\, T}\right)\, \frac{\Delta G^2}{\bar{V}_\mathrm{ps}^2}
+}\end{equation}
+
+where \(K^{\prime}\) is the growth rate prefactor, \(E^{\ast}\) is the
+activation energy for Si self-diffusion,
+\(\bar{V}_\mathrm{ps}^2 = (V_\mathrm{bg} + V_\mathrm{pe})^2\) is the
+squared molar volume of the post-spinel assemblage. We refactor
+\(\Delta G^2 = \Delta G \cdot |\Delta G|\) as the thermodynamic driving
+force term, which allows for reversible reactions when \(\Delta G\)
+\(<\) 0.
+
+Combining \(N\), \(K^{\prime}\), and \(\bar{V}_\mathrm{ps}^2\) into a
+single kinetic prefactor
+\(Z_\mathrm{ri} = \text{6.67}\, K^{\prime}\, /\, d\, \bar{V}_\mathrm{ps}^2\),
+the macroscopic reaction rate for ringwoodite \(\Leftrightarrow\)
+bridgmanite + periclase becomes:
+
+\begin{equation}\protect\phantomsection\label{eq:reaction-rate-660}{
+  \dot{X} = Z_\mathrm{ri}\, \exp\!\left(-\frac{E^{\ast}}{R\, T}\right)\, \Delta G \cdot |\Delta G| \left(1 - X \right)
+}\end{equation}
+
+Equation~\ref{eq:reaction-rate-660} introduces a fundamental shift from
+the interface-controlled reaction mechanism at the 410 and 520
+(Equation~\ref{eq:reaction-rate-410}) to a diffusion-controlled reaction
+mechanism at the 660. Mathematically, the driving force at the 660 is
+quadratic (\(\Delta G^2\)), whereas the 410 and 520 follow a linear
+approximation near equilibrium \((\Delta G\, /\, RT)\) = 0 before
+saturating at high overstepping. Physically, this quadratic dependence
+more aggressively suppresses reaction rates near equilibrium for the 660
+transition. Conversely, the lack of exponential saturation means the 660
+reaction rate remains sensitive to the magnitude of overstepping even
+far from equilibrium, unlike the 410 and 520 where the driving force
+term trends towards unity. These divergent behaviors underpin the
+distinct structural and dynamic signatures discussed in Sections
+\ref{sec:results} and \ref{sec:discussion}.
+
+The range of \(Z_\mathrm{ri}\) explored in our experiments {[}1.6
+\(\times\) 10\(^{-3}\), 1.6 \(\times\) 10\(^3\){]} mol\(^2\) J\(^{-2}\)
+s\(^{-1}\) is calibrated against the high-overpressure experimental
+dataset of Kubo et al. (2002) using Monte Carlo regression with a
+post-spinel molar volume of \(\bar{V}_\mathrm{ps}\) = 3.381 \(\times\)
+10\(^{-5}\) m\(^3\) mol\(^{-1}\) (Figure S3). Our regression yields
+\(E^{\ast}\) = 310 \(\pm\) 233 kJ mol\(^{-1}\) and \(\ln(K^{\prime})\) =
+-29.8 \(\pm\) 22.1, both consistent with Kubo et al. (2002) within
+uncertainty. We therefore adopt \(E^{\ast}\) = 355 kJ mol\(^{-1}\)
+(after Kubo et al., 2002), \(\ln(K^{\prime})\) in the range {[}-33.5,
+-22.0{]}, and \(d\) in the range {[}1 \(\times\) 10\(^{-3}\), 10
+\(\times\) 10\(^{-3}\){]} m (Karato, 1984, 2008), such that
+\(Z_\mathrm{ri}\) spans conditions from slow kinetics in coarse-grained
+rocks to fast kinetics in fine-grained rocks.
+
+\paragraph{Operator Splitting}\label{sec:operator-splitting}
+
+Since reaction rates for the 410, 520, and 660 transitions can exceed
+advective timescales, we employ the first-order operator splitting
+scheme to decouple reaction from advection. Volume fractions are updated
+in two sequential steps per advection timestep \(\Delta t\): 1) a
+reaction substep integrating Equations \ref{eq:reaction-rate-410} and
+\ref{eq:reaction-rate-660} over the full \(\Delta t\) using the ARKODE
+adaptive Runge-Kutta integrator (Hindmarsh et al., 2005; Reynolds et
+al., 2023) with relative tolerance 1 \(\times\) 10\(^{-6}\); and 2) an
+advection step:
+
+\begin{equation}\protect\phantomsection\label{eq:composition}{
+  \frac{\partial X}{\partial t} + \vec{u} \cdot \nabla X = 0
+}\end{equation}
+
+The three kinetically active transitions require simultaneous
+integration during the reaction step, with the ARKODE substep size
+selected adaptively to satisfy the tolerance across all three reaction
+systems.
+
+\subsubsection{Rheological Model}\label{sec:rheological-model}
+
+While the volume fractions \(X_\mathrm{ol}\), \(X_\mathrm{wd}\),
+\(X_\mathrm{ri}\), and \(X_\mathrm{ps}\) track the actual mineralogy for
+the purpose of density and buoyancy (including metastable phases), we
+also define equilibrium fractions \(\phi_\mathrm{ol}\),
+\(\phi_\mathrm{wd}\), \(\phi_\mathrm{ri}\), and \(\phi_\mathrm{ps}\).
+These fractions represent the thermodynamic state along the reference
+adiabat and facilitate smooth transitions in background viscosity. We
+define a transition function \(f_j\) for each reaction \(j\):
+
+\begin{equation}\protect\phantomsection\label{eq:transition-function}{
+  f_j = \frac{1}{2} \left[ 1 - \tanh \left( \frac{\Delta G_j}{w} \right) \right]
+}\end{equation}
+
+where \(w\) = 1000 J mol\(^{-1}\) is a ``Gibbs width'' that smooths the
+equilibrium fractions \(\phi\) over a few kilometers, avoiding
+discontinuous jumps in background viscosity at sharp equilibrium phase
+boundaries. To ensure mass conservation \(\sum \phi_i = \text{1}\), we
+partition the stability fractions as follows:
+
+\begin{equation}\protect\phantomsection\label{eq:equilibrium-fractions}{
+  \begin{aligned}
+    \phi_\mathrm{ol} &= 1 - f_\mathrm{wd} \\
+    \phi_\mathrm{wd} &= f_\mathrm{wd}\, (1 - f_\mathrm{ri}) \\
+    \phi_\mathrm{ri} &= f_\mathrm{wd}\, f_\mathrm{ri}\, (1 - f_\mathrm{ps}) \\
+    \phi_\mathrm{ps} &= f_\mathrm{wd}\, f_\mathrm{ri}\, f_\mathrm{ps}
+  \end{aligned}
+}\end{equation}
+
+The rheological model incorporates phase-dependent viscosity transitions
+as a function of the equilibrium fractions \(\phi\) computed in
+Equation~\ref{eq:equilibrium-fractions}. We use a temperature-dependent
+Arrhenius viscosity modified by a phase-dependent viscosity jump
+prefactor \(b\):
+
+\begin{equation}\protect\phantomsection\label{eq:rheological-model}{
+  \eta = b\, \bar{\eta}\, \exp\!\left(-B\,\frac{\hat{T}}{\bar{T}}\right)
+}\end{equation}
+
+where \(\bar{\eta}\) = 10\(^{21}\) Pa s is the background viscosity,
+\(\bar{T}\) is the reference adiabatic temperature, and
+\(\hat{T} = T - \bar{T}\) is the nonadiabatic temperature anomaly. We
+vary the activation factor \(B\) between 5 and 10 to control thermal
+sensitivity.
+
+We calculate the viscosity jump prefactor \(b\) via a log-linear average
+of per-phase viscosity prefactors
+(\(\nu_\mathrm{ol}, \nu_\mathrm{wd}, \nu_\mathrm{ri}, \nu_\mathrm{ps}\)),
+weighted by the equilibrium fractions \(\phi\) defined in
+Equation~\ref{eq:equilibrium-fractions}:
+
+\begin{equation}\protect\phantomsection\label{eq:rheological-jump-factor}{
+  \ln(b) = \sum_{i} \phi_i \ln(\nu_i)
+}\end{equation}
+
+We adopt this log-linear (geometric) average because it is commonly used
+for viscosity contrasts across mineral phase mixtures and avoids the
+sensitivity to the single weakest phase that a harmonic (Reuss) average
+would introduce (Ji, 2004). By anchoring viscosity jumps to the
+equilibrium fractions \(\phi\) rather than the actual (metastable)
+mineralogy \(X\), the viscosity structure remains a function of the
+adiabatic reference condition. This decoupling prevents spurious
+viscosity patches arising from metastable phases within cold slabs,
+allowing us to isolate the kinetic contribution to slab impedance via
+buoyancy from rheological effects. To maintain numerical stability, we
+impose a global viscosity floor and ceiling of 10\(^{19}\) and
+10\(^{24}\) Pa s, respectively.
+
+\subsubsection{Numerical Stabilization of Dynamic Pressure
+Oscillations}\label{sec:numerical-stabilization-of-dynamic-pressure-oscillations}
+
+Following Gassmöller et al. (2020) and Kerswell et al. (2026), we
+exclude the dynamic pressure \(\hat{P}\) contribution to \(\Delta G\) in
+the kinetic rate equations (Equations \ref{eq:reaction-rate-410} and
+\ref{eq:reaction-rate-660}) while retaining it in the density
+formulation (Equation~\ref{eq:density-ala}). In practice, this means
+applying \(\Delta G \approx \Delta \bar{G} - \hat{T}\, \Delta \bar{S}\)
+to the kinetic rate equations, which preserves the primary thermal
+control of the reactions while eliminating pressure-wave feedback. The
+quadratic \(\Delta G \cdot |\Delta G|\) driving force amplifies
+pressure-wave sensitivity relative to the exponential form used at the
+410 and 520, making this stabilization particularly important for the
+660. Limitations of this approximation are discussed in
+Section~\ref{sec:uncertainties-and-model-limitations}.
+
+\subsubsection{Numerical Experiment Design and
+Postprocessing}\label{sec:numerical-experiment-design-and-postprocessing}
+
+We explore the ringwoodite decomposition kinetic parameter space across
+eight scenarios spanning two inflow velocities, two rheological strength
+contrasts, and two lower-mantle viscosity jumps
+(Table~\ref{tbl:scenarios}), running matched slab and plume simulations
+across the full tested range of \(Z_\mathrm{ri}\) within every scenario.
+
+We characterize 660 structure using two diagnostic measures extracted
+along a representative depth profile through each simulation.
+`Displacement' is the difference between the depth at which the
+post-spinel volume fraction \(X_\mathrm{ps}\) reaches 0.9 and the
+nominal equilibrium post-spinel depth. `Width' is the depth interval
+between \(X_\mathrm{ps}\) = 0.9 and \(X_\mathrm{ps}\) = 0.1. We also
+report the maximum post-spinel reaction rate \(\dot{X}_\mathrm{max}\)
+and the maximum descent (or ascent) velocity \(\vec{v}_\mathrm{max}\)
+along the same profile, extracted within the phase transition zone
+(defined by the measured 660 width). These later two quantities allow us
+to define a characteristic reaction completion length scale (in km):
+
+\begin{equation}\protect\phantomsection\label{eq:characteristic-length-scale}{
+  L = 10\, \frac{\vec{v}_\mathrm{max}}{\dot{X}_\mathrm{max}}
+}\end{equation}
+
+which approximates the depth traversed during one characteristic
+reaction timescale \(\tau = 1/\dot{X}_\mathrm{max}\) (Ma). \(L\) and the
+measured 660 width are related but not identical. \(L\) is a local
+estimate based on the maximum reaction rate and maximum vertical
+velocity through the 660, whereas width measures the full spatial extent
+of the transition between \(X_\mathrm{ps}\) = 0.1 and 0.9. The two
+metrics diverge where reaction rate varies strongly within the phase
+transition zone.
+
+In slab simulations, \(L\) and \(\vec{v}_\mathrm{max}\) are subsequently
+used to heuristically classify each model into three regimes using fixed
+threshold values. The quasi-equilibrium regime corresponds to \(L\)
+\(\leq\) 5 km and \(\vec{v}_\mathrm{max}\) \(>\) 0.5 cm yr\(^{-1}\); the
+intermediate regime corresponds to \(L\) \(>\) 5 km and
+\(\vec{v}_\mathrm{max}\) \(>\) 0.5 cm yr\(^{-1}\); and the stagnation
+regime correspond to \(\vec{v}_\mathrm{max}\) \(\leq\) 0.5 cm
+yr\(^{-1}\).
+
+\begin{longtable}[]{@{}lrrr@{}}
+\caption{Rheological and kinematic parameters for the eight tested
+scenarios. Units are \(\vec{u}_\mathrm{in}\): cm yr\(^{-1}\), \(B\):
+dimensionless, \(b\):
+dimensionless.}\label{tbl:scenarios}\tabularnewline
+\toprule\noalign{}
+Scenario & \(\vec{u}_\mathrm{in}\) & \(B\) & \(b\) \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+Scenario & \(\vec{u}_\mathrm{in}\) & \(B\) & \(b\) \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+0 & 5 & 5 & 50 \\
+1 & 5 & 10 & 50 \\
+2 & 10 & 5 & 50 \\
+3 & 10 & 10 & 50 \\
+4 & 5 & 5 & 1 \\
+5 & 5 & 10 & 1 \\
+6 & 10 & 5 & 1 \\
+7 & 10 & 10 & 1 \\
+\end{longtable}
+
+\section{Results}\label{sec:results}
+
+\subsection{Simulation Snapshots: Slabs and
+Plumes}\label{sec:simulation-snapshots}
+
+Figures \ref{fig:slab-composition-660-b01} and
+\ref{fig:plume-composition-660-b01} show slab and plume simulations for
+scenario 4 (Table~\ref{tbl:scenarios}) after 100 Ma and 50 Ma,
+respectively. This reference scenario illustrates the range of 660
+structures produced across three kinetic conditions characterizing slow
+to fast reaction rates. Ringwoodite decomposition kinetics strongly
+control slab dynamics while affecting plume structure more modestly,
+consistent with the asymmetric pattern documented at the 410 by Kerswell
+et al. (2026).
+
+In slab simulations, three regimes emerge with decreasing
+\(Z_\mathrm{ri}\). In the quasi-equilibrium regime
+(Figure~\ref{fig:slab-composition-660-b01}: bottom row;
+\(Z_\mathrm{ri}\) = 1.6 \(\times\) 10\(^3\) mol\(^2\) J\(^{-2}\)
+s\(^{-1}\)), the slab descends through the 660 at 1.6 cm yr\(^{-1}\) and
+the 660 is narrow (6 km) and modestly displaced (25 km), consistent with
+Clapeyron-slope predictions for the imposed thermal anomaly. In the
+intermediate regime (Figure~\ref{fig:slab-composition-660-b01}: middle
+row; \(Z_\mathrm{ri}\) = 6.0 \(\times\) 10\(^{-1}\) mol\(^2\) J\(^{-2}\)
+s\(^{-1}\)), metastable ringwoodite accumulates and reduces descent
+through the 660 to 1.1 cm yr\(^{-1}\), deepening the 660 by 40 km and
+widening it to 12 km. In the stagnation regime
+(Figure~\ref{fig:slab-composition-660-b01}: top row; \(Z_\mathrm{ri}\) =
+1.6 \(\times\) 10\(^{-3}\) mol\(^2\) J\(^{-2}\) s\(^{-1}\)), persistent
+metastable buoyancy arrests descent (\(\vec{v}_\mathrm{max}\) = 0.25 cm
+yr\(^{-1}\)) and the slab ponds above the 660, displacing it by 48 km
+and broadening it to 11 km.
+
+In plume simulations, the 660 remains uplifted and relatively sharp
+across all tested kinetic conditions. Under the slowest reaction rates
+(Figure~\ref{fig:plume-composition-660-b01}: top row; \(Z_\mathrm{ri}\)
+= 1.6 \(\times\) 10\(^{-3}\) mol\(^2\) J\(^{-2}\) s\(^{-1}\)), the plume
+ascends through the 660 at 3 cm yr\(^{-1}\) with the 660 displaced by 14
+km upward and widening to 9 km. Under intermediate and fast kinetic
+conditions (Figure~\ref{fig:plume-composition-660-b01}: middle and
+bottom rows; \(Z_\mathrm{ri}\) = 6.0 \(\times\) 10\(^{-1}\) and 1.6
+\(\times\) 10\(^3\) mol\(^2\) J\(^{-2}\) s\(^{-1}\)), the 660 narrows to
+7 km and is uplifted 10 km, with ascent velocities through the 660 of 4
+cm yr\(^{-1}\). Elevated plume temperatures maintain
+\(\dot{X}_\mathrm{max}\) above 3 Ma\(^{-1}\) even at the slowest tested
+\(Z_\mathrm{ri}\), suppressing extended metastable zones like those
+formed in cold slabs. This kinetic insensitivity of plume dynamics and
+660 structures holds qualitatively across the full tested parameter
+space and contrasts sharply with the strong kinetic control on slab
+behavior.
+
+\begin{figure}
+\centering
+\includegraphics[width=1\linewidth,height=\textheight,keepaspectratio,alt={Reference slab simulations with moderate inflow velocity, intermediate slab strength, and no lower-mantle viscosity jump (scenario 4; Table~). Rows show stagnation (top row: Z\_\textbackslash mathrm\{ri\} = 1.6 \textbackslash times 10\^{}\{-3\} mol\^{}2 J\^{}\{-2\} s\^{}\{-1\}), intermediate (middle row: Z\_\textbackslash mathrm\{ri\} = 6.0 \textbackslash times 10\^{}\{-1\} mol\^{}2 J\^{}\{-2\} s\^{}\{-1\}), and quasi-equilibrium (bottom row: Z\_\textbackslash mathrm\{ri\} = 1.6 \textbackslash times 10\^{}3 mol\^{}2 J\^{}\{-2\} s\^{}\{-1\}) kinetic regimes after 100 Ma. Columns show dynamic temperature \textbackslash hat\{T\} (left column), dynamic density \textbackslash hat\{\textbackslash rho\} (middle column), and vertical velocity \textbackslash vec\{u\}\_y (right column). Thick black lines (left column) highlight the 10\% and 90\% wadsleyite and post-spinel volume fraction contours used to define 660 displacement and width. The background grid pattern indicates ASPECT's adaptive mesh refinement near high thermal gradients and phase transitions. White trace (left column) indicates the representative depth profile used to extract data, and the white arrows indicate where the 660 structure is evaluated.}]{../figs/simulation/compositions/slab-set1-composition-b01-0100.png}
+\caption{Reference slab simulations with moderate inflow velocity,
+intermediate slab strength, and no lower-mantle viscosity jump (scenario
+4; Table~\ref{tbl:scenarios}). Rows show stagnation (top row:
+\(Z_\mathrm{ri}\) = 1.6 \(\times\) 10\(^{-3}\) mol\(^2\) J\(^{-2}\)
+s\(^{-1}\)), intermediate (middle row: \(Z_\mathrm{ri}\) = 6.0
+\(\times\) 10\(^{-1}\) mol\(^2\) J\(^{-2}\) s\(^{-1}\)), and
+quasi-equilibrium (bottom row: \(Z_\mathrm{ri}\) = 1.6 \(\times\)
+10\(^3\) mol\(^2\) J\(^{-2}\) s\(^{-1}\)) kinetic regimes after 100 Ma.
+Columns show dynamic temperature \(\hat{T}\) (left column), dynamic
+density \(\hat{\rho}\) (middle column), and vertical velocity
+\(\vec{u}_y\) (right column). Thick black lines (left column) highlight
+the 10\% and 90\% wadsleyite and post-spinel volume fraction contours
+used to define 660 displacement and width. The background grid pattern
+indicates ASPECT's adaptive mesh refinement near high thermal gradients
+and phase transitions. White trace (left column) indicates the
+representative depth profile used to extract data, and the white arrows
+indicate where the 660 structure is
+evaluated.}\label{fig:slab-composition-660-b01}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=1\linewidth,height=\textheight,keepaspectratio,alt={Reference plume simulations with moderate inflow velocity, intermediate plume strength, and no lower-mantle viscosity jump (scenario 4; Table~). Rows show ultra-sluggish (top row: Z\_\textbackslash mathrm\{ri\} = 1.6 \textbackslash times 10\^{}\{-3\} mol\^{}2 J\^{}\{-2\} s\^{}\{-1\}), intermediate (middle row: Z\_\textbackslash mathrm\{ri\} = 6.0 \textbackslash times 10\^{}\{-1\} mol\^{}2 J\^{}\{-2\} s\^{}\{-1\}), and fast (bottom row: Z\_\textbackslash mathrm\{ri\} = 1.6 \textbackslash times 10\^{}3 mol\^{}2 J\^{}\{-2\} s\^{}\{-1\}) kinetic conditions after 50 Ma. All other annotations follow Figure~. The 660 is uplifted across all kinetic conditions, consistent with the negative Clapeyron slope, but 660 width increases and plume ascent slows measurably under the slowest kinetic conditions (top row).}]{../figs/simulation/compositions/plume-set1-composition-b01-0050.png}
+\caption{Reference plume simulations with moderate inflow velocity,
+intermediate plume strength, and no lower-mantle viscosity jump
+(scenario 4; Table~\ref{tbl:scenarios}). Rows show ultra-sluggish (top
+row: \(Z_\mathrm{ri}\) = 1.6 \(\times\) 10\(^{-3}\) mol\(^2\) J\(^{-2}\)
+s\(^{-1}\)), intermediate (middle row: \(Z_\mathrm{ri}\) = 6.0
+\(\times\) 10\(^{-1}\) mol\(^2\) J\(^{-2}\) s\(^{-1}\)), and fast
+(bottom row: \(Z_\mathrm{ri}\) = 1.6 \(\times\) 10\(^3\) mol\(^2\)
+J\(^{-2}\) s\(^{-1}\)) kinetic conditions after 50 Ma. All other
+annotations follow Figure~\ref{fig:slab-composition-660-b01}. The 660 is
+uplifted across all kinetic conditions, consistent with the negative
+Clapeyron slope, but 660 width increases and plume ascent slows
+measurably under the slowest kinetic conditions (top
+row).}\label{fig:plume-composition-660-b01}
+\end{figure}
+
+\subsection{Structure of the 660: Displacement and
+Width}\label{sec:structure-of-the-660}
+
+Figure~\ref{fig:660-structure} summarizes 660 displacement and width as
+a function of maximum reaction rate \(\dot{X}_\mathrm{max}\) across the
+full suite of plume and slab simulations, and
+Figure~\ref{fig:660-structure-comp} maps all results across the full
+kinetic-rheological-kinematic parameter space (Table S1). Together, the
+figures reveal three kinetic regimes in slabs, near-invariant 660
+structure in plumes, plus independent and coupled
+kinetic-kinematic-rheological effects on 660 structure and slab descent.
+
+Plume 660 structure remains largely independent of kinetics across the
+full tested range of kinetic prefactors \(Z_\mathrm{ri}\)
+(Figure~\ref{fig:660-structure}). Upward displacements vary only from
+10--22 km and widths from 5--10 km across six orders of magnitude
+variation in \(Z_\mathrm{ri}\), and ascent velocities through the 660
+remain within 2--8 cm yr\(^{-1}\) regardless of kinetics. These are
+relatively narrow ranges compared to the order-of-magnitude changes seen
+in slabs. Even at the slowest tested conditions (\(Z_\mathrm{ri}\) = 1.6
+\(\times\) 10\(^{-3}\) mol\(^2\) J\(^{-2}\) s\(^{-1}\)), maximum
+reaction rates in plumes reach 3--7 Ma\(^{-1}\) (\(\tau \lesssim 0.3\)
+Ma; \(L \lesssim 10\) km), maintaining a narrow (7--10 km) and
+consistently uplifted (14--22 km) 660. Plume 660 widths are
+systematically broader than plume 410 widths at equivalent kinetic
+conditions, but only marginally (cf.~circle and triangle datapoints in
+Figure~\ref{fig:660-structure}).
+
+Slab 660 structure changes substantially across three kinetic regimes
+(Figure~\ref{fig:660-structure-comp}). Regime boundaries follow two
+heuristic thresholds: 1) \(L\) \(\lesssim\) 5 km separates
+quasi-equilibrium from intermediate regimes, and 2)
+\(\vec{v}_\mathrm{max}\) \(\lesssim\) 0.5 cm yr\(^{-1}\) separates
+intermediate from stagnation regimes (see
+Section~\ref{sec:numerical-experiment-design-and-postprocessing}). In
+the quasi-equilibrium regime (region 1 in
+Figure~\ref{fig:660-structure-comp}), \(\tau\) remains below 2 Ma and
+slabs descend through the 660 at 0.5--3.2 cm yr\(^{-1}\), with the 660
+displaced 22--36 km downward and 4--12 km wide. In the intermediate
+regime (region 2 in Figure~\ref{fig:660-structure-comp}), \(\tau\) spans
+0.5--13.1 Ma and descent velocities through the 660 of 0.4--2.4 cm
+yr\(^{-1}\) produce continuous but progressively slower slab
+penetration, with the 660 deepening by 40--80 km and widening to 9--34
+km. In the stagnation regime (region 3 in
+Figure~\ref{fig:660-structure-comp}), descent velocities through the 660
+of 0.1--0.5 cm yr\(^{-1}\) and \(\tau\) up to 26 Ma leave the 660
+displaced 27--80 km downward with widths of 6--34 km. In contrast to the
+abrupt re-sharpening threshold at the 410 (Kerswell et al., 2026), 660
+displacement and width increase monotonically with decreasing
+\(Z_\mathrm{ri}\) across all three regimes, with no re-sharpening at any
+tested kinetic prefactor (Figure~\ref{fig:660-structure}). The direction
+of 660 displacement also differs from the 410. At the 410, displacement
+changes sign from uplifted under quasi-equilibrium conditions to
+depressed in the ultra-sluggish regime (Kerswell et al., 2026), whereas
+at the 660, slower kinetics amplify downward displacement monotonically
+across all three regimes (cf.~circle and triangle datapoints in
+Figure~\ref{fig:660-structure}).
+
+\begin{figure}
+\centering
+\includegraphics[width=0.7\linewidth,height=\textheight,keepaspectratio,alt={Measured 660 width (top) and displacement (bottom) versus maximum reaction rates in plume (left) and slab (right) simulations after 50 Ma and 100 Ma, respectively. Triangles show the 660 results from this study (Table S1) while circles show the 410 results from Kerswell et al. (2026) for comparison. The 660 structure near plumes shows consistent upward displacements and moderate widths with minimal dependence on \textbackslash dot\{X\}\_\textbackslash mathrm\{max\} across six orders of magnitude variation. Unlike the 410, the 660 structure near slabs (right column) changes monotonically with decreasing \textbackslash dot\{X\}\_\textbackslash mathrm\{max\} and no re-sharpening occurs at ultra-sluggish kinetic conditions. The modest scatter of the 660 results (triangles) at fixed \textbackslash dot\{X\}\_\textbackslash mathrm\{max\} reflects the additional, systematically varying influence of inflow velocity (\textbackslash vec\{u\}\_\textbackslash mathrm\{in\}), rheological contrast (B), and lower-mantle viscosity jump (b). These effects are explored more completely in Figure~.}]{../figs/structure/composition.png}
+\caption{Measured 660 width (top) and displacement (bottom) versus
+maximum reaction rates in plume (left) and slab (right) simulations
+after 50 Ma and 100 Ma, respectively. Triangles show the 660 results
+from this study (Table S1) while circles show the 410 results from
+Kerswell et al. (2026) for comparison. The 660 structure near plumes
+shows consistent upward displacements and moderate widths with minimal
+dependence on \(\dot{X}_\mathrm{max}\) across six orders of magnitude
+variation. Unlike the 410, the 660 structure near slabs (right column)
+changes monotonically with decreasing \(\dot{X}_\mathrm{max}\) and no
+re-sharpening occurs at ultra-sluggish kinetic conditions. The modest
+scatter of the 660 results (triangles) at fixed \(\dot{X}_\mathrm{max}\)
+reflects the additional, systematically varying influence of inflow
+velocity (\(\vec{u}_\mathrm{in}\)), rheological contrast (\(B\)), and
+lower-mantle viscosity jump (\(b\)). These effects are explored more
+completely in
+Figure~\ref{fig:660-structure-comp}.}\label{fig:660-structure}
+\end{figure}
+
+Figure~\ref{fig:660-structure-comp} further isolates four trends in slab
+simulations across the eight tested scenarios
+(Table~\ref{tbl:scenarios}). The first is an independent effect, while
+the latter three reflect coupled interactions between two or more
+parameters.
+
+The kinetic prefactor \(Z_\mathrm{ri}\) controls maximum reaction rate
+independently of rheology or kinematics. Maximum reaction rate decreases
+monotonically and proportionally with \(Z_\mathrm{ri}\) across all eight
+scenarios, spanning approximately 0.04--135 Ma\(^{-1}\)
+(Figure~\ref{fig:660-structure-comp}), consistent with the direct
+\(Z_\mathrm{ri}\) scaling in Equation~\ref{eq:reaction-rate-660}.
+
+The lower-mantle viscosity jump (\(b\) = 50, compared to no jump at
+\(b\) = 1) exerts a first-order control on slab descent velocity through
+the 660 (see Figures S4--S7), shifting the stagnation regime boundary
+toward higher \(Z_\mathrm{ri}\). Comparing scenarios with \(b\) = 50
+(scenarios 0--3) to \(b\) = 1 (scenarios 4--7) at equivalent \(B\) and
+\(\vec{u}_\mathrm{in}\), the stagnation regime boundary shifts by up to
+four orders of magnitude in \(Z_\mathrm{ri}\) for the weakest and
+slowest slab configurations (cf.~scenarios 0 and 4 in
+Figure~\ref{fig:660-structure-comp}). This effect is most pronounced for
+weaker slabs (\(B\) = 5). For instance, scenario 0
+(\(\vec{u}_\mathrm{in}\) = 5 cm yr\(^{-1}\), \(B\) = 5, \(b\) = 50)
+falls at or below the 0.5 cm yr\(^{-1}\) stagnation threshold for all
+tested \(Z_\mathrm{ri}\), effectively stagnating across the entire
+kinetic range. For stronger slabs (\(B\) = 10; scenarios 1 and 3), the
+effect of a lower-mantle viscosity jump on the stagnation regime
+boundary is substantially reduced. Thus, while the presence of a
+viscosity jump consistently promotes stagnation, its absolute impact is
+modulated by an interaction between mantle and slab strength contrasts
+(\(b\) versus \(B\)).
+
+Inflow velocity and kinetics also interact to influence descent velocity
+through the 660 and 660 structure. Higher inflow velocity
+(\(\vec{u}_\mathrm{in}\) = 10 cm yr\(^{-1}\)) shifts the stagnation
+regime boundary toward lower \(Z_\mathrm{ri}\) relative to
+\(\vec{u}_\mathrm{in}\) = 5 cm yr\(^{-1}\) at equivalent \(B\) and
+\(b\). This happens most clearly for stronger slabs (cf.~scenarios 1 and
+3; 5 and 7 in Figure~\ref{fig:660-structure-comp}), where the shift
+reaches 1--2 orders of magnitude. At the same time, faster inflow
+produces larger displacements and widths across all regimes;
+\(\vec{u}_\mathrm{in}\) = 10 cm yr\(^{-1}\) scenarios (2, 3, 6, 7) reach
+22--80 km displacement and 4--34 km width, compared to 22--59 km and
+4--21 km for \(\vec{u}_\mathrm{in}\) = 5 cm yr\(^{-1}\) scenarios (0, 1,
+4, 5). Both the stagnation regime boundary shift and the increase in 660
+displacement and width reflect that faster descent advects more
+metastable ringwoodite to greater depths before ponding.
+
+In parallel with the coupled interactions above, slab strength and
+descent velocity through the 660 operate in tandem to further modulate
+660 structure. Weaker slabs (\(B\) = 5; scenarios 0, 2, 4, 6) decelerate
+more readily than stronger slabs (\(B\) = 10; scenarios 1, 3, 5, 7),
+stagnating at up to two orders of magnitude higher \(Z_\mathrm{ri}\) and
+shifting both regime boundaries toward faster kinetic conditions
+(Figure~\ref{fig:660-structure-comp}). In the intermediate regime,
+stronger slabs produce substantially larger 660 displacements (40--80
+km; mean 57 km) than weaker slabs (40--56 km; mean 47 km) at equivalent
+\(Z_\mathrm{ri}\). The fastest and strongest slabs (scenarios 3 and 7)
+resist stagnation, even under ultra-sluggish kinetic conditions
+(\(Z_\mathrm{ri}\) \(\lesssim\) 1.2 \(\times\) 10\(^{-2}\) mol\(^2\)
+J\(^{-2}\) s\(^{-1}\)), producing the largest displacements (78--80 km)
+and widths (26--34 km) in our simulations. At the same
+\(Z_\mathrm{ri}\), weaker counterparts (scenarios 2 and 6) are already
+stagnant, with notably smaller displacements (68--75 km). Taken
+together, weaker slabs are more prone to stagnation but produce smaller
+maximum displacements, while stronger slabs resist stagnation longer and
+ultimately generate the widest and most deeply displaced 660s when their
+descent through the 660 slows---a trend that reflects coupled kinetic,
+kinematic, and rheological controls on 660 structure.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.7\linewidth,height=\textheight,keepaspectratio,alt={Variation in 660 structure and slab descent rate through the 660 across kinetic (Z\_\textbackslash mathrm\{ri\}), kinematic (\textbackslash vec\{u\}\_\textbackslash mathrm\{in\}), and rheological (B, b) parameter space. Panels show maximum reaction rate (top left), maximum vertical velocity through the 660 (top right), 660 width (bottom left), and 660 displacement (bottom right) as functions of the kinetic prefactor Z\_\textbackslash mathrm\{ri\} (horizontal axis, log scale) and remaining parameter space reduced to eight scenarios {[}\textbackslash vec\{u\}\_\textbackslash mathrm\{in\}, B, b{]}: 0) {[}5, 5, 50{]}; 1) {[}5, 10, 50{]}; 2) {[}10, 5, 50{]}; 3) {[}10, 10, 50{]}; 4) {[}5, 5, 1{]}; 5) {[}5, 10, 1{]}; 6) {[}10, 5, 1{]}; 7) {[}10, 10, 1{]} (Table~). Units are \textbackslash vec\{u\}\_\textbackslash mathrm\{in\}: cm yr\^{}\{-1\}, B: dimensionless, b: dimensionless. Each tile represents the measured value after 100 Ma (Table S1). Black and white lines delineate transitions between regime behaviors, and their positions shift with B, b, and \textbackslash vec\{u\}\_\textbackslash mathrm\{in\}. Regime labels correspond to: (1) quasi-equilibrium, (2) intermediate, and (3) stagnation.}]{../figs/structure/tiles-660.png}
+\caption{Variation in 660 structure and slab descent rate through the
+660 across kinetic (\(Z_\mathrm{ri}\)), kinematic
+(\(\vec{u}_\mathrm{in}\)), and rheological (\(B\), \(b\)) parameter
+space. Panels show maximum reaction rate (top left), maximum vertical
+velocity through the 660 (top right), 660 width (bottom left), and 660
+displacement (bottom right) as functions of the kinetic prefactor
+\(Z_\mathrm{ri}\) (horizontal axis, log scale) and remaining parameter
+space reduced to eight scenarios {[}\(\vec{u}_\mathrm{in}\), \(B\),
+\(b\){]}: \textbf{0)} {[}5, 5, 50{]}; \textbf{1)} {[}5, 10, 50{]};
+\textbf{2)} {[}10, 5, 50{]}; \textbf{3)} {[}10, 10, 50{]}; \textbf{4)}
+{[}5, 5, 1{]}; \textbf{5)} {[}5, 10, 1{]}; \textbf{6)} {[}10, 5, 1{]};
+\textbf{7)} {[}10, 10, 1{]} (Table~\ref{tbl:scenarios}). Units are
+\(\vec{u}_\mathrm{in}\): cm yr\(^{-1}\), \(B\): dimensionless, \(b\):
+dimensionless. Each tile represents the measured value after 100 Ma
+(Table S1). Black and white lines delineate transitions between regime
+behaviors, and their positions shift with \(B\), \(b\), and
+\(\vec{u}_\mathrm{in}\). Regime labels correspond to: (1)
+quasi-equilibrium, (2) intermediate, and (3)
+stagnation.}\label{fig:660-structure-comp}
+\end{figure}
+
+\section{Discussion}\label{sec:discussion}
+
+\subsection{Uncertainties and Model
+Limitations}\label{sec:uncertainties-and-model-limitations}
+
+The primary quantitative uncertainty for the post-spinel reaction stems
+from the activation energy \(E^{\ast}\) for Si self-diffusion and the
+kinetic prefactor \(Z_\mathrm{ri}\), which bundles the growth rate
+prefactor \(K^{\prime}\) and grain size \(d\). Monte Carlo regression of
+the Kubo et al. (2002) experimental dataset yields a mean activation
+energy of 310 \(\pm\) 233 kJ mol\(^{-1}\) and a mean \(\ln(K^{\prime})\)
+of -29.8 \(\pm\) 22.1 (Figure S3). These uncertainties span several
+orders of magnitude, reflecting incomplete knowledge of Si
+self-diffusion in ringwoodite at natural PT conditions, dependence on
+grain size and deformation history, and poorly characterized water
+content effects on post-spinel diffusion rates. Our simulations
+therefore bracket plausible kinetic conditions rather than targeting
+specific natural scenarios, and all three kinetic regimes identified for
+slabs fall within this uncertainty envelope.
+
+Another key driver of uncertainty is that the kinetic experiments of
+Kubo et al. (2002) were performed at highly-overstepped metastable
+conditions (\(>\) 1 GPa), requiring significant extrapolation to
+near-equilibrium conditions in our simulations. The quadratic dependence
+of ringwoodite decomposition on excess Gibbs energy
+(Equation~\ref{eq:reaction-rate-660}) results in vanishingly small
+reaction rates at small pressure oversteps in our simulations. However,
+it is possible that an alternative, faster transformation mechanism
+occurs in natural systems at near-equilibrium conditions. This requires
+further kinetic experiments at small pressure oversteps to determine.
+
+A related simplification concerns the reaction's directionality. Our
+bidirectional implementation of the reverse reaction (ringwoodite
+regrowth from bridgmanite + periclase) treats the forward and reverse
+transformations symmetrically, which represents a simplification.
+Experiments document that the reverse reaction proceeds substantially
+more slowly than the forward decomposition, particularly below 2000 K
+(Lessing et al., 2022), introducing a kinetic asymmetry not captured by
+our symmetric \(\Delta G \cdot |\Delta G|\) formulation in
+Equation~\ref{eq:reaction-rate-660}. Our simplification likely
+overestimates reverse reaction rates in ascending plumes and
+underestimates metastable bridgmanite + periclase persistence in
+upwelling material. The slight broadening of plume 660 widths at the
+slowest kinetics in our simulations (up to 10 km) may partly reflect
+this effect, but a rigorous treatment requires a separate kinetic rate
+equation for the reverse reaction.
+
+This kinetic framework is itself coupled to thermodynamics in ways we
+only partially resolve. While our material model implicitly includes
+latent heating near equilibrium, the latent-heating effect at
+overstepped metastable conditions merits particular caution for the
+post-spinel reaction. Because the ringwoodite \(\Leftrightarrow\)
+bridgmanite + periclase Clapeyron slope is negative, the (endothermic)
+latent-heat effect close to equilibrium reinforces kinetic inhibition.
+At highly-overstepped metastable conditions, however, the free energy
+from mechanical work \(P\Delta V\) (rather than \(T\Delta S\)) becomes
+operative and this reinforcement is lost. This contrasts with the 410,
+where both the (exothermic) latent-heat effect and \(P\Delta V\)
+contributions promote faster kinetics. Fully resolving this feedback
+would likely strengthen the regime contrasts we report here and merits
+dedicated investigation. We also define Gibbs free energy based on the
+reference pressure (Equation~\ref{eq:gibbs}), neglecting deviatoric
+stresses at individual grain interfaces that directly influence reaction
+pathways and chemical potentials (Wheeler, 2015a, 2020). While the
+reference pressure can provide a reasonable approximation under certain
+conditions (Wheeler, 2015b), an improved approach would be to use the
+dynamic pressure, i.e.~the mean normal stress actually experienced by
+the rock. A rigorous treatment will require consideration of more
+localized stress-dependent chemical potentials (work in progress).
+
+Beyond these kinetic and thermodynamic uncertainties, our compositional
+choices introduce additional simplifications. Our pure Mg end-member
+composition neglects Fe-Mg solid solutions, akimotoite, garnet, and
+other transition-zone phases present in natural systems (Ita \&
+Stixrude, 1992; Papanagnou et al., 2023; Xu et al., 2008). Iron is
+unlikely to alter our conclusions substantially because Si
+self-diffusion limits ringwoodite decomposition. Iron content should
+therefore have only a minor effect on reaction kinetics, and the narrow
+(\(<\) 1 kbar) Fe-Mg post-spinel phase loop ({Ishii et al.}, 2019) means
+metastable Fe-bearing ringwoodite likely transforms directly to the
+stable bridgmanite + periclase assemblage, keeping the transition
+effectively univariant as in our pure Mg model (Ming et al., 2006). In
+the coldest slab interiors, the akimotoite \(\Leftrightarrow\)
+bridgmanite transition may dominate over the post-spinel transition
+({Chanyshev et al.}, 2022; Cottaar \& Deuss, 2016), producing additional
+deepening beyond our kinetic model. This reaction is nevertheless
+expected to be comparatively rapid because the ilmenite and perovskite
+structures are crystallographically closely related (Navrotsky, 1998),
+permitting a diffusionless or martensite-like reaction mechanism.
+
+A final set of simplifications concerns the large-scale viscosity
+structure and dimensionality of our simulations. Our simulations test
+lower-mantle viscosity jumps of \(b\) = 1 and \(b\) = 50 to partially
+characterize how viscosity structure interacts with kinetic inhibition
+(Section~\ref{sec:structure-of-the-660}; see Figures S4--S7). This
+approach does not span the full plausible range of lower-mantle
+viscosity contrasts (estimated at roughly 10--100\(\times\), Karato,
+2008; {Goes et al.}, 2017), and quantitative predictions remain
+model-dependent. More broadly, natural subduction involves the
+simultaneous action of viscosity structure, the Clapeyron slope, plate
+forcing, and kinetics (Garel et al., 2014; {Goes et al.}, 2017), and
+isolating each contribution requires independent observational
+constraints. Grain-size distribution at the post-spinel reaction front
+(Kubo et al., 2000; Mao \& Zhong, 2021) could also generate viscosity
+contrasts that augments stagnation beyond what our rheological model
+captures. Our simple temperature-dependent rheological model omits
+grain-size evolution that affect both flow dynamics and reaction
+kinetics (Hirth \& Kohlstedf, 2003; Karato, 1984; Yamazaki et al.,
+2005). Finally, our 2D simulations neglect 3D slab geometry, trench
+migration, slab rollback, and lateral flow diversion. In 3D, a slab that
+retains its dip and is carried laterally away from the 660 by rollback
+could sustain faster descent than the vertically ponding slabs in our 2D
+domain, since less metastable material would accumulate locally beneath
+any one point on the slab. These 3D effects, alongside slab morphology
+and residence time more broadly, warrant further investigation (Garel et
+al., 2014; {Sime et al.}, 2024). Despite these limitations, our results
+capture the first-order kinetic effects governing 660 structure and slab
+dynamics across three distinct regimes.
+
+\subsection{Contrasting Reaction Mechanisms at the 410 and
+660}\label{sec:contrasting-reaction-mechanisms-at-the-410-and-660}
+
+The three kinetic regimes identified for the 660 differ qualitatively
+from those at the 410, reflecting the different reaction mechanisms that
+govern each transition (Equations \ref{eq:volume-fraction} to
+\ref{eq:reaction-rate-660}). At the 410, the interface-controlled
+driving-force term \((1 - \exp[-\Delta G / RT])\) saturates toward unity
+once \(|\Delta G| \gg RT\) (Equation~\ref{eq:reaction-rate-410}). Beyond
+this saturation point, only the Arrhenius term
+\(\exp[-(H^\ast + PV^\ast)/RT]\) controls reaction progress. In a cold,
+stagnated slab, this factor remains negligible until temperatures rise
+enough to activate transformation, at which point the reaction completes
+abruptly over a narrow depth interval, re-sharpening the 410. This
+threshold produced the three regimes (quasi-equilibrium, intermediate,
+and ultra-sluggish with re-sharpening) with distinct 410 seismic
+signatures (Kerswell et al., 2026).
+
+At the 660, the diffusion-controlled driving-force term
+\(\Delta G \cdot |\Delta G|\) grows quadratically without bound as
+ringwoodite is carried below its stability field. Larger overstepping
+always drives larger (silicon) chemical potential gradients across the
+decomposition lamellae and thus faster transformation (Kubo et al.,
+2002; Zener, 1946). No saturation ceiling exists, so the driving force
+never yields to the Arrhenius term alone. As a result,
+\(\dot{X}_\mathrm{max}\) increases progressively with depth and the 660
+widens and deepens continuously across all three regimes without
+triggering an abrupt transformation. The distinction between the
+intermediate and stagnation regimes at the 660 is therefore a matter of
+degree, marked by progressively longer \(\tau\), larger \(L\), slower
+descent, and broader, more deeply displaced discontinuities, rather than
+the abrupt threshold that separates the ultra-sluggish regime at the 410
+(Figure~\ref{fig:660-structure}).
+
+This difference in reaction mechanism also determines long-term slab
+behavior. Metastable olivine accumulated in the ultra-sluggish 410
+regime eventually transforms in a rapid pulse that can disrupt transient
+stalling or ponding (Kerswell et al., 2026). Metastable ringwoodite in
+the 660 stagnation regime is consumed gradually (\(\tau\) up to 26 Ma),
+sustaining persistent buoyancy that resists penetration over much longer
+timescales. Kinetically stagnated slabs at the 660 are therefore more
+stable than those at the 410, consistent with the long-lived
+sub-horizontal ponding observed in the western Pacific (Fukao \&
+Obayashi, 2013; Tauzin et al., 2017).
+
+Near equilibrium, the two reaction mechanisms also differ. The quadratic
+driving force at the 660 strongly suppresses reaction rates near the
+phase boundary because \(\Delta G \cdot |\Delta G|\) approaches zero as
+\(\Delta G^2\). The linear driving force term governing the 410
+\((1 - \exp[-\Delta G / RT]) \approx \Delta G / RT\) suppresses reaction
+rates less strongly when \(\Delta G\) approaches zero. This inherent
+near-equilibrium suppression broadens the 660 transition zone slightly
+relative to the 410, even under quasi-equilibrium conditions (cf.~circle
+and triangle datapoints in Figure~\ref{fig:660-structure}).
+
+\subsection{Kinetic Amplification of Temperature-Driven 660
+Displacement}\label{sec:kinetic-amplification-of-temperature-driven-660-displacement}
+
+Within the pure Mg, garnet-free system we model, equilibrium
+thermodynamics predicts downward 660 displacement from two principal
+sources: 1) the negative Clapeyron slope shifting the post-spinel
+reaction to higher pressure beneath cold slabs, and 2) the akimotoite
+\(\Leftrightarrow\) bridgmanite transition generating additional
+depression of 30--90 km in the coldest slab interiors ({Chanyshev et
+al.}, 2022; Cottaar \& Deuss, 2016). Our quasi-equilibrium slab
+simulations recover this thermal signal (Figures \ref{fig:660-structure}
+and \ref{fig:660-structure-comp}), showing 22--36 km displacements
+consistent with Clapeyron-slope predictions for a -500 K anomaly (Bina
+\& Helffrich, 1994; Flanagan \& Shearer, 1998). Kinetics then amplify
+this baseline progressively (Figure~\ref{fig:seismic-profiles}), as the
+deepest stagnation regime displacements (up to 80 km) reach roughly 2 to
+4 times the shallowest quasi-equilibrium displacement (22 km), depending
+on rheological and kinematic conditions (Table S1). Beyond these thermal
+and kinetic effects, two compositional factors outside our model could
+further modify the 660: 1) water in ringwoodite broadens the post-spinel
+reaction and raises its pressure (Ghosh et al., 2013; Muir et al.,
+2021), promoting additional deepening in cold slabs in contrast to
+water's shallowing effect at the 410 (Smyth, 1987; Smyth \& Frost, 2002;
+{van der Meijde et al.}, 2003), while 2) basalt accumulation modifies
+reflectivity without systematically affecting depth ({Goes et al.},
+2022; {Yu et al.}, 2023).
+
+The directional contrast between kinetic effects at the 410 and 660 in
+cold slabs is fundamental. At the 410, the positive Clapeyron slope
+produces upward displacement under quasi-equilibrium conditions.
+Decreasing reaction rates first broaden and deepen the discontinuity,
+then ultimately re-sharpen it at a depressed position, reversing its
+displacement sign relative to the equilibrium prediction (cf.~circle and
+triangle datapoints in Figure~\ref{fig:660-structure}). At the 660, both
+the equilibrium prediction and all three kinetic regimes produce
+downward displacement (Figure~\ref{fig:seismic-profiles}). Kinetics
+amplify rather than reverse the equilibrium signal, and the transition
+from one regime to the next is monotonic. The 660 therefore lacks the
+seismically diagnostic sign-reversal that marks the onset of
+ultra-sluggish conditions at the 410.
+
+Jointly observing both discontinuities in the same slab column exploits
+these different behaviors. A sharp, deeply displaced 410 paired with a
+broad, deeply displaced 660 points to ultra-sluggish olivine
+\(\Leftrightarrow\) wadsleyite kinetics coexisting with intermediate to
+ultra-sluggish ringwoodite decomposition. A broad, deepened 410 paired
+with a broad, deepened 660 is consistent with intermediate kinetic
+inhibition at both transitions. A modestly displaced, narrow 410 paired
+with a modestly displaced, narrow 660 suggests quasi-equilibrium
+conditions across the full transition zone
+(Figure~\ref{fig:seismic-profiles}). These joint patterns exploit the
+different saturation behaviors of the interface-controlled and
+diffusion-controlled reaction mechanisms, though they only narrow
+(rather than eliminate) the ambiguity with thermal, compositional, and
+rheological contributions discussed below.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.75\linewidth,height=\textheight,keepaspectratio,alt={Synthetic seismic velocity profiles extracted along representative depth profiles in plume (left) and slab (right) simulations across the full range of tested kinetic prefactors Z\_\textbackslash mathrm\{ri\}. The black line shows the background adiabatic reference profile. Colored bands show the envelope of profiles from slow (dark red, Z\_\textbackslash mathrm\{ri\} = 1.6 \textbackslash times 10\^{}\{-3\} mol\^{}2 J\^{}\{-2\} s\^{}\{-1\}) to fast (yellow, Z\_\textbackslash mathrm\{ri\} = 1.6 \textbackslash times 10\^{}3 mol\^{}2 J\^{}\{-2\} s\^{}\{-1\}) kinetics. In plumes, the 410 and 520 are depressed, and the 660 is uplifted by elevated temperatures (+T). The narrow colored band at the 660 indicates that its position is insensitive to Z\_\textbackslash mathrm\{ri\}. In slabs, the 410 and 520 are uplifted by cold temperatures (-T), but counter-shifted by sluggish kinetic conditions (-Z\_\textbackslash mathrm\{ol\}, -Z\_\textbackslash mathrm\{wd\}). The 660 is depressed by both cold temperatures and kinetic inhibition (-T, -Z\_\textbackslash mathrm\{ri\}), with the wider colored band reflecting stronger sensitivity to Z\_\textbackslash mathrm\{ri\}. Unlike the 410, temperature (-T) and kinetic (Z\_\textbackslash mathrm\{ri\}) effects displace the 660 in the same direction in cold environments.}]{../figs/seisimc_profiles/seismic-composition.png}
+\caption{Synthetic seismic velocity profiles extracted along
+representative depth profiles in plume (left) and slab (right)
+simulations across the full range of tested kinetic prefactors
+\(Z_\mathrm{ri}\). The black line shows the background adiabatic
+reference profile. Colored bands show the envelope of profiles from slow
+(dark red, \(Z_\mathrm{ri}\) = 1.6 \(\times\) 10\(^{-3}\) mol\(^2\)
+J\(^{-2}\) s\(^{-1}\)) to fast (yellow, \(Z_\mathrm{ri}\) = 1.6
+\(\times\) 10\(^3\) mol\(^2\) J\(^{-2}\) s\(^{-1}\)) kinetics. In
+plumes, the 410 and 520 are depressed, and the 660 is uplifted by
+elevated temperatures (\(+T\)). The narrow colored band at the 660
+indicates that its position is insensitive to \(Z_\mathrm{ri}\). In
+slabs, the 410 and 520 are uplifted by cold temperatures (\(-T\)), but
+counter-shifted by sluggish kinetic conditions (\(-Z_\mathrm{ol}\),
+\(-Z_\mathrm{wd}\)). The 660 is depressed by both cold temperatures and
+kinetic inhibition (\(-T\), \(-Z_\mathrm{ri}\)), with the wider colored
+band reflecting stronger sensitivity to \(Z_\mathrm{ri}\). Unlike the
+410, temperature (\(-T\)) and kinetic (\(Z_\mathrm{ri}\)) effects
+displace the 660 in the same direction in cold
+environments.}\label{fig:seismic-profiles}
+\end{figure}
+
+\subsection{Constraining Kinetics from Seismic
+Observations}\label{sec:constraining-kinetics-from-seismic-observations}
+
+Seismic observations in several subduction zones show the 660 displaced
+over a broad area while 410 displacement is either more localized or
+undetected, possibly because narrow structures escape detection.
+Examples include subduction zones beneath South America (Ba et al.,
+2025), East Asia (Liu et al., 2022; Sun et al., 2020; Tang et al.,
+2023), and Europe (Cottaar \& Deuss, 2016; Kalmár et al., 2025). These
+studies generally invoke water or the akimotoite \(\Leftrightarrow\)
+bridgmanite transition to explain the pattern, but our results show
+kinetic inhibition offers an alternative explanation for at least part
+of the signature.
+
+Beyond overall displacement, a handful of studies also constrain the
+width of the transition, offering an independent test of our
+kinetic-inhibition hypothesis. Prior work often attributes such
+broadening to the joint decomposition of ringwoodite and garnet, but our
+results show that kinetic effects alone can reproduce the observed
+widths. Inversion of receiver functions over a broad area beneath the US
+shows a velocity gradient over 25 km (Schmandt, 2012). More locally,
+frequency-dependent receiver function observations constrain a 30--40 km
+wide 660 beneath Chile--Argentina (Bonatto et al., 2020), and
+triplications show a 50--70 km transition beneath Northeast China (Wang
+\& Niu, 2010); both locations are associated with subducted slabs. The
+Chile--Argentina width falls within the range predicted by kinetic
+effects in the stagnation regime (Figure~\ref{fig:660-structure-comp};
+Table S1), and, following the trends discussed in
+Section~\ref{sec:structure-of-the-660}, the 50--70 km transition beneath
+Northeast China is consistent with ultra-sluggish ringwoodite
+decomposition within a strong, quickly descending slab.
+
+Beyond depth and width, the 660 also displays a structural complexity
+that generally exceeds the 410. The discontinuity can appear split
+(Boyce \& Cottaar, 2021; Deuss et al., 2006) or difficult to resolve in
+long-period PP precursor data (Deuss, 2009; Lessing et al., 2015), and
+observed amplitude variations in precursors (Waszek et al., 2021; {Yu et
+al.}, 2023) and high-frequency scattering (Day \& Deuss, 2013; Wu et
+al., 2019) point to compositional variations around the boundary. Some
+of this apparent complexity may itself be a kinetic signature. In
+higher-frequency data, such as receiver functions, a broad transition
+may resemble a split one. Determining how much kinetic effects
+contribute to these observations (versus genuine compositional
+variation) requires forward modeling of synthetic seismic data (e.g.,
+Lessing et al., 2015).
+
+Seismic observations alone, however, cannot fully separate kinetic
+effects from thermal, compositional, and rheological contributions. The
+boundaries between regimes shift systematically with \(B\), inflow
+velocity, and the viscosity jump factor \(b\), so the same 660 structure
+is consistent with many kinetic-rheological combinations. As previously
+stated, joint analysis of the 410 and 660 in the same slab column
+narrows, rather than eliminates, this ambiguity. However, two laboratory
+priorities would translate this framework into quantitative
+observational constraints. The first is high-pressure experiments that
+reduce uncertainties in ringwoodite decomposition kinetic parameters
+under cold slab conditions with small pressure oversteps. The second is
+explicit kinetic models for the reverse post-spinel reaction (e.g.,
+Lessing et al., 2022).
+
+\subsection{Slab Dynamics and the Diversity of Subduction
+Behavior}\label{sec:slab-dynamics-and-the-diversity-of-subduction-behavior}
+
+Ringwoodite decomposition kinetics independently promote slab stagnation
+through buoyancy accumulation in the metastable ringwoodite zone,
+without requiring trench retreat or a prescribed lower-mantle viscosity
+jump. Slabs progress from continuous penetration in the
+quasi-equilibrium regime, through temporary stalling and flattening in
+the intermediate regime, to full ponding above the 660 in the stagnation
+regime (Figure~\ref{fig:slab-composition-660-b01};
+Section~\ref{sec:structure-of-the-660}). These results complement the
+equilibrium stagnation mechanisms identified by Garel et al. (2014),
+{Agrusta et al.} (2017), and {Goes et al.} (2017). Where those studies
+identify the Clapeyron slope, lower-mantle viscosity increase, and
+trench retreat as necessary joint conditions for stagnation, our results
+establish kinetic inhibition as an additional, independently variable
+impedance. A lower-mantle viscosity jump reinforces kinetic stagnation
+in our simulations (Figures S4--S7), confirming that kinetic and viscous
+impedances at the 660 are additive.
+
+The diversity of slab behavior documented globally by Fukao \& Obayashi
+(2013) maps onto this three-regime framework. Stagnant western Pacific
+slabs with 660 depressions of 30--60 km (Jiang et al., 2015; Tauzin et
+al., 2017) are consistent with the intermediate regime at moderate
+\(Z_\mathrm{ri}\), particularly where faster descent velocity through
+the 660 amplifies metastable accumulation. The deepest observed
+depressions exceeding 60 km require either stagnation regime kinetics,
+the akimotoite \(\Leftrightarrow\) bridgmanite contribution ({Chanyshev
+et al.}, 2022), or both acting together. Steeply penetrating slabs are
+consistent with the quasi-equilibrium regime. Slabs that deflect at the
+660 before eventually sinking may record temporal evolution within the
+intermediate or stagnation regimes, where metastable ringwoodite is
+gradually consumed until buoyancy is lost and the slab resumes descent,
+consistent with Mao \& Zhong (2018) who found that stagnation is
+transient on timescales of 20--30 Ma. A separate geodynamic modeling
+study of ringwoodite decomposition kinetics predicts slab residence
+times at the base of the transition zone of 150--160 Ma before buoyancy
+is lost and penetration resumes (Chapman \& Clarke, 2021), a timescale
+consistent with the persistent metastable zones in our stagnation regime
+and with the long-lived sub-horizontal ponding documented in the western
+Pacific (Fukao \& Obayashi, 2013).
+
+Descent rates offer a further point of comparison with nature, though a
+more demanding one given the inherent limitations of our
+phenomenological model. Descent rates through the 660 in the
+quasi-equilibrium regime fall somewhat below the natural interquartile
+range of 2.6--4.8 cm yr\(^{-1}\) (Lallemand et al., 2005), a discrepancy
+also present in the 410 results of Kerswell et al. (2026). Our model
+already includes slab pull, the dominant driving force in nature, but
+omits other controls on descent rate, including upper mantle viscosity
+structure, chemical buoyancy contrasts between basaltic and harzburgitic
+layers, volatile content, and 2D geometric simplifications that neglect
+trench retreat and lateral flow. Any of these factors could shift
+simulated rates closer to natural values. Because our simulations are
+designed to isolate and demonstrate kinetic effects rather than to
+reproduce the full boundary conditions of natural subduction, the
+absolute descent rates are not expected to match observations
+quantitatively. The qualitative correspondence with observed slab
+diversity discussed above is the more direct test of our
+kinetic-inhibition hypothesis. Incorporating the omitted physics would
+be needed to translate our results into quantitative natural descent
+rates, and represents a natural extension of this framework.
+
+Despite all of these considerations, the clearest result of our
+simulations is that kinetic inhibition does not act in isolation, but
+jointly with rheology and kinematics to control subduction dynamics at
+the 660. Stronger slabs (\(B\) = 10) descend faster through the 660 due
+to their structural coherence and produce smaller displacements in the
+quasi-equilibrium regime, where kinetics are fast enough to keep pace
+with the slab. In the intermediate and stagnation regimes, however,
+their faster descent through the 660 carries more material into the
+metastable zone, amplifying 660 depression relative to weaker slabs.
+Weaker slabs with faster descent rates through the 660 generally amplify
+metastability and shift both regime boundaries to higher
+\(Z_\mathrm{ri}\) (Figure~\ref{fig:660-structure-comp}). Small changes
+in convergence rate or rheological strength near a regime boundary could
+therefore drive episodic transitions between penetrating and stagnant
+behavior at individual subduction zones over geological time ({Agrusta
+et al.}, 2017; Kerswell et al., 2026).
+
+\section{Conclusions}\label{sec:conclusions}
+
+We couple diffusion-controlled ringwoodite decomposition kinetics to
+compressible mantle flow simulations that also resolve the 410 and 520
+transitions, varying the kinetic prefactor across six orders of
+magnitude alongside slab strength, mantle viscosity structure, and
+inflow velocity. Our simulations show that the different reaction
+mechanisms governing the 410 and 660 produce fundamentally different
+controls on discontinuity structure and slab dynamics across the MTZ.
+
+Ringwoodite decomposition kinetics exert first-order control on slab
+dynamics at the 660, modulated by mantle viscosity structure, descent
+velocity, and slab strength. Slabs progress through three regimes as
+reaction rates slow. Near equilibrium, slabs descend continuously
+through the 660. As metastable ringwoodite accumulates, descent
+progressively slows and the 660 broadens and deepens. At the slowest
+reaction rates, slabs fully stagnate above the 660, descent rate drops
+by an order of magnitude, and 660 depression reaches two to four times
+the equilibrium prediction. This kinetic inhibition independently
+promotes slab stagnation, complementing and amplifying the established
+equilibrium mechanisms of the endothermic Clapeyron slope and
+lower-mantle viscosity jump. The resulting seismic signatures differ and
+become diagnostic. Quasi-equilibrium kinetics produce narrow, modestly
+depressed reflectors, while stagnation produces broad, deeply depressed
+reflectors with reduced amplitude, offering an alternative explanation
+for observations often attributed instead to akimotoite, garnet, or
+water.
+
+The character of these regimes differs fundamentally from those at the
+410. There, the interface-controlled driving force saturates at high
+overstepping, permitting abrupt re-sharpening once temperatures overcome
+the kinetic barrier. At the 660, the quadratic diffusion-controlled
+driving force grows continuously with overstepping, so displacement and
+width increase monotonically from quasi-equilibrium through stagnation
+with no re-sharpening at any tested condition. Kinetic stagnation at the
+660 is therefore progressive and persistent rather than
+threshold-controlled, a distinction essential for correctly interpreting
+the diverse seismic signatures of the MTZ.
+
+Realizing the observational potential of this framework requires
+progress on two fronts. High-pressure experiments targeting cold slab
+conditions, including small pressure oversteps, would reduce current
+uncertainties in activation energy and the kinetic prefactor, alongside
+dedicated kinetic models for the reverse post-spinel reaction.
+Frequency-dependent inversions that jointly constrain 660 topography and
+width in well-studied subduction zones would help discriminate kinetic
+from competing thermal and compositional explanations. Together with our
+companion study of the 410, these advances would extend seismological
+constraints to both the interface-controlled and diffusion-controlled
+kinetic regimes of the MTZ.
+
+\clearpage
+
+\section*{Acknowledgements}\label{sec:acknowledgements}
+\addcontentsline{toc}{section}{Acknowledgements}
+
+This work was funded by the UKRI NERC Large Grant no. NE/V018477/1. All
+computations were undertaken on Barkla2, part of the High Performance
+Computing facilities at the University of Liverpool, who graciously
+provided expert support. We thank the Computational Infrastructure for
+Geodynamics (\url{https://geodynamics.org}) which is funded by the
+National Science Foundation under awards EAR-0949446 and EAR-1550901 for
+supporting the development of ASPECT.
+
+\section*{Data Availability}\label{sec:data-availability}
+\addcontentsline{toc}{section}{Data Availability}
+
+All data, code, and relevant information for reproducing this work are
+archived on the OSF (Kerswell, 2026a) and Zenodo (Kerswell, 2026b)
+repositories. All code within these repositories is MIT Licensed and
+free for use and distribution (see license details). ASPECT version
+3.0.0 (Bangerth et al., 2024) was used for the computations in this
+study and is freely available under the GPL v2.0 or later license.
+
+\section*{Conflict of Interest}\label{sec:conflict-of-interest}
+\addcontentsline{toc}{section}{Conflict of Interest}
+
+The authors declare there are no conflicts of interest for this
+manuscript.
+
+\clearpage
+
+\section*{References}\label{sec:references}
+\addcontentsline{toc}{section}{References}
+
+\protect\phantomsection\label{refs}
+\begin{CSLReferences}{1}{0}
+\bibitem[\citeproctext]{ref-agrusta2017}
+{Agrusta, R., Goes, S., \& van Hunen, J.} (2017). Subducting-slab
+transition-zone interaction: Stagnation, penetration and mode switches.
+\emph{Earth and Planetary Science Letters}, \emph{464}, 10--23.
+
+\bibitem[\citeproctext]{ref-ba2025}
+Ba, K., Huang, J., Yu, Y., Song, J., Li, S., Shen, C., \& Liu, L.
+(2025). Break-off and stagnation of the subducting {Nazca} slab in the
+mantle transition zone beneath {West-Central South America}.
+\emph{Tectonophysics}, \emph{911}, 230834.
+
+\bibitem[\citeproctext]{ref-aspectmanual}
+Bangerth, W., Dannberg, J., Fraters, M., Gassmöller, R., Glerum, A.,
+Heister, T., et al. (2018, May). {ASPECT: Advanced Solver for Planetary
+Evolution, Convection, and Tectonics {[}User Manual{]}} (Version 12).
+Figshare. \url{https://doi.org/10.6084/m9.figshare.4865333}
+
+\bibitem[\citeproctext]{ref-aspect-doi-v3.0.0}
+Bangerth, W., Dannberg, J., Fraters, M., Gassmöller, R., Glerum, A.,
+Heister, T., et al. (2024, December). {ASPECT: Advanced Solver for
+Planetary Evolution, Convection, and Tectonics {[}Software{]}} (Version
+3.0.0). Zenodo. \url{https://doi.org/10.5281/zenodo.14371679}
+
+\bibitem[\citeproctext]{ref-bina1994}
+Bina, C., \& Helffrich, G. (1994). Phase transition {Clapeyron} slopes
+and transition zone seismic discontinuity topography. \emph{Journal of
+Geophysical Research: Solid Earth}, \emph{99}(B8), 15853--15860.
+
+\bibitem[\citeproctext]{ref-bonatto2020}
+Bonatto, L., Piromallo, C., \& Cottaar, S. (2020). The transition zone
+beneath {West Argentina}-{Central Chile} using {P-to-S} converted waves.
+\emph{Journal of Geophysical Research: Solid Earth}, \emph{125}(8),
+e2020JB019446.
+
+\bibitem[\citeproctext]{ref-boyce2021}
+Boyce, A., \& Cottaar, S. (2021). Insights into deep mantle
+thermochemical contributions to {African} magmatism from converted
+seismic phases. \emph{Geochemistry, Geophysics, Geosystems},
+\emph{22}(3), e2020GC009478.
+
+\bibitem[\citeproctext]{ref-burke1965}
+Burke, J. (1965). The kinetics of phase transformations in metals.
+
+\bibitem[\citeproctext]{ref-cahn1956}
+Cahn, J. (1956). The kinetics of grain boundary nucleated reactions.
+\emph{Acta Metallurgica}, \emph{4}(5), 449--459.
+
+\bibitem[\citeproctext]{ref-chanyshev2022}
+{Chanyshev, A., Ishii, T., Bondar, D., Bhat, S., Kim, E., Farla, R., et
+al.} (2022). Depressed 660-km discontinuity caused by
+akimotoite--bridgmanite transition. \emph{Nature}, \emph{601}(7891),
+69--73.
+
+\bibitem[\citeproctext]{ref-chapman2021}
+Chapman, T., \& Clarke, G. (2021). Delayed growth of ferropericlase and
+bridgmanite controls slab residence at the 660-km discontinuity.
+\emph{Journal of Geophysical Research: Solid Earth}, \emph{126}(6),
+e2020JB021487.
+
+\bibitem[\citeproctext]{ref-clevenger2021}
+Clevenger, T., \& Heister, T. (2021). Comparison between algebraic and
+matrix-free geometric multigrid for a {Stokes} problem on adaptive
+meshes with variable viscosity. \emph{Numerical Linear Algebra with
+Applications}, \emph{28}(5), e2375.
+
+\bibitem[\citeproctext]{ref-connolly2009}
+Connolly, J. (2009). The geodynamic equation of state: What and how.
+\emph{Geochemistry, Geophysics, Geosystems}, \emph{10}(10).
+
+\bibitem[\citeproctext]{ref-cottaar2016}
+Cottaar, S., \& Deuss, A. (2016). Large-scale mantle discontinuity
+topography beneath {Europe}: Signature of akimotoite in subducting
+slabs. \emph{Journal of Geophysical Research: Solid Earth},
+\emph{121}(1), 279--292.
+
+\bibitem[\citeproctext]{ref-cottaar2014}
+Cottaar, S., Heister, T., Rose, I., \& Unterborn, C. (2014). {BurnMan}:
+A lower mantle mineral physics toolkit. \emph{Geochemistry, Geophysics,
+Geosystems}, \emph{15}(4), 1164--1179.
+
+\bibitem[\citeproctext]{ref-day2013}
+Day, E., \& Deuss, A. (2013). Reconciling {PP} and
+{\(P^\prime P^\prime\)} precursor observations of a complex 660 km
+seismic discontinuity. \emph{Geophysical Journal International},
+\emph{194}(2), 834--838.
+
+\bibitem[\citeproctext]{ref-deuss2009}
+Deuss, A. (2009). Global observations of mantle discontinuities using
+{SS} and {PP} precursors. \emph{Surveys in Geophysics}, \emph{30}(4),
+301--326.
+
+\bibitem[\citeproctext]{ref-deuss2006}
+Deuss, A., Redfern, S., Chambers, K., \& Woodhouse, J. (2006). The
+nature of the 660-kilometer discontinuity in {Earth}'s mantle from
+global seismic observations of {PP} precursors. \emph{Science},
+\emph{311}(5758), 198--201.
+
+\bibitem[\citeproctext]{ref-dobson2014}
+Dobson, D., \& Mariani, E. (2014). The kinetics of the reaction of
+majorite plus ferropericlase to ringwoodite: Implications for mantle
+upwellings crossing the 660 km discontinuity. \emph{Earth and Planetary
+Science Letters}, \emph{408}, 110--118.
+
+\bibitem[\citeproctext]{ref-flanagan1998}
+Flanagan, M., \& Shearer, P. (1998). Global mapping of topography on
+transition zone velocity discontinuities by stacking {SS} precursors.
+\emph{Journal of Geophysical Research: Solid Earth}, \emph{103}(B2),
+2673--2692.
+
+\bibitem[\citeproctext]{ref-fraters2020}
+Fraters, M. (2020, June). {The Geodynamic World Builder {[}Software{]}}
+(Version 0.3.0). Zenodo. \url{https://doi.org/10.5281/zenodo.3900603}
+
+\bibitem[\citeproctext]{ref-fraters2019}
+{Fraters, M., Thieulot, C., van den Berg, A., \& Spakman, W.} (2019).
+The {Geodynamic World Builder}: A solution for complex initial
+conditions in numerical modeling. \emph{Solid Earth}, \emph{10}(5),
+1785--1807.
+
+\bibitem[\citeproctext]{ref-fukao2013}
+Fukao, Y., \& Obayashi, M. (2013). Subducted slabs stagnant above,
+penetrating through, and trapped below the 660 km discontinuity.
+\emph{Journal of Geophysical Research: Solid Earth}, \emph{118}(11),
+5920--5938.
+
+\bibitem[\citeproctext]{ref-garel2014}
+Garel, F., Goes, S., Davies, D., Davies, J., Kramer, S., \& Wilson, C.
+(2014). Interaction of subducted slabs with the mantle transition-zone:
+A regime diagram from 2-d thermo-mechanical models with a mobile trench
+and an overriding plate. \emph{Geochemistry, Geophysics, Geosystems},
+\emph{15}(5), 1739--1765.
+
+\bibitem[\citeproctext]{ref-gassmoller2018}
+Gassmöller, R., Lokavarapu, H., Heien, E., Puckett, E., \& Bangerth, W.
+(2018). Flexible and scalable particle-in-cell methods with adaptive
+mesh refinement for geodynamic computations. \emph{Geochemistry,
+Geophysics, Geosystems}, \emph{19}(9), 3596--3604.
+
+\bibitem[\citeproctext]{ref-gassmoller2020}
+Gassmöller, R., Dannberg, J., Bangerth, W., Heister, T., \& Myhill, R.
+(2020). On formulations of compressible mantle convection.
+\emph{Geophysical Journal International}, \emph{221}(2), 1264--1280.
+
+\bibitem[\citeproctext]{ref-ghosh2013}
+Ghosh, S., Ohtani, E., Litasov, K., Suzuki, A., Dobson, D., \&
+Funakoshi, K. (2013). Effect of water in depleted mantle on post-spinel
+transition and implication for 660 km seismic discontinuity. \emph{Earth
+and Planetary Science Letters}, \emph{371}, 103--111.
+
+\bibitem[\citeproctext]{ref-goes2017}
+{Goes, S., Agrusta, R., van Hunen, J., \& Garel, F.} (2017).
+Subduction-transition zone interaction: A review. \emph{Geosphere},
+\emph{13}(3), 644--664.
+
+\bibitem[\citeproctext]{ref-goes2022}
+{Goes, S., Yu, C., Ballmer, M., Yan, J., \& van der Hilst, R.} (2022).
+Compositional heterogeneity in the mantle transition zone. \emph{Nature
+Reviews Earth \& Environment}, \emph{3}(8), 533--550.
+
+\bibitem[\citeproctext]{ref-green1979}
+Green, D., Jaques, L., \& Hibberson, W. (1979). Petrogenesis of
+mid-ocean ridge basalts. In \emph{The earth: Its origin, structure and
+evolution} (pp. 265--300). Academic Press.
+
+\bibitem[\citeproctext]{ref-heister2017}
+Heister, T., Dannberg, J., Gassmöller, R., \& Bangerth, W. (2017). High
+accuracy mantle convection simulation through modern numerical
+methods--{II}: Realistic models and problems. \emph{Geophysical Journal
+International}, \emph{210}(2), 833--851.
+
+\bibitem[\citeproctext]{ref-hindmarsh2005}
+Hindmarsh, A., Brown, P., Grant, K., Lee, S., Serban, R., Shumaker, D.,
+\& Woodward, C. (2005). {SUNDIALS}: Suite of nonlinear and
+differential/algebraic equation solvers. \emph{ACM Transactions on
+Mathematical Software (TOMS)}, \emph{31}(3), 363--396.
+
+\bibitem[\citeproctext]{ref-hirth2003}
+Hirth, G., \& Kohlstedf, D. (2003). Rheology of the upper mantle and the
+mantle wedge: A view from the experimentalists. \emph{Geophysical
+Monograph-American Geophysical Union}, \emph{138}, 83--106.
+
+\bibitem[\citeproctext]{ref-hosoya2005}
+Hosoya, T., Kubo, T., Ohtani, E., Sano, A., \& Funakoshi, K. (2005).
+Water controls the fields of metastable olivine in cold subducting
+slabs. \emph{Geophysical Research Letters}, \emph{32}(17).
+
+\bibitem[\citeproctext]{ref-ishii2019}
+{Ishii, T., Huang, R., Myhill, R., Fei, H., Koemets, I., Liu, Z., et
+al.} (2019). Sharp 660-km discontinuity controlled by extremely narrow
+binary post-spinel transition. \emph{Nature Geoscience}, \emph{12}(10),
+869--872.
+
+\bibitem[\citeproctext]{ref-ita1992}
+Ita, J., \& Stixrude, L. (1992). Petrology, elasticity, and composition
+of the mantle transition zone. \emph{Journal of Geophysical Research:
+Solid Earth}, \emph{97}(B5), 6849--6866.
+
+\bibitem[\citeproctext]{ref-ji2004}
+Ji, S. (2004). A generalized mixture rule for estimating the viscosity
+of solid-liquid suspensions and mechanical properties of polyphase rocks
+and composite materials. \emph{Journal of Geophysical Research: Solid
+Earth}, \emph{109}(B10).
+
+\bibitem[\citeproctext]{ref-jiang2015}
+Jiang, G., Zhao, D., \& Zhang, G. (2015). Detection of metastable
+olivine wedge in the western {Pacific} slab and its geodynamic
+implications. \emph{Physics of the Earth and Planetary Interiors},
+\emph{238}, 1--7.
+
+\bibitem[\citeproctext]{ref-kalmar2025}
+Kalmár, D., Petrescu, L., Hetényi, G., Michailos, K., Süle, B., Neagoe,
+C., \& Bokelmann, G. (2025). Mantle transition zone analysis using
+{P-to-S} receiver functions in the {Alpine--Carpathian--Dinarides}
+region: Impact of plumes and slabs. \emph{Geophysical Journal
+International}, \emph{243}(1), ggaf313.
+
+\bibitem[\citeproctext]{ref-karato1984}
+Karato, S. (1984). Grain-size distribution and rheology of the upper
+mantle. \emph{Tectonophysics}, \emph{104}(1-2), 155--176.
+
+\bibitem[\citeproctext]{ref-karato2008}
+Karato, S. (2008). Deformation of earth materials. \emph{An Introduction
+to the Rheology of Solid Earth}, \emph{463}.
+
+\bibitem[\citeproctext]{ref-kerswell2026b}
+Kerswell, B. (2026a, August).
+{buchanankerswell/kerswell\_et\_al\_660\_kinetics: Publication Release
+{[}Dataset{]}} (Version 1.0.0). OSF.
+\url{https://doi.org/10.17605/OSF.IO/KUR93}
+
+\bibitem[\citeproctext]{ref-kerswell2026c}
+Kerswell, B. (2026b, August).
+{buchanankerswell/kerswell\_et\_al\_660\_kinetics: Publication Release
+{[}Software{]}} (Version 1.0.0). Zenodo.
+\url{https://doi.org/xx.xxxx/zenodo.xxxxxxxx}
+
+\bibitem[\citeproctext]{ref-kerswell2026a}
+Kerswell, B., Wheeler, J., Gassmöller, R., Davies, J., Papanagnou, I.,
+\& Cottaar, S. (2026). Beyond equilibrium: Kinetic thresholds and
+rheological feedbacks create a potentially complex 410 in slab regions.
+\emph{Journal of Geophysical Research: Solid Earth}, \emph{131}(7),
+e2026JB033781.
+
+\bibitem[\citeproctext]{ref-kronbichler2012}
+Kronbichler, M., Heister, T., \& Bangerth, W. (2012). High accuracy
+mantle convection simulation through modern numerical methods.
+\emph{Geophysical Journal International}, \emph{191}(1), 12--29.
+
+\bibitem[\citeproctext]{ref-kubo2000}
+Kubo, T., Ohtani, E., Kato, T., Urakawa, S., Suzuki, A., Kanbe, Y., et
+al. (2000). Formation of metastable assemblages and mechanisms of the
+grain-size reduction in the postspinel transformation of
+{Mg\(_2\)SiO\(_4\)}. \emph{Geophysical Research Letters}, \emph{27}(6),
+807--810.
+
+\bibitem[\citeproctext]{ref-kubo2002}
+Kubo, T., Ohtani, E., Kato, T., Urakawa, S., Suzuki, A., Kanbe, Y., et
+al. (2002). Mechanisms and kinetics of the post-spinel transformation in
+{Mg\(_2\)SiO\(_4\)}. \emph{Physics of the Earth and Planetary
+Interiors}, \emph{129}(1-2), 153--171.
+
+\bibitem[\citeproctext]{ref-lallemand2005}
+Lallemand, S., Heuret, A., \& Boutelier, D. (2005). On the relationships
+between slab dip, back-arc stress, upper plate absolute motion, and
+crustal nature in subduction zones. \emph{Geochemistry, Geophysics,
+Geosystems}, \emph{6}(9).
+
+\bibitem[\citeproctext]{ref-lebedev2002}
+Lebedev, S., Chevrot, S., \& Hilst, R. van der. (2002). Seismic evidence
+for olivine phase changes at the 410-and 660-kilometer discontinuities.
+\emph{Science}, \emph{296}(5571), 1300--1302.
+
+\bibitem[\citeproctext]{ref-lessing2015}
+Lessing, S., Thomas, C., Saki, M., Schmerr, N., \& Vanacore, E. (2015).
+On the difficulties of detecting {PP} precursors. \emph{Geophysical
+Journal International}, \emph{201}(3), 1666--1681.
+
+\bibitem[\citeproctext]{ref-lessing2022}
+Lessing, S., Dobson, D., Rost, S., Cobden, L., \& Thomas, C. (2022).
+Kinetic effects on the 660-km-phase transition in mantle upstreams and
+seismological implications. \emph{Geophysical Journal International},
+\emph{231}(2), 877--893.
+
+\bibitem[\citeproctext]{ref-litasov2005}
+Litasov, K., Ohtani, E., Sano, A., Suzuki, A., \& Funakoshi, K. (2005).
+In situ x-ray diffraction study of post-spinel transformation in a
+peridotite mantle: Implication for the 660-km discontinuity. \emph{Earth
+and Planetary Science Letters}, \emph{238}(3-4), 311--328.
+
+\bibitem[\citeproctext]{ref-liu2022}
+Liu, L., Gao, S., Liu, K., Griffin, W., Li, S., Tong, S., \& Ning, J.
+(2022). Mantle dynamics of the {North China Craton}: New insights from
+mantle transition zone imaging constrained by {P-to-S} receiver
+functions. \emph{Geophysical Journal International}, \emph{231}(1),
+629--637.
+
+\bibitem[\citeproctext]{ref-mao2018}
+Mao, W., \& Zhong, S. (2018). Slab stagnation due to a reduced viscosity
+layer beneath the mantle transition zone. \emph{Nature Geoscience},
+\emph{11}(11), 876--881.
+
+\bibitem[\citeproctext]{ref-mao2021}
+Mao, W., \& Zhong, S. (2021). Formation of horizontally deflected slabs
+in the mantle transition zone caused by spinel-to-post-spinel phase
+transition, its associated grainsize reduction effects, and trench
+retreat. \emph{Geophysical Research Letters}, \emph{48}(15),
+e2021GL093679.
+
+\bibitem[\citeproctext]{ref-ming2006}
+Ming, L., Kim, Y., Uchida, T., Wang, Y., \& Rivers, M. (2006). In situ
+x-ray diffraction study of phase transitions of {FeTiO\(_3\)} at high
+pressures and temperatures using a large-volume press and synchrotron
+radiation. \emph{American Mineralogist}, \emph{91}(1), 120--126.
+
+\bibitem[\citeproctext]{ref-muir2021}
+Muir, J., Zhang, F., \& Brodholt, J. (2021). The effect of water on the
+post-spinel transition and evidence for extreme water contents at the
+bottom of the transition zone. \emph{Earth and Planetary Science
+Letters}, \emph{565}, 116909.
+
+\bibitem[\citeproctext]{ref-myhill2023}
+Myhill, R., Cottaar, S., Heister, T., Rose, I., Unterborn, C., Dannberg,
+J., \& Gassmöller, R. (2023). {BurnMan}--a {Python} toolkit for
+planetary geophysics, geochemistry and thermodynamics.
+
+\bibitem[\citeproctext]{ref-navrotsky1998}
+Navrotsky, A. (1998). Energetics and crystal chemical systematics among
+ilmenite, lithium niobate, and perovskite structures. \emph{Chemistry of
+Materials}, \emph{10}(10), 2787--2793.
+
+\bibitem[\citeproctext]{ref-papanagnou2023}
+Papanagnou, I., Schuberth, B., \& Thomas, C. (2023). Geodynamic
+predictions of seismic structure and discontinuity topography of the
+mantle transition zone. \emph{Geophysical Journal International},
+\emph{234}(1), 355--378.
+
+\bibitem[\citeproctext]{ref-reynolds2023}
+Reynolds, D., Gardner, D., Woodward, C., \& Chinomona, R. (2023).
+{ARKODE}: A flexible {IVP} solver infrastructure for one-step methods.
+\emph{ACM Transactions on Mathematical Software}, \emph{49}(2), 1--26.
+
+\bibitem[\citeproctext]{ref-ringwood1991}
+Ringwood, A. (1991). Phase transformations and their bearing on the
+constitution and dynamics of the mantle. \emph{Geochimica Et
+Cosmochimica Acta}, \emph{55}(8), 2083--2110.
+
+\bibitem[\citeproctext]{ref-schmandt2012}
+Schmandt, B. (2012). Mantle transition zone shear velocity gradients
+beneath {USArray}. \emph{Earth and Planetary Science Letters},
+\emph{355}, 119--130.
+
+\bibitem[\citeproctext]{ref-sime2024}
+{Sime, N., Wilson, C., \& van Keken, P.} (2024). Thermal modeling of
+subduction zones with prescribed and evolving 2D and 3D slab geometries.
+\emph{Progress in Earth and Planetary Science}, \emph{11}(1), 14.
+
+\bibitem[\citeproctext]{ref-smyth1987}
+Smyth, J. (1987). {\(\beta\)-Mg\(_2\)SiO\(_4\)}; a potential host for
+water in the mantle? \emph{American Mineralogist}, \emph{72}(11-12),
+1051--1055.
+
+\bibitem[\citeproctext]{ref-smyth2002}
+Smyth, J., \& Frost, D. (2002). The effect of water on the 410-km
+discontinuity: An experimental study. \emph{Geophysical Research
+Letters}, \emph{29}(10), 123--1.
+
+\bibitem[\citeproctext]{ref-stixrude2022}
+Stixrude, L., \& Lithgow-Bertelloni, C. (2022). Thermal expansivity,
+heat capacity and bulk modulus of the mantle. \emph{Geophysical Journal
+International}, \emph{228}(2), 1119--1149.
+
+\bibitem[\citeproctext]{ref-sun2020}
+Sun, M., Gao, S., Liu, K., \& Fu, X. (2020). Upper mantle and mantle
+transition zone thermal and water content anomalies beneath {NE Asia}:
+Constraints from receiver function imaging of the 410 and 660 km
+discontinuities. \emph{Earth and Planetary Science Letters}, \emph{532},
+116040.
+
+\bibitem[\citeproctext]{ref-tang2014}
+Tang, Y., Obayashi, M., Niu, F., Grand, S., Chen, Y., Kawakatsu, H., et
+al. (2014). {Changbaishan} volcanism in northeast {China} linked to
+subduction-induced mantle upwelling. \emph{Nature Geoscience},
+\emph{7}(6), 470--475.
+
+\bibitem[\citeproctext]{ref-tang2023}
+Tang, Z., Julià, J., Mooney, W., Mai, P., Yu, H., \& Wu, Y. (2023).
+Seismic image of the mantle transition zone beneath northeastern
+{China}: Evidence for stagnant {Pacific} subducting slab, lithospheric
+delamination and mantle upwelling. \emph{Geophysical Journal
+International}, \emph{235}(2), 1872--1887.
+
+\bibitem[\citeproctext]{ref-tauzin2017}
+Tauzin, B., Kim, S., \& Kennett, B. (2017). Pervasive seismic
+low-velocity zones within stagnant plates in the mantle transition zone:
+Thermal or compositional origin? \emph{Earth and Planetary Science
+Letters}, \emph{477}, 1--13.
+
+\bibitem[\citeproctext]{ref-vandermeijde2003}
+{van der Meijde, M., Marone, F., Giardini, D., \& van der Lee, S.}
+(2003). Seismic evidence for water deep in {Earth}'s upper mantle.
+\emph{Science}, \emph{300}(5625), 1556--1558.
+
+\bibitem[\citeproctext]{ref-wang2010}
+Wang, B., \& Niu, F. (2010). A broad 660 km discontinuity beneath
+northeast {China} revealed by dense regional seismic networks in
+{China}. \emph{Journal of Geophysical Research: Solid Earth},
+\emph{115}(B6).
+
+\bibitem[\citeproctext]{ref-waszek2021}
+Waszek, L., Tauzin, B., Schmerr, N., Ballmer, M., \& Afonso, J. (2021).
+A poorly mixed mantle transition zone and its thermal state inferred
+from seismic waves. \emph{Nature Geoscience}, \emph{14}(12), 949--955.
+
+\bibitem[\citeproctext]{ref-wheeler2015}
+Wheeler, J. (2015a). Dramatic effects of stress on metamorphic
+reactions: reply. \emph{Geology}, \emph{43}(11), e373--e373.
+
+\bibitem[\citeproctext]{ref-wheeler2015b}
+Wheeler, J. (2015b). Dramatic effects of stress on metamorphic
+reactions: reply. \emph{Geology}, \emph{43}(11), e373--e373.
+
+\bibitem[\citeproctext]{ref-wheeler2020}
+Wheeler, J. (2020). A unifying basis for the interplay of stress and
+chemical processes in the {Earth}: Support from diverse experiments.
+\emph{Contributions to Mineralogy and Petrology}, \emph{175}(12), 116.
+
+\bibitem[\citeproctext]{ref-wu2019}
+Wu, W., Ni, S., \& Irving, J. (2019). Inferring {Earth}'s discontinuous
+chemical layering from the 660-kilometer boundary topography.
+\emph{Science}, \emph{363}(6428), 736--740.
+
+\bibitem[\citeproctext]{ref-xu2008}
+Xu, W., Lithgow-Bertelloni, C., Stixrude, L., \& Ritsema, J. (2008). The
+effect of bulk composition and temperature on mantle seismic structure.
+\emph{Earth and Planetary Science Letters}, \emph{275}(1-2), 70--79.
+
+\bibitem[\citeproctext]{ref-yamazaki2005}
+Yamazaki, D., Inoue, T., Okamoto, M., \& Irifune, T. (2005). Grain
+growth kinetics of ringwoodite and its implication for rheology of the
+subducting slab. \emph{Earth and Planetary Science Letters},
+\emph{236}(3-4), 871--881.
+
+\bibitem[\citeproctext]{ref-yu2023}
+{Yu, C., Goes, S., Day, E., \& van der Hilst, R.} (2023). Seismic
+evidence for global basalt accumulation in the mantle transition zone.
+\emph{Science Advances}, \emph{9}(22), eadg0095.
+
+\bibitem[\citeproctext]{ref-zener1946}
+Zener, C. (1946). Kinetics of the decomposition of austenite.
+\emph{Trans. Aime}, \emph{167}, 550--595.
+
+\end{CSLReferences}
+
+
+\end{document}

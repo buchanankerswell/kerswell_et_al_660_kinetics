@@ -1,0 +1,25 @@
+subsection Material model
+  set Model name = latent heat
+
+  subsection Latent heat
+    set Reference density                    = 3500
+    set Reference temperature                = {surface-temperature}
+    set Thermal conductivity                 = 4.0
+    set Reference specific heat              = 1250
+    set Thermal expansion coefficient        = 3e-05
+    set Compressibility                      = 0
+
+    set Viscosity                            = {eta-ref}
+    set Minimum viscosity                    = {eta-min}
+    set Maximum viscosity                    = {eta-max}
+    set Thermal viscosity exponent           = {eta-thermal-exp}
+    set Viscosity prefactors                 = background: {eta-pref-olivine} | {eta-pref-wadsleyite} | {eta-pref-ringwoodite} | {eta-pref-postspinel}
+
+    set Corresponding phase for density jump = 0, 0, 0
+    set Phase transition depths              = background: {trans-ol-wd-depth} | {trans-wd-ri-depth} | {trans-ri-ps-depth}
+    set Phase transition temperatures        = background: {trans-ol-wd-T} | {trans-wd-ri-T} | {trans-ri-ps-T}
+    set Phase transition Clapeyron slopes    = background: {trans-ol-wd-clap} | {trans-wd-ri-clap} | {trans-ri-ps-clap}
+    set Phase transition widths              = background: 5e+03 | 5e+03 | 5e+03
+    set Phase transition density jumps       = {trans-ol-wd-drho}, {trans-wd-ri-drho}, {trans-ri-ps-drho}
+  end
+end

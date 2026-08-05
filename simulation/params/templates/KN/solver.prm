@@ -1,0 +1,19 @@
+subsection Formulation
+  set Mass conservation    = projected density field
+  set Temperature equation = real density
+end
+
+subsection Solver parameters
+  subsection Stokes solver parameters
+    set Linear solver tolerance             = 1e-6
+    set GMRES solver restart length         = 200
+    set Number of cheap Stokes solver steps = 5000
+  end
+end
+
+subsection Discretization
+  set Use locally conservative discretization      = true
+  set Use discontinuous composition discretization = true
+  set Use discontinuous temperature discretization = true
+end
+

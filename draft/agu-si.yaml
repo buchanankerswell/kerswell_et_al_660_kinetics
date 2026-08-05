@@ -1,0 +1,42 @@
+---
+journal: "JGR: Solid Earth"
+classoption: "final"
+title: "Beyond Equilibrium II: Ringwoodite Decomposition Kinetics Amplify 660 km Discontinuity Depressions and Offer an Independent Control on Slab Stagnation"
+authors:
+  - name: "Buchanan Kerswell"
+    affil: 1
+  - name: "John Wheeler"
+    affil: 1
+  - name: "Rene Gassmöller"
+    affil: 2
+  - name: "J. Huw Davies"
+    affil: 3
+  - name: "Isabel Papanagnou"
+    affil: 4
+  - name: "Sanne Cottaar"
+    affil: 4
+  - name: "David P. Dobson"
+    affil: 5
+affiliations:
+  - number: 1
+    name: "Department of Earth, Oceans and Ecological Sciences, University of Liverpool, Liverpool L69 3BX, UK"
+  - number: 2
+    name: "GEOMAR Helmholtz Centre for Ocean Research Kiel, Kiel, Germany"
+  - number: 3
+    name: "School of Earth and Environmental Sciences, Cardiff University, Park Place, Cardiff, CF10 3AT, UK"
+  - number: 4
+    name: "Bullard Laboratories, Department of Earth Sciences, University of Cambridge, Cambridge CB3 0EZ, UK"
+  - number: 5
+    name: "Department of Earth Sciences, University College London, London WC1E 6BS, UK"
+corresponding_author:
+  - name: "Buchanan Kerswell"
+    email: "b.kerswell@liverpool.ac.uk"
+figPrefix: "Figure"
+eqnPrefix: "Equation"
+secPrefix: "Section"
+tblPrefix: "Table"
+header-includes:
+  - \usepackage{amsmath}
+  - \usepackage{amssymb}
+  - \usepackage{amsfonts}
+---

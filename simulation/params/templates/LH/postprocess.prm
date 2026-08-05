@@ -1,0 +1,22 @@
+subsection Postprocess
+  set List of postprocessors = visualization
+
+  subsection Visualization
+    set Output format                 = vtu
+    set Time between graphical output = {viz-out-time}
+    set Number of grouped files       = 1
+    set List of output variables      = depth, material properties, adiabat, nonadiabatic temperature, nonadiabatic pressure, stress, shear stress, strain rate, stress second invariant
+
+    subsection Material properties
+      set List of material properties = density, thermal expansivity, compressibility, specific heat, viscosity
+    end
+
+    subsection Principal stress
+      set Use deviatoric stress = true
+    end
+  end
+end
+
+subsection Checkpointing
+  set Time between checkpoint = {checkpoint-time}
+end

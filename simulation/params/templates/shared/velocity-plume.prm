@@ -1,0 +1,10 @@
+subsection Boundary velocity model
+  set Prescribed velocity boundary indicators = top x:zero velocity, right x:zero velocity, left x:zero velocity, bottom:function
+
+  subsection Function
+    set Variable names      = x, y
+    set Function constants  = x0={x0-plume}, y0={y0-plume}, dx={dx-plume}, dy={dy-plume}, L={l-plume}, W={w-plume}, V={velocity}, A={a-plume}
+    set Function expression = V*(dx/L) * exp(-(((x-x0)*(-dy)+(y-y0)*dx)/L)^2/(2*W^2)) * 0.5*(1+tanh((L-((x-x0)*dx+(y-y0)*dy)/L)/A)); \
+                              V*(dy/L) * exp(-(((x-x0)*(-dy)+(y-y0)*dx)/L)^2/(2*W^2)) * 0.5*(1+tanh((L-((x-x0)*dx+(y-y0)*dy)/L)/A))
+  end
+end

@@ -1,0 +1,13 @@
+set Dimension                     = 2
+set Use years instead of seconds  = true
+set End time                      = {end-time}
+set Adiabatic surface temperature = {surface-temperature}
+set Surface pressure              = {surface-pressure}
+set Nonlinear solver scheme       = iterated Advection and Stokes
+set Nonlinear solver tolerance    = {solver-tolerance}
+set Use operator splitting        = true
+set Max nonlinear iterations      = {max-solver-iter}
+set CFL number                    = 0.7
+set Maximum time step             = {max-solver-tstep}
+set Resume computation            = auto
+set Additional shared libraries   = plugins/libmtz-kinetics.so
