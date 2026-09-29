@@ -52,7 +52,7 @@ This work was funded by the UKRI NERC Large Grant no. NE/V018477/1. All computat
 
 ## Data Availability
 
-All data, code, and relevant information for reproducing this work are archived on the OSF ([Kerswell, 2026a](https://doi.org/10.17605/OSF.IO/KUR93)) and Zenodo ([Kerswell, 2026b](https://doi.org/xx.xxxx/zenodo.xxxxxxxx)) repositories. All code within these repositories is MIT Licensed and free for use and distribution (see license details). ASPECT version 3.0.0 ([Bangerth et al., 2024](https://doi.org/10.5281/zenodo.14371679)) was used for the computations in this study and is freely available under the GPL v2.0 or later license.
+All data, code, and relevant information for reproducing this work are archived on the OSF ([Kerswell, 2026a](https://doi.org/10.17605/OSF.IO/KUR93)) and Zenodo ([Kerswell, 2026b](https://doi.org/10.5281/zenodo.21810741)) repositories. All code within these repositories is MIT Licensed and free for use and distribution (see license details). ASPECT version 3.0.0 ([Bangerth et al., 2024](https://doi.org/10.5281/zenodo.14371679)) was used for the computations in this study and is freely available under the GPL v2.0 or later license.
 
 ## Abstract
 
