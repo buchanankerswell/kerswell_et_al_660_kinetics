@@ -2,7 +2,7 @@
 include $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/../project.mk)
 
 # Cleanup
-CLEAN      := $(BASH)/log $(DEALII)/tmp $(LOG_FILE)
+CLEAN      := $(PROJECT_ROOT)/log-*.out $(DEALII)/tmp
 DEEP_CLEAN := $(BASH)/candi
 
 # Targets

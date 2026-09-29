@@ -359,6 +359,9 @@ LOGGER          := 2>&1 | tee -a $(LOG_FILE)
 SUPPRESS_STDERR := 2>/dev/null
 SUPPRESS_STDOUT := > /dev/null
 
+$(LOG_FILE):
+	@touch $(LOG_FILE)
+
 # --------------------------------------------------
 # Safe removal macro
 # --------------------------------------------------
