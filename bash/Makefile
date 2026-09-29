@@ -22,7 +22,7 @@ uninstall-dealii:
 
 $(ASPECT_EXE): $(LOG_FILE)
 	@if [ "$(OS_SYSTEM)" = "rocky" ]; then \
-	  if echo "$(shell hostname)" | grep -q "login"; then \
+	  if echo "$(shell hostname)" | grep -qE "login|viz"; then \
 	    echo " !! Warning: This script cannot be run on the BARKLA login node!" $(LOGGER); \
 	    echo " !!          Start an interactive session with 'srun --ntasks=<N> --pty /bin/bash'" $(LOGGER); \
 	    exit 1; \
@@ -34,7 +34,7 @@ $(ASPECT_EXE): $(LOG_FILE)
 
 $(DEALII_LIB): $(LOG_FILE)
 	@if [ "$(OS_SYSTEM)" = "rocky" ]; then \
-	  if echo "$(shell hostname)" | grep -q "login"; then \
+	  if echo "$(shell hostname)" | grep -qE "login|viz"; then \
 	    echo " !! Warning: This script cannot be run on the BARKLA login node!" $(LOGGER); \
 	    echo " !!          Start an interactive session with 'srun --ntasks=<N> --pty /bin/bash'" $(LOGGER); \
 	    exit 1; \
