@@ -354,7 +354,7 @@ endif
 # Logging
 # --------------------------------------------------
 DATE            := $(shell date +"%d-%m-%Y")
-LOG_FILE        := .log/log-$(DATE).log
+LOG_FILE        := $(PROJECT_ROOT)/log-$(DATE).out
 LOGGER          := 2>&1 | tee -a $(LOG_FILE)
 SUPPRESS_STDERR := 2>/dev/null
 SUPPRESS_STDOUT := > /dev/null
