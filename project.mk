@@ -321,8 +321,8 @@ DEALII_VERSION := v9.7.0
 ifeq ($(UNAME_SHELL), Darwin)
   # Install config
   DEALII_LIB       := $(DEALII)/deal.II-$(DEALII_VERSION)/lib/libdeal_II.dylib
-  INSTALL_DEALII   := $(INSTALL)/dealii-macos.sh
-  INSTALL_ASPECT   := $(INSTALL)/aspect-macos.sh
+  INSTALL_DEALII   := $(BASH)/install/dealii-macos.sh
+  INSTALL_ASPECT   := $(BASH)/install/aspect-macos.sh
   TRILINOS_VERSION := AUTO
 
   # Run config
@@ -331,8 +331,8 @@ ifeq ($(UNAME_SHELL), Darwin)
 else ifeq ($(OS_SYSTEM), rocky)
   # Install config
   DEALII_LIB       := $(DEALII)/deal.II-$(DEALII_VERSION)/lib/libdeal_II.so
-  INSTALL_DEALII   := $(INSTALL)/dealii-barkla2.sh
-  INSTALL_ASPECT   := $(INSTALL)/aspect-barkla2.sh
+  INSTALL_DEALII   := $(BASH)/install/dealii-barkla2.sh
+  INSTALL_ASPECT   := $(BASH)/install/aspect-barkla2.sh
   TRILINOS_VERSION := AUTO
   GCC              := gcc/14.2.0
   OPENMPI          := openmpi/5.0.8-gcc14.2.0
