@@ -7,12 +7,12 @@ PROFILES       := $(foreach g,$(MG_NUM),$(SIMULATION)/data/olivine-wadsleyite-pr
 PERPLEX_MODELS := $(shell find $(PERPLEX) -type f -name '*.dat' -exec basename {} .dat \;)
 
 # Composition plots
-ID_1 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e-03_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
-ID_2 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
-ID_3 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e+03_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
-ID_4 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e-03_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02
-ID_5 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02
-ID_6 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e+03_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02
+ID_1 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-11_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
+ID_2 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri1.90e-08_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
+ID_3 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-05_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
+ID_4 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-11_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02
+ID_5 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri1.90e-08_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02
+ID_6 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-05_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02
 
 # Cleanup
 CLEAN      := $(PYTHON)/**/__pycache__ $(PYTHON)/simulation/**/__pycache__
@@ -25,7 +25,7 @@ all: visualize
 visualize: setup kubo meshes compositions-main
 
 sync-barkla:
-	@$(BASH)/simulation/sync-barkla2.sh "$(notdir $(RESULTS_LH) $(RESULTS_KN))" "$(TIMESTEPS_SYNC)" "$(SIMULATION)" "$(BARKLA2_SIMULATION)"
+	@$(BASH)/simulation/sync-barkla2.sh "$(notdir $(RESULTS_KN) $(RESULTS_KN_COLD_SLAB))" "$(TIMESTEPS_SYNC)" "$(SIMULATION)" "$(BARKLA2_SIMULATION)"
 
 compositions-main:
 	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS)/simulation/meshes" "$(FIGS)/simulation/compositions" "0050" "b01" "$(ID_1)" "$(ID_2)" "$(ID_3)")
@@ -61,7 +61,7 @@ kubo:
 	@$(CONDA_PYTHON) -u $(PYTHON)/simulation/misc/kubo.py --out-fig-dir $(FIGS)/kubo
 
 meshes: $(PROFILES)
-	@$(eval MODELS := $(notdir $(RESULTS_LH) $(RESULTS_KN)))
+	@$(eval MODELS := $(notdir $(RESULTS_KN) $(RESULTS_KN_COLD_SLAB)))
 	@$(eval DIRS := $(addprefix $(SIMULATION)/results/, $(MODELS)))
 	@for mg in $(MG_NUM); do \
 	  PYTHONPATH=$(PYTHON) $(CONDA_PYTHON) -u $(PYTHON)/simulation/mesh/main.py \

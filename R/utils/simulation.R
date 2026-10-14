@@ -2,6 +2,12 @@
 ## Helpers                                       !!! ##
 #######################################################
 read_kerswell_data <- function(filepath, scenario_offset = 0) {
+  # The archived 410 dataset records nominal Z values. Per the 410 erratum,
+  # those runs effectively used Z' = Z / 3.15e7 (time_scale division with
+  # time in years). The OSF archive is read-only, so rescale on the fly here
+  # rather than renaming upstream.
+  sec_per_year <- 3.15e7
+
   raw <- suppressWarnings(read_csv(filepath, show_col_types = FALSE)) |>
     mutate(scenario = as.integer(factor(B_factor)) + scenario_offset)
 
@@ -10,14 +16,14 @@ read_kerswell_data <- function(filepath, scenario_offset = 0) {
       model_id = str_replace_all(model_id, "_", "-"),
       scenario = scenario,
       timestep = timestep,
-      z_ol_wd = Z_factor,
+      z_ol_wd = Z_factor / sec_per_year,
       z_ri_ps = NA_real_,
       displacement = displacement / 1e3,
       width = abs(width) / 1e3,
       max_reaction_rate = max_reaction_rate,
       max_velocity_vertical = max_velocity,
       transition = "410",
-      Z_factor = Z_factor,
+      Z_factor = Z_factor / sec_per_year,
       B_factor = B_factor,
       source = "kerswell_2026"
     ) |>

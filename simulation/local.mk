@@ -15,6 +15,15 @@ $(foreach vel,$(VELOCITY_BC),\
 $(foreach dt,$(TEMPERATURE_BC),\
 $(eval $(call REGISTER_UIDS_KN,$(dynp),$(zol),$(zwd),$(zri),$(etatherm),$(etaol),$(etawd),$(etari),$(etaps),$(mgnum),$(vel),$(dt)))))))))))))))
 
+# --------------------------------------------------
+# Cold slab UID registration (slab-only, Temp10e+02, nominal Z)
+# Paired generation: nominal Z runs ONLY at the cold anomaly, so the
+# cartesian product here never mixes warm-Z with cold-T or vice versa.
+# --------------------------------------------------
+$(foreach dynp,$(DYNAMIC_P),\
+$(foreach zol,$(Z_OL_COLD),\
+$(foreach zwd,$(Z_WD_COLD),\
+$(foreach zri,$(Z_RI_COLD),\
 $(foreach etatherm,$(ETA_THERM),\
 $(foreach etaol,$(ETA_PREF_OL),\
 $(foreach etawd,$(ETA_PREF_WD),\
@@ -22,8 +31,8 @@ $(foreach etari,$(ETA_PREF_RI),\
 $(foreach etaps,$(ETA_PREF_PS),\
 $(foreach mgnum,$(MG_NUM),\
 $(foreach vel,$(VELOCITY_BC),\
-$(foreach dt,$(TEMPERATURE_BC),\
-$(eval $(call REGISTER_UIDS_LH,$(etatherm),$(etaol),$(etawd),$(etari),$(etaps),$(mgnum),$(vel),$(dt)))))))))))
+$(foreach dt,$(TEMP_COLD),\
+$(eval $(call REGISTER_UIDS_KN_COLD,$(dynp),$(zol),$(zwd),$(zri),$(etatherm),$(etaol),$(etawd),$(etari),$(etaps),$(mgnum),$(vel),$(dt)))))))))))))))
 
 # --------------------------------------------------
 # Derived file lists
@@ -56,65 +65,46 @@ PRMS_POSTPROCESS_KN       := $(foreach uid,$(UIDS_KN),$(ASPECT_CONFIGS)/$(uid)/p
 PRMS_PLUME_KN             := $(foreach uid,$(UIDS_KN),$(ASPECT_CONFIGS)/plume_$(uid).prm)
 PRMS_SLAB_KN              := $(foreach uid,$(UIDS_KN),$(ASPECT_CONFIGS)/slab_$(uid).prm)
 
-PRMS_GLOBALS_LH           := $(foreach uid,$(UIDS_LH),$(ASPECT_CONFIGS)/$(uid)/globals.prm)
-PRMS_SOLVER_LH            := $(foreach uid,$(UIDS_LH),$(ASPECT_CONFIGS)/$(uid)/solver.prm)
-PRMS_GEOMETRY_LH          := $(foreach uid,$(UIDS_LH),$(ASPECT_CONFIGS)/$(uid)/geometry.prm)
-PRMS_MATERIAL_LH          := $(foreach uid,$(UIDS_LH),$(ASPECT_CONFIGS)/$(uid)/material.prm)
-PRMS_VELOCITY_PLUME_LH    := $(foreach uid,$(UIDS_LH),$(ASPECT_CONFIGS)/$(uid)/velocity-plume.prm)
-PRMS_VELOCITY_SLAB_LH     := $(foreach uid,$(UIDS_LH),$(ASPECT_CONFIGS)/$(uid)/velocity-slab.prm)
-PRMS_TEMPERATURE_PLUME_LH := $(foreach uid,$(UIDS_LH),$(ASPECT_CONFIGS)/$(uid)/temperature-plume.prm)
-PRMS_TEMPERATURE_SLAB_LH  := $(foreach uid,$(UIDS_LH),$(ASPECT_CONFIGS)/$(uid)/temperature-slab.prm)
-PRMS_POSTPROCESS_LH       := $(foreach uid,$(UIDS_LH),$(ASPECT_CONFIGS)/$(uid)/postprocess.prm)
-PRMS_PLUME_LH             := $(foreach uid,$(UIDS_LH),$(ASPECT_CONFIGS)/plume_$(uid).prm)
-PRMS_SLAB_LH              := $(foreach uid,$(UIDS_LH),$(ASPECT_CONFIGS)/slab_$(uid).prm)
+# Cold slab-only parameter files (reuse KN templates; no cold plumes)
+PRMS_GLOBALS_KN_COLD           := $(foreach uid,$(UIDS_KN_COLD),$(ASPECT_CONFIGS)/$(uid)/globals.prm)
+PRMS_SOLVER_KN_COLD            := $(foreach uid,$(UIDS_KN_COLD),$(ASPECT_CONFIGS)/$(uid)/solver.prm)
+PRMS_GEOMETRY_KN_COLD          := $(foreach uid,$(UIDS_KN_COLD),$(ASPECT_CONFIGS)/$(uid)/geometry.prm)
+PRMS_MATERIAL_KN_COLD          := $(foreach uid,$(UIDS_KN_COLD),$(ASPECT_CONFIGS)/$(uid)/material.prm)
+PRMS_COMPOSITION_KN_COLD       := $(foreach uid,$(UIDS_KN_COLD),$(ASPECT_CONFIGS)/$(uid)/composition.prm)
+PRMS_VELOCITY_SLAB_KN_COLD     := $(foreach uid,$(UIDS_KN_COLD),$(ASPECT_CONFIGS)/$(uid)/velocity-slab.prm)
+PRMS_TEMPERATURE_SLAB_KN_COLD  := $(foreach uid,$(UIDS_KN_COLD),$(ASPECT_CONFIGS)/$(uid)/temperature-slab.prm)
+PRMS_POSTPROCESS_KN_COLD       := $(foreach uid,$(UIDS_KN_COLD),$(ASPECT_CONFIGS)/$(uid)/postprocess.prm)
+PRMS_SLAB_KN_COLD              := $(foreach uid,$(UIDS_KN_COLD),$(ASPECT_CONFIGS)/slab_$(uid).prm)
 
 # --------------------------------------------------
 # .prm pattern rules
 # --------------------------------------------------
 # Shared pattern rules
-$(PRMS_GEOMETRY_KN) $(PRMS_GEOMETRY_LH): $(ASPECT_CONFIGS)/%/geometry.prm: $(ASPECT_TEMPLATES)/shared/geometry.prm
+$(PRMS_GEOMETRY_KN) $(PRMS_GEOMETRY_KN_COLD): $(ASPECT_CONFIGS)/%/geometry.prm: $(ASPECT_TEMPLATES)/shared/geometry.prm
 	$(call GENERATE_PRM,$<,$*,$@)
-$(PRMS_VELOCITY_PLUME_KN) $(PRMS_VELOCITY_PLUME_LH): $(ASPECT_CONFIGS)/%/velocity-plume.prm: $(ASPECT_TEMPLATES)/shared/velocity-plume.prm
+$(PRMS_VELOCITY_PLUME_KN): $(ASPECT_CONFIGS)/%/velocity-plume.prm: $(ASPECT_TEMPLATES)/shared/velocity-plume.prm
 	$(call GENERATE_PRM,$<,$*,$@)
-$(PRMS_VELOCITY_SLAB_KN) $(PRMS_VELOCITY_SLAB_LH): $(ASPECT_CONFIGS)/%/velocity-slab.prm: $(ASPECT_TEMPLATES)/shared/velocity-slab.prm
+$(PRMS_VELOCITY_SLAB_KN) $(PRMS_VELOCITY_SLAB_KN_COLD): $(ASPECT_CONFIGS)/%/velocity-slab.prm: $(ASPECT_TEMPLATES)/shared/velocity-slab.prm
 	$(call GENERATE_PRM,$<,$*,$@)
 
 # KN pattern rules
-$(PRMS_GLOBALS_KN): $(ASPECT_CONFIGS)/%/globals.prm: $(ASPECT_TEMPLATES)/KN/globals.prm
+$(PRMS_GLOBALS_KN) $(PRMS_GLOBALS_KN_COLD): $(ASPECT_CONFIGS)/%/globals.prm: $(ASPECT_TEMPLATES)/KN/globals.prm
 	$(call GENERATE_PRM,$<,$*,$@)
-$(PRMS_SOLVER_KN): $(ASPECT_CONFIGS)/%/solver.prm: $(ASPECT_TEMPLATES)/KN/solver.prm
+$(PRMS_SOLVER_KN) $(PRMS_SOLVER_KN_COLD): $(ASPECT_CONFIGS)/%/solver.prm: $(ASPECT_TEMPLATES)/KN/solver.prm
 	$(call GENERATE_PRM,$<,$*,$@)
-$(PRMS_MATERIAL_KN): $(ASPECT_CONFIGS)/%/material.prm: $(ASPECT_TEMPLATES)/KN/material.prm
+$(PRMS_MATERIAL_KN) $(PRMS_MATERIAL_KN_COLD): $(ASPECT_CONFIGS)/%/material.prm: $(ASPECT_TEMPLATES)/KN/material.prm
 	$(call GENERATE_PRM,$<,$*,$@)
-$(PRMS_COMPOSITION_KN): $(ASPECT_CONFIGS)/%/composition.prm: $(ASPECT_TEMPLATES)/KN/composition.prm
+$(PRMS_COMPOSITION_KN) $(PRMS_COMPOSITION_KN_COLD): $(ASPECT_CONFIGS)/%/composition.prm: $(ASPECT_TEMPLATES)/KN/composition.prm
 	$(call GENERATE_PRM,$<,$*,$@)
 $(PRMS_TEMPERATURE_PLUME_KN): $(ASPECT_CONFIGS)/%/temperature-plume.prm: $(ASPECT_TEMPLATES)/KN/temperature-plume.prm
 	$(call GENERATE_PRM,$<,$*,$@)
-$(PRMS_TEMPERATURE_SLAB_KN): $(ASPECT_CONFIGS)/%/temperature-slab.prm: $(ASPECT_TEMPLATES)/KN/temperature-slab.prm
+$(PRMS_TEMPERATURE_SLAB_KN) $(PRMS_TEMPERATURE_SLAB_KN_COLD): $(ASPECT_CONFIGS)/%/temperature-slab.prm: $(ASPECT_TEMPLATES)/KN/temperature-slab.prm
 	$(call GENERATE_PRM,$<,$*,$@)
-$(PRMS_POSTPROCESS_KN): $(ASPECT_CONFIGS)/%/postprocess.prm: $(ASPECT_TEMPLATES)/KN/postprocess.prm
-	$(call GENERATE_PRM,$<,$*,$@)
-
-# LH pattern rules
-$(PRMS_GLOBALS_LH): $(ASPECT_CONFIGS)/%/globals.prm: $(ASPECT_TEMPLATES)/LH/globals.prm
-	$(call GENERATE_PRM,$<,$*,$@)
-$(PRMS_SOLVER_LH): $(ASPECT_CONFIGS)/%/solver.prm: $(ASPECT_TEMPLATES)/LH/solver.prm
-	$(call GENERATE_PRM,$<,$*,$@)
-$(PRMS_MATERIAL_LH): $(ASPECT_CONFIGS)/%/material.prm: $(ASPECT_TEMPLATES)/LH/material.prm
-	$(call GENERATE_PRM,$<,$*,$@)
-$(PRMS_TEMPERATURE_PLUME_LH): $(ASPECT_CONFIGS)/%/temperature-plume.prm: $(ASPECT_TEMPLATES)/LH/temperature-plume.prm
-	$(call GENERATE_PRM,$<,$*,$@)
-$(PRMS_TEMPERATURE_SLAB_LH): $(ASPECT_CONFIGS)/%/temperature-slab.prm: $(ASPECT_TEMPLATES)/LH/temperature-slab.prm
-	$(call GENERATE_PRM,$<,$*,$@)
-$(PRMS_POSTPROCESS_LH): $(ASPECT_CONFIGS)/%/postprocess.prm: $(ASPECT_TEMPLATES)/LH/postprocess.prm
+$(PRMS_POSTPROCESS_KN) $(PRMS_POSTPROCESS_KN_COLD): $(ASPECT_CONFIGS)/%/postprocess.prm: $(ASPECT_TEMPLATES)/KN/postprocess.prm
 	$(call GENERATE_PRM,$<,$*,$@)
 
 # Top-level config pattern rules
 $(PRMS_PLUME_KN): $(ASPECT_CONFIGS)/plume_%.prm: $(ASPECT_TEMPLATES)/KN/plume.prm
 	$(call GENERATE_PRM,$<,$*,$@)
-$(PRMS_SLAB_KN): $(ASPECT_CONFIGS)/slab_%.prm: $(ASPECT_TEMPLATES)/KN/slab.prm
-	$(call GENERATE_PRM,$<,$*,$@)
-$(PRMS_PLUME_LH): $(ASPECT_CONFIGS)/plume_%.prm: $(ASPECT_TEMPLATES)/LH/plume.prm
-	$(call GENERATE_PRM,$<,$*,$@)
-$(PRMS_SLAB_LH): $(ASPECT_CONFIGS)/slab_%.prm: $(ASPECT_TEMPLATES)/LH/slab.prm
+$(PRMS_SLAB_KN) $(PRMS_SLAB_KN_COLD): $(ASPECT_CONFIGS)/slab_%.prm: $(ASPECT_TEMPLATES)/KN/slab.prm
 	$(call GENERATE_PRM,$<,$*,$@)

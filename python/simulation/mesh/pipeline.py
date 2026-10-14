@@ -285,9 +285,6 @@ class PostProcessingPipeline(BasePipeline):
         eta_trans_vals = set()
 
         for model_id, _ in self._get_ordered_pvtu_files().items():
-            if "LH" in model_id:
-                continue
-
             _, _, _, eta_therm, _, _, eta_trans_ri_ps, velocity, _, _ = self._get_prams_from_model_uid(model_id)
 
             if not np.isnan(eta_therm):
@@ -317,9 +314,6 @@ class PostProcessingPipeline(BasePipeline):
             bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}{postfix}]",
         )
         for model_id, (pvtu_files, timesteps) in pbar:
-            if "LH" in model_id:
-                continue
-
             if not pvtu_files:
                 if self.verbosity >= 1:
                     print(f" !! Warning: no result files for model: {model_id}")

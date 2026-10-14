@@ -45,18 +45,18 @@ download_results_from_osf <- function(data_dir, sim_dir, conflicts = "skip", ver
 
   if (nrow(results_dir_node) == 1) {
     patterns <- c(
-      "slab_KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e-03_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02",
-      "slab_KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02",
-      "slab_KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e+03_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02",
-      "slab_KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e-03_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02",
-      "slab_KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02",
-      "slab_KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e+03_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02",
-      "plume_KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e-03_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02",
-      "plume_KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02",
-      "plume_KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e+03_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02",
-      "plume_KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e-03_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02",
-      "plume_KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02",
-      "plume_KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e+03_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02"
+      "slab_KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-11_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02",
+      "slab_KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri1.90e-08_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02",
+      "slab_KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-05_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02",
+      "slab_KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-11_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02",
+      "slab_KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri1.90e-08_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02",
+      "slab_KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-05_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02",
+      "plume_KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-11_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02",
+      "plume_KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri1.90e-08_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02",
+      "plume_KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-05_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02",
+      "plume_KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-11_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02",
+      "plume_KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri1.90e-08_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02",
+      "plume_KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-05_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02"
     )
 
     osf_results_files <- osf_ls_files(results_dir_node)

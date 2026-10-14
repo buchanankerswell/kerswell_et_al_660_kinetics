@@ -20,12 +20,11 @@ models:
 	@$(MAKE) --no-print-directory -C $(SIMULATION) all-models
 
 plume-models:
-	@$(MAKE) --no-print-directory -C $(SIMULATION) plume-models-lh
 	@$(MAKE) --no-print-directory -C $(SIMULATION) plume-models-kn
 
 slab-models:
-	@$(MAKE) --no-print-directory -C $(SIMULATION) slab-models-lh
 	@$(MAKE) --no-print-directory -C $(SIMULATION) slab-models-kn
+	@$(MAKE) --no-print-directory -C $(SIMULATION) slab-models-kn-cold
 
 sync-barkla:
 	@$(MAKE) --no-print-directory -C $(PYTHON) sync-barkla

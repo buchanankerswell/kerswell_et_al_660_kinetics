@@ -32,8 +32,8 @@ COMBINED_CSV_RAW      := $(SIMULATION)/data/structure-summary-combined.csv
 COMBINED_CSV_FILTERED := $(SIMULATION)/data/structure-summary-combined-filtered.csv
 FORCE_REWRITE         := true
 SEISMIC_PROFILES      := $(SIMULATION)/data/seismic_profiles
-RESULTS_LH             = $(foreach type,$(MODEL_TYPES), $(addprefix $(ASPECT_RESULTS)/$(type)_, $(UIDS_LH)))
 RESULTS_KN             = $(foreach type,$(MODEL_TYPES), $(addprefix $(ASPECT_RESULTS)/$(type)_, $(UIDS_KN)))
+RESULTS_KN_COLD_SLAB   = $(addprefix $(ASPECT_RESULTS)/slab_, $(UIDS_KN_COLD))
 TIMESTEPS_SYNC        := $(shell seq -f "%03g" 0 50 100)
 TIMESTEPS_MESH        := $(shell seq -f "%03g" 0 50 100)
 
@@ -72,9 +72,19 @@ ETA_PREF_RI := 1
 ETA_PREF_PS := 1 50
 
 # Phase transition kinetics [Z: prefactor, H: activation enthalpy, V: activation volume, E: activation energy]
-Z_OL := 1.4e+04
-Z_WD := 1.4e+04
-Z_RI := 1.6e-03 1.2e-02 8.3e-02 6.0e-01 4.3e+00 3.1e+01 2.2e+02 1.6e+03
+# WARM suite (Temp5e+02): effective Z' = nominal Z / 3.15e7, run with the
+# time_scale bug (see erratum). Filenames record the effective values actually
+# simulated. With the time_scale removal in mtz-kinetics.cc, these inputs now
+# reproduce the archived physics natively.
+Z_OL := 4.44e-04
+Z_WD := 4.44e-04
+Z_RI := 5.08e-11 3.81e-10 2.63e-09 1.90e-08 1.37e-07 9.84e-07 6.98e-06 5.08e-05
+# COLD suite (Temp10e+02, slab-only): intended nominal Z, run without scaling
+# at -1000 K slab anomalies.
+Z_OL_COLD := 1.4e+04
+Z_WD_COLD := 1.4e+04
+Z_RI_COLD := 1.6e-03 1.2e-02 8.3e-02 6.0e-01 4.3e+00 3.1e+01 2.2e+02 1.6e+03
+TEMP_COLD := 10e+02
 
 V_OL := 3.3e-06
 V_WD := 3.3e-06
@@ -174,10 +184,6 @@ define MAKE_KN_UID
   KN_Dynp$(1)_Zol$(2)_Zwd$(3)_Zri$(4)_EtaTherm$(5)_EtaTrans$(6)-$(7)-$(8)-$(9)_MG$(10)_Vel$(11)_Temp$(12)
 endef
 
-define MAKE_LH_UID
-  LH_EtaTherm$(1)_EtaTrans$(2)-$(3)-$(4)-$(5)_MG$(6)_Vel$(7)_Temp$(8)
-endef
-
 # Derived UIDs
 define REGISTER_UIDS_KN
   $(eval _uid := $(strip $(call MAKE_KN_UID,$(1),$(2),$(3),$(4),$(5),$(6),$(7),$(8),$(9),$(10),$(11),$(12))))
@@ -196,17 +202,23 @@ define REGISTER_UIDS_KN
   PARAM_dt_$(_uid)       := $(12)
 endef
 
-define REGISTER_UIDS_LH
-  $(eval _uid := $(strip $(call MAKE_LH_UID,$(1),$(2),$(3),$(4),$(5),$(6),$(7),$(8))))
-  UIDS_LH                += $(_uid)
-  PARAM_etatherm_$(_uid) := $(1)
-  PARAM_etaol_$(_uid)    := $(2)
-  PARAM_etawd_$(_uid)    := $(3)
-  PARAM_etari_$(_uid)    := $(4)
-  PARAM_etaps_$(_uid)    := $(5)
-  PARAM_mgnum_$(_uid)    := $(6)
-  PARAM_vel_$(_uid)      := $(7)
-  PARAM_dt_$(_uid)       := $(8)
+# Cold KN UIDs (slab-only). PARAM_* entries share the global namespace keyed
+# by UID, so warm and cold generations never clash (UIDs differ by Z/Temp).
+define REGISTER_UIDS_KN_COLD
+  $(eval _uid := $(strip $(call MAKE_KN_UID,$(1),$(2),$(3),$(4),$(5),$(6),$(7),$(8),$(9),$(10),$(11),$(12))))
+  UIDS_KN_COLD           += $(_uid)
+  PARAM_dynp_$(_uid)     := $(1)
+  PARAM_zol_$(_uid)      := $(2)
+  PARAM_zwd_$(_uid)      := $(3)
+  PARAM_zri_$(_uid)      := $(4)
+  PARAM_etatherm_$(_uid) := $(5)
+  PARAM_etaol_$(_uid)    := $(6)
+  PARAM_etawd_$(_uid)    := $(7)
+  PARAM_etari_$(_uid)    := $(8)
+  PARAM_etaps_$(_uid)    := $(9)
+  PARAM_mgnum_$(_uid)    := $(10)
+  PARAM_vel_$(_uid)      := $(11)
+  PARAM_dt_$(_uid)       := $(12)
 endef
 
 # Parameter file generator
