@@ -10,22 +10,37 @@ CLEAN      :=
 DEEP_CLEAN := $(FIGS)/kubo
 
 # Targets
-.PHONY: all visualize tables adiabat simulation download upload clean deep-clean help
+.PHONY: all visualize tables tables-warm tables-cold adiabat simulation simulation-warm simulation-cold seismic seismic-warm seismic-cold download upload clean deep-clean help
 
 all: visualize
 visualize: adiabat simulation seismic
 
-tables:
-	@Rscript $(R)/tables.R $(R)/utils $(SIMULATION)/data/structure-summary-combined-filtered.csv $(SIMULATION)/data
+tables: tables-warm tables-cold
+
+tables-warm:
+	@Rscript $(R)/tables.R $(R)/utils $(COMBINED_CSV_FILTERED_WARM) $(DATA_WARM)
+
+tables-cold:
+	@Rscript $(R)/tables.R $(R)/utils $(COMBINED_CSV_FILTERED_COLD) $(DATA_COLD)
 
 adiabat:
 	@for model in $(PERPLEX_MODELS); do Rscript $(R)/adiabat.R $(R)/utils $$model $(SIMULATION)/data $(FIGS)/adiabat; done
 
-seismic: $(SEISMIC_PROFILES)
-	@Rscript $(R)/seismic.R $(R)/utils $(SIMULATION)/data/seismic_profiles $(FIGS)/seisimc_profiles
+seismic: seismic-warm seismic-cold
 
-simulation: $(KERSWELL_410_DATA)
-	@Rscript $(R)/simulation.R $(R)/utils $(SIMULATION)/data $(FIGS)/structure $(COMBINED_CSV_RAW) $(COMBINED_CSV_FILTERED) $(SAVE_CSV) $(FORCE_REWRITE)
+seismic-warm: $(DATA_WARM)/seismic_profiles
+	@Rscript $(R)/seismic.R $(R)/utils $(DATA_WARM)/seismic_profiles $(FIGS_SEISMIC_WARM)
+
+seismic-cold: $(DATA_COLD)/seismic_profiles
+	@Rscript $(R)/seismic.R $(R)/utils $(DATA_COLD)/seismic_profiles $(FIGS_SEISMIC_COLD)
+
+simulation: simulation-warm simulation-cold
+
+simulation-warm: $(KERSWELL_410_DATA)
+	@Rscript $(R)/simulation.R $(R)/utils $(DATA_WARM) $(FIGS_STRUCT_WARM) $(COMBINED_CSV_RAW_WARM) $(COMBINED_CSV_FILTERED_WARM) $(SAVE_CSV) $(FORCE_REWRITE)
+
+simulation-cold: $(KERSWELL_410_DATA)
+	@Rscript $(R)/simulation.R $(R)/utils $(DATA_COLD) $(FIGS_STRUCT_COLD) $(COMBINED_CSV_RAW_COLD) $(COMBINED_CSV_FILTERED_COLD) $(SAVE_CSV) $(FORCE_REWRITE)
 
 download:
 	@Rscript $(R)/osf.R $(R)/utils $(ASPECT_RESULTS) $(SIMULATION)/data "download"
@@ -48,7 +63,9 @@ help:
 	@echo "    --------------------------------------------------"
 	@echo "    visualize   Visualize all results"
 	@echo "    adiabat     Visualize adiabatic profiles"
-	@echo "    simulation  Visualize simulation results"
+	@echo "    simulation  Visualize simulation results (warm + cold)"
+	@echo "    seismic     Visualize seismic profiles (warm + cold)"
+	@echo "    tables      Write result tables (warm + cold)"
 	@echo "    download    Download ASPECT results from OSF"
 	@echo "    upload      Upload ASPECT results to OSF"
 	@echo "    clean       Remove generated files (safe)"

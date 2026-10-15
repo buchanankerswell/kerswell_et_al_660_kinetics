@@ -50,7 +50,12 @@ read_local_data <- function(filepath) {
   bind_rows(
     extract_transition_data(raw_df, "410"),
     extract_transition_data(raw_df, "660")
-  )
+  ) |>
+    # Cold nominal-Z slabs share velocity/viscosity values with the warm
+    # archive, so both suites compute scenarios 0-7. Offset the cold suite
+    # by +8 (mirroring the 410 scenario_offset) to keep regime assignment
+    # and tile axes unambiguous.
+    mutate(scenario = scenario + 8L * str_detect(model_id, fixed("Temp10e+02")))
 }
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

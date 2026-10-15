@@ -28,14 +28,30 @@ POSTPROCESS_MODE      := full
 POSTPROCESS_VERBOSITY := 0
 SAVE_CSV              := true
 FORCE_REPROCESS       := false
-COMBINED_CSV_RAW      := $(SIMULATION)/data/structure-summary-combined.csv
-COMBINED_CSV_FILTERED := $(SIMULATION)/data/structure-summary-combined-filtered.csv
 FORCE_REWRITE         := true
-SEISMIC_PROFILES      := $(SIMULATION)/data/seismic_profiles
 RESULTS_KN             = $(foreach type,$(MODEL_TYPES), $(addprefix $(ASPECT_RESULTS)/$(type)_, $(UIDS_KN)))
 RESULTS_KN_COLD_SLAB   = $(addprefix $(ASPECT_RESULTS)/slab_, $(UIDS_KN_COLD))
-TIMESTEPS_SYNC        := $(shell seq -f "%03g" 0 50 100)
+TIMESTEPS_SYNC_PLUME   := 050
+TIMESTEPS_SYNC_SLAB    := 100
+# Set to 1 to re-sync all models even when local files exist
+FORCE_SYNC            := 0
 TIMESTEPS_MESH        := $(shell seq -f "%03g" 0 50 100)
+TIMESTEPS_MESH_COLD   := 100
+# Max models per mesh-pipeline process (bounds pyvista memory growth)
+CHUNK_SIZE            := 32
+# Per-suite output layout (warm = sluggish-Z archive, cold = nominal-Z slabs)
+DATA_WARM             := $(SIMULATION)/data/warm
+DATA_COLD             := $(SIMULATION)/data/cold
+FIGS_SIM_WARM         := $(FIGS)/simulation-warm
+FIGS_SIM_COLD         := $(FIGS)/simulation-cold
+FIGS_STRUCT_WARM      := $(FIGS)/structure-warm
+FIGS_STRUCT_COLD      := $(FIGS)/structure-cold
+FIGS_SEISMIC_WARM     := $(FIGS)/seismic-warm
+FIGS_SEISMIC_COLD     := $(FIGS)/seismic-cold
+COMBINED_CSV_RAW_WARM      := $(DATA_WARM)/structure-summary-combined.csv
+COMBINED_CSV_FILTERED_WARM := $(DATA_WARM)/structure-summary-combined-filtered.csv
+COMBINED_CSV_RAW_COLD      := $(DATA_COLD)/structure-summary-combined.csv
+COMBINED_CSV_FILTERED_COLD := $(DATA_COLD)/structure-summary-combined-filtered.csv
 
 # --------------------------------------------------
 # ASPECT model parameter space (can edit)

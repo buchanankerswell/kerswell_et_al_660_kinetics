@@ -252,33 +252,33 @@ class PostProcessingPipeline(BasePipeline):
         transition_summary_cache = {}
         seismic_profile_cache = {}
 
-        can_skip = False
+        # Preload existing caches so chunked runs accumulate rather than
+        # overwrite. Each chunk processes its own models and merges them
+        # into whatever is already on disk.
         if not force_reprocess:
-            summary_exists = transition_summary_cache_path and transition_summary_cache_path.exists()
-            profile_exists = seismic_profile_cache_path and seismic_profile_cache_path.exists()
+            for path, name in (
+                (transition_summary_cache_path, "transition summary"),
+                (seismic_profile_cache_path, "seismic profile"),
+            ):
+                if path is not None and path.exists():
+                    try:
+                        print(f" .. Loading {path}")
+                        with open(path, "rb") as f:
+                            loaded = pickle.load(f)
+                        if name == "transition summary":
+                            transition_summary_cache = loaded or {}
+                        else:
+                            seismic_profile_cache = loaded or {}
+                    except Exception as e:
+                        print(f" !! Error: Could not load cache:\n    {e}")
 
-            if summary_exists and profile_exists:
-                can_skip = True
-
-        if can_skip:
-            assert transition_summary_cache_path is not None
-            assert seismic_profile_cache_path is not None
-
-            try:
-                print(f" .. Loading {transition_summary_cache_path}")
-                with open(transition_summary_cache_path, "rb") as f:
-                    transition_summary_cache = pickle.load(f)
-
-                print(f" .. Loading {seismic_profile_cache_path}")
-                with open(seismic_profile_cache_path, "rb") as f:
-                    seismic_profile_cache = pickle.load(f)
-
-                if transition_summary_cache and seismic_profile_cache:
-                    return transition_summary_cache, seismic_profile_cache
-                else:
-                    print(" !! Warning: one or more caches were empty. Reprocessing ...")
-            except Exception as e:
-                print(f" !! Error: Could not load cache:\n    {e}")
+        requested = set(self.pvtu_in_dirs)
+        if (
+            not force_reprocess
+            and requested
+            and all(transition_summary_cache.get(m) and seismic_profile_cache.get(m) for m in requested)
+        ):
+            return transition_summary_cache, seismic_profile_cache
 
         eta_therm_vals = set()
         velocity_vals = set()
@@ -301,9 +301,6 @@ class PostProcessingPipeline(BasePipeline):
         velocity_idx = {v: j for j, v in enumerate(velocity_vals)}
         eta_therm_idx = {v: i for i, v in enumerate(eta_therm_vals)}
         eta_trans_idx = {v: k for k, v in enumerate(eta_trans_vals)}
-
-        transition_summary_cache = {}
-        seismic_profile_cache = {}
 
         model_items = self._get_ordered_pvtu_files().items()
         pbar = tqdm(

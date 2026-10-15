@@ -2,6 +2,8 @@
 ## .0. Load Libraries                            !!! ##
 #######################################################
 import re
+import subprocess
+import sys
 from argparse import ArgumentParser, ArgumentTypeError, Namespace
 from pathlib import Path
 
@@ -48,6 +50,12 @@ def parse_arguments() -> Namespace:
     parser.add_argument("--save-csv", type=str2bool, default=True, help="Save structure data to csv.")
     parser.add_argument("--force-reprocess", type=str2bool, default=False, help="Force reprocessing and overwriting of cache.")
     parser.add_argument("--verbosity", type=int, default=0, help="Verbosity.")
+    parser.add_argument(
+        "--chunk-size",
+        type=int,
+        default=0,
+        help="Max models per process (0 = no chunking). Splits work across fresh processes to bound memory growth.",
+    )
 
     return parser.parse_args()
 
@@ -58,6 +66,49 @@ def parse_arguments() -> Namespace:
 def main():
     """ """
     args = parse_arguments()
+
+    model_ids = args.model_ids or []
+    in_dirs = args.in_dirs or []
+
+    # Split work across fresh processes to bound memory growth (e.g. the
+    # pyvista leak). Each child processes its subset and merges into the
+    # shared on-disk caches, so reruns only redo unfinished chunks.
+    if args.chunk_size and args.chunk_size > 0 and len(model_ids) > args.chunk_size:
+        positionals = [
+            args.dG_profile_ol_wd,
+            args.dG_profile_wd_ri,
+            args.dG_profile_ri_ps,
+            str(args.model_height),
+            str(args.surface_pressure),
+            args.out_fig_dir,
+            args.out_data_dir,
+        ]
+        for start in range(0, len(model_ids), args.chunk_size):
+            chunk_ids = model_ids[start : start + args.chunk_size]
+            chunk_dirs = in_dirs[start : start + args.chunk_size]
+            print(f" .. Chunk {start // args.chunk_size + 1}: {len(chunk_ids)} models")
+            subprocess.run(
+                [
+                    sys.executable,
+                    __file__,
+                    *positionals,
+                    "--model-ids",
+                    *chunk_ids,
+                    "--in-dirs",
+                    *chunk_dirs,
+                    "--timesteps",
+                    *[str(t) for t in (args.timesteps or [])],
+                    f"--depth-corr-ol-wd={args.depth_corr_ol_wd}",
+                    f"--depth-corr-wd-ri={args.depth_corr_wd_ri}",
+                    f"--depth-corr-ri-ps={args.depth_corr_ri_ps}",
+                    f"--mode={args.mode}",
+                    f"--save-csv={args.save_csv}",
+                    f"--force-reprocess={args.force_reprocess}",
+                    f"--verbosity={args.verbosity}",
+                ],
+                check=True,
+            )
+        return
 
     model_height = args.model_height
     headers, data = read_dG_profile(args.dG_profile_ol_wd)
@@ -81,7 +132,6 @@ def main():
 
         trans_data[phase_key] = transition
 
-    model_ids = args.model_ids or []
     tsteps = args.timesteps or []
     in_dirs = [Path(p) for p in args.in_dirs] if args.in_dirs else []
     out_fig_dir = Path(args.out_fig_dir) if args.out_fig_dir else Path("./figures")

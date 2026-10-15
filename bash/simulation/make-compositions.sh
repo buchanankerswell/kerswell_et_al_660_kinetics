@@ -49,7 +49,7 @@ compose_figures() {
       "${FIG_DIR}/${DIR1}/tiles/${FILE1}-${SUFFIX}-${TIMESTEP}.png" \
       "${FIG_DIR}/${DIR2}/tiles/${FILE2}-${SUFFIX}-${TIMESTEP}.png" \
       "${FIG_DIR}/${DIR3}/tiles/${FILE3}-${SUFFIX}-${TIMESTEP}.png"; do
-      [[ -f "$f" ]] || exit 0
+      [[ -f "$f" ]] || return 0
     done
 
     magick \

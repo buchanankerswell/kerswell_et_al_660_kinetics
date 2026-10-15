@@ -43,10 +43,6 @@ environments:
 	@if ! conda info --envs | awk '{print $$1}' | grep -qx "kerswell-et-al-mtz-kinetics"; then  conda env create -f $(PYTHON)/environment.yaml; fi
 	@Rscript $(R)/environment.R
 
-$(LOG_FILE):
-	@mkdir -p $(dir $(LOG_FILE))
-	@touch $(LOG_FILE)
-
 clean:
 	@$(MAKE) --no-print-directory -C $(BASH) clean || true
 	@$(MAKE) --no-print-directory -C $(PYTHON) clean || true

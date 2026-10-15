@@ -6,7 +6,7 @@ include $(SIMULATION)/local.mk
 PROFILES       := $(foreach g,$(MG_NUM),$(SIMULATION)/data/olivine-wadsleyite-profile-Mg$(g).tsv)
 PERPLEX_MODELS := $(shell find $(PERPLEX) -type f -name '*.dat' -exec basename {} .dat \;)
 
-# Composition plots
+# Composition plots (warm sluggish-Z reference scenarios)
 ID_1 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-11_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
 ID_2 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri1.90e-08_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
 ID_3 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-05_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
@@ -14,24 +14,38 @@ ID_4 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-11_EtaTherm5_EtaTrans1-1-1-50_
 ID_5 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri1.90e-08_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02
 ID_6 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-05_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02
 
+# Composition plots (cold nominal-Z counterparts, slab-only)
+ID_C1 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e-03_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp10e+02
+ID_C2 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp10e+02
+ID_C3 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e+03_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp10e+02
+ID_C4 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e-03_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp10e+02
+ID_C5 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp10e+02
+ID_C6 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e+03_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp10e+02
+
 # Cleanup
 CLEAN      := $(PYTHON)/**/__pycache__ $(PYTHON)/simulation/**/__pycache__
-DEEP_CLEAN := $(FIGS)/adiabat $(FIGS)/simulation
+DEEP_CLEAN := $(FIGS)/adiabat $(FIGS_SIM_WARM) $(FIGS_SIM_COLD)
 
 # Targets
-.PHONY: all visualize sync-barkla compositions-main setup kubo meshes clean deep-clean help
+.PHONY: all visualize sync-barkla compositions-main compositions-warm compositions-cold setup kubo meshes meshes-warm meshes-cold clean deep-clean help
 
 all: visualize
 visualize: setup kubo meshes compositions-main
 
 sync-barkla:
-	@$(BASH)/simulation/sync-barkla2.sh "$(notdir $(RESULTS_KN) $(RESULTS_KN_COLD_SLAB))" "$(TIMESTEPS_SYNC)" "$(SIMULATION)" "$(BARKLA2_SIMULATION)"
+	@FORCE_SYNC=$(FORCE_SYNC) $(BASH)/simulation/sync-barkla2.sh "$(notdir $(RESULTS_KN) $(RESULTS_KN_COLD_SLAB))" "$(TIMESTEPS_SYNC_PLUME)" "$(TIMESTEPS_SYNC_SLAB)" "$(SIMULATION)" "$(BARKLA2_SIMULATION)"
 
-compositions-main:
-	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS)/simulation/meshes" "$(FIGS)/simulation/compositions" "0050" "b01" "$(ID_1)" "$(ID_2)" "$(ID_3)")
-	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS)/simulation/meshes" "$(FIGS)/simulation/compositions" "0100" "b01" "$(ID_1)" "$(ID_2)" "$(ID_3)")
-	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS)/simulation/meshes" "$(FIGS)/simulation/compositions" "0050" "b50" "$(ID_4)" "$(ID_5)" "$(ID_6)")
-	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS)/simulation/meshes" "$(FIGS)/simulation/compositions" "0100" "b50" "$(ID_4)" "$(ID_5)" "$(ID_6)")
+compositions-main: compositions-warm compositions-cold
+
+compositions-warm:
+	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS_SIM_WARM)/meshes" "$(FIGS_SIM_WARM)/compositions" "0050" "b01" "$(ID_1)" "$(ID_2)" "$(ID_3)")
+	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS_SIM_WARM)/meshes" "$(FIGS_SIM_WARM)/compositions" "0100" "b01" "$(ID_1)" "$(ID_2)" "$(ID_3)")
+	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS_SIM_WARM)/meshes" "$(FIGS_SIM_WARM)/compositions" "0050" "b50" "$(ID_4)" "$(ID_5)" "$(ID_6)")
+	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS_SIM_WARM)/meshes" "$(FIGS_SIM_WARM)/compositions" "0100" "b50" "$(ID_4)" "$(ID_5)" "$(ID_6)")
+
+compositions-cold:
+	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS_SIM_COLD)/meshes" "$(FIGS_SIM_COLD)/compositions" "0100" "b01" "$(ID_C1)" "$(ID_C2)" "$(ID_C3)")
+	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS_SIM_COLD)/meshes" "$(FIGS_SIM_COLD)/compositions" "0100" "b50" "$(ID_C4)" "$(ID_C5)" "$(ID_C6)")
 
 setup:
 	@$(CONDA_PYTHON) -u $(PYTHON)/simulation/misc/setup.py \
@@ -60,8 +74,10 @@ setup:
 kubo:
 	@$(CONDA_PYTHON) -u $(PYTHON)/simulation/misc/kubo.py --out-fig-dir $(FIGS)/kubo
 
-meshes: $(PROFILES)
-	@$(eval MODELS := $(notdir $(RESULTS_KN) $(RESULTS_KN_COLD_SLAB)))
+meshes: meshes-warm meshes-cold
+
+meshes-warm: $(PROFILES)
+	@$(eval MODELS := $(notdir $(RESULTS_KN)))
 	@$(eval DIRS := $(addprefix $(SIMULATION)/results/, $(MODELS)))
 	@for mg in $(MG_NUM); do \
 	  PYTHONPATH=$(PYTHON) $(CONDA_PYTHON) -u $(PYTHON)/simulation/mesh/main.py \
@@ -70,8 +86,8 @@ meshes: $(PROFILES)
 	    $(SIMULATION)/data/ringwoodite-postspinel-profile-Mg$$mg.tsv \
 	    $(MODEL_HEIGHT) \
 	    $(SURFACE_PRESSURE) \
-	    $(FIGS)/simulation \
-	    $(SIMULATION)/data \
+	    $(FIGS_SIM_WARM) \
+	    $(DATA_WARM) \
 	    --model-ids $(MODELS) \
 	    --timesteps $(TIMESTEPS_MESH) \
 	    --in-dirs $(DIRS) \
@@ -81,7 +97,33 @@ meshes: $(PROFILES)
 	    --mode=$(POSTPROCESS_MODE) \
 	    --save-csv=$(SAVE_CSV) \
 	    --force-reprocess=$(FORCE_REPROCESS) \
-	    --verbosity=$(POSTPROCESS_VERBOSITY); \
+	    --verbosity=$(POSTPROCESS_VERBOSITY) \
+    --chunk-size=$(CHUNK_SIZE); \
+	done
+
+meshes-cold: $(PROFILES)
+	@$(eval MODELS := $(notdir $(RESULTS_KN_COLD_SLAB)))
+	@$(eval DIRS := $(addprefix $(SIMULATION)/results/, $(MODELS)))
+	@for mg in $(MG_NUM); do \
+	  PYTHONPATH=$(PYTHON) $(CONDA_PYTHON) -u $(PYTHON)/simulation/mesh/main.py \
+	    $(SIMULATION)/data/olivine-wadsleyite-profile-Mg$$mg.tsv \
+	    $(SIMULATION)/data/wadsleyite-ringwoodite-profile-Mg$$mg.tsv \
+	    $(SIMULATION)/data/ringwoodite-postspinel-profile-Mg$$mg.tsv \
+	    $(MODEL_HEIGHT) \
+	    $(SURFACE_PRESSURE) \
+	    $(FIGS_SIM_COLD) \
+	    $(DATA_COLD) \
+	    --model-ids $(MODELS) \
+	    --timesteps $(TIMESTEPS_MESH_COLD) \
+	    --in-dirs $(DIRS) \
+	    --depth-corr-ol-wd=$(DEPTH_CORRECTION_OL_WD) \
+	    --depth-corr-wd-ri=$(DEPTH_CORRECTION_WD_RI) \
+	    --depth-corr-ri-ps=$(DEPTH_CORRECTION_RI_PS) \
+	    --mode=$(POSTPROCESS_MODE) \
+	    --save-csv=$(SAVE_CSV) \
+	    --force-reprocess=$(FORCE_REPROCESS) \
+	    --verbosity=$(POSTPROCESS_VERBOSITY) \
+    --chunk-size=$(CHUNK_SIZE); \
 	done
 
 adiabat: $(PROFILES)
@@ -105,6 +147,9 @@ help:
 	@echo "    sync-barkla  Fetch simulation results from barkla"
 	@echo "    setup        Visualize initial numerical setup"
 	@echo "    kubo         Visualize Kubo 2022 dataset regression"
-	@echo "    meshes       Visualize ASPECT models"
+	@echo "    meshes       Visualize ASPECT models (warm + cold)"
+	@echo "    meshes-warm  Visualize sluggish-warm suite"
+	@echo "    meshes-cold  Visualize best-fit-cold suite"
+	@echo "    compositions-main  Compose montage figures (warm + cold)"
 	@echo "    clean        Remove generated files (safe)"
 	@echo "    deep-clean   Remove results and data (use with caution!)"
