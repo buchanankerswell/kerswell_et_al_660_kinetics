@@ -3,10 +3,10 @@ include $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/../project.mk)
 include local.mk
 
 # All simulation runs
-ALL_RUNS := $(PRMS_PLUME_KN:.prm=.run) $(PRMS_SLAB_KN:.prm=.run) $(PRMS_SLAB_KN_COLD:.prm=.run)
+ALL_RUNS := $(PRMS_PLUME_KN_WARM:.prm=.run) $(PRMS_SLAB_KN_WARM:.prm=.run) $(PRMS_SLAB_KN_COLD:.prm=.run)
 
 # Core components for each type of model
-CORE_KN := $(PRMS_GLOBALS_KN) $(PRMS_SOLVER_KN) $(PRMS_GEOMETRY_KN) $(PRMS_MATERIAL_KN) $(PRMS_COMPOSITION_KN) $(PRMS_POSTPROCESS_KN)
+CORE_KN_WARM := $(PRMS_GLOBALS_KN_WARM) $(PRMS_SOLVER_KN_WARM) $(PRMS_GEOMETRY_KN_WARM) $(PRMS_MATERIAL_KN_WARM) $(PRMS_COMPOSITION_KN_WARM) $(PRMS_POSTPROCESS_KN_WARM)
 CORE_KN_COLD := $(PRMS_GLOBALS_KN_COLD) $(PRMS_SOLVER_KN_COLD) $(PRMS_GEOMETRY_KN_COLD) $(PRMS_MATERIAL_KN_COLD) $(PRMS_COMPOSITION_KN_COLD) $(PRMS_POSTPROCESS_KN_COLD)
 
 # Cleanup
@@ -14,29 +14,29 @@ CLEAN      := $(ASPECT_PLUGIN) $(ASPECT_CONFIGS)
 DEEP_CLEAN := $(ASPECT_RESULTS) $(ASPECT_DATA)
 
 # Targets
-.PHONY: all all-models plume-models-kn slab-models-kn slab-models-kn-cold configs configs-kn configs-kn-cold clean deep-clean help
+.PHONY: all all-models plume-models-kn-warm slab-models-kn-warm slab-models-kn-cold configs configs-kn-warm configs-kn-cold clean deep-clean help
 .PRECIOUS: $(ASPECT_CONFIGS)
 
 all: all-models
 all-models: $(ALL_RUNS)
-configs: configs-kn configs-kn-cold
-configs-kn: $(PRMS_PLUME_KN) $(PRMS_SLAB_KN)
+configs: configs-kn-warm configs-kn-cold
+configs-kn-warm: $(PRMS_PLUME_KN_WARM) $(PRMS_SLAB_KN_WARM)
 configs-kn-cold: $(PRMS_SLAB_KN_COLD)
-plume-models-kn: $(ASPECT_EXE) $(ASPECT_PROFILES) $(PRMS_PLUME_KN:.prm=.run)
-slab-models-kn: $(ASPECT_EXE) $(ASPECT_PROFILES) $(PRMS_SLAB_KN:.prm=.run)
-slab-models-kn-cold: $(ASPECT_EXE) $(ASPECT_PROFILES) $(PRMS_SLAB_KN_COLD:.prm=.run)
+plume-models-kn-warm: $(ASPECT_EXE) $(DEALII_ENABLE) $(ASPECT_PROFILES) $(PRMS_PLUME_KN_WARM:.prm=.run)
+slab-models-kn-warm: $(ASPECT_EXE) $(DEALII_ENABLE) $(ASPECT_PROFILES) $(PRMS_SLAB_KN_WARM:.prm=.run)
+slab-models-kn-cold: $(ASPECT_EXE) $(DEALII_ENABLE) $(ASPECT_PROFILES) $(PRMS_SLAB_KN_COLD:.prm=.run)
 
-$(PRMS_PLUME_KN:.prm=.run): $(ASPECT_PLUGIN)
-$(PRMS_SLAB_KN:.prm=.run): $(ASPECT_PLUGIN)
+$(PRMS_PLUME_KN_WARM:.prm=.run): $(ASPECT_PLUGIN)
+$(PRMS_SLAB_KN_WARM:.prm=.run): $(ASPECT_PLUGIN)
 $(PRMS_SLAB_KN_COLD:.prm=.run): $(ASPECT_PLUGIN)
 
-$(PRMS_SLAB_KN): $(CORE_KN) $(PRMS_VELOCITY_SLAB_KN) $(PRMS_TEMPERATURE_SLAB_KN)
-$(PRMS_PLUME_KN): $(CORE_KN) $(PRMS_VELOCITY_PLUME_KN) $(PRMS_TEMPERATURE_PLUME_KN)
+$(PRMS_SLAB_KN_WARM): $(CORE_KN_WARM) $(PRMS_VELOCITY_SLAB_KN_WARM) $(PRMS_TEMPERATURE_SLAB_KN_WARM)
+$(PRMS_PLUME_KN_WARM): $(CORE_KN_WARM) $(PRMS_VELOCITY_PLUME_KN_WARM) $(PRMS_TEMPERATURE_PLUME_KN_WARM)
 $(PRMS_SLAB_KN_COLD): $(CORE_KN_COLD) $(PRMS_VELOCITY_SLAB_KN_COLD) $(PRMS_TEMPERATURE_SLAB_KN_COLD)
 
 $(ASPECT_CONFIGS)/%.prm: $(ASPECT_PROFILES)
 
-$(PRMS_GLOBALS_KN): | $(ASPECT_CONFIGS)
+$(PRMS_GLOBALS_KN_WARM): | $(ASPECT_CONFIGS)
 
 $(ASPECT_CONFIGS):
 	@mkdir -p $@
@@ -60,7 +60,7 @@ $(ASPECT_CONFIGS):
 	  fi \
 	fi
 
-$(ASPECT_PLUGIN):
+$(ASPECT_PLUGIN): $(ASPECT_EXE) $(DEALII_ENABLE)
 	@if [ "$(OS_SYSTEM)" = "rocky" ]; then \
 	  module load $(GCC) $(OPENMPI) $(OPENBLAS) $(CMAKE); \
 	  cd $(SIMULATION)/plugins; \
@@ -92,8 +92,8 @@ help:
 	@echo "    Available targets:"
 	@echo "    --------------------------------------------------"
 	@echo "    all-models         Run all ASPECT models"
-	@echo "    plume-models-kn    Run ASPECT plume models"
-	@echo "    slab-models-kn     Run warm ASPECT slab models"
+	@echo "    plume-models-kn-warm    Run ASPECT plume models"
+	@echo "    slab-models-kn-warm     Run warm ASPECT slab models"
 	@echo "    slab-models-kn-cold Run cold ASPECT slab models"
 	@echo "    configs            Generate configs only"
 	@echo "    clean              Remove generated files (safe)"

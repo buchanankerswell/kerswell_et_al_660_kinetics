@@ -12,7 +12,7 @@ main <- function() {
   if (file.exists(lockfile)) {
     renv::restore(prompt = FALSE)
   } else {
-    cran_pkgs <- c("tidyverse", "patchwork", "colorspace", "osfr", "knitr")
+    cran_pkgs <- c("tidyverse", "patchwork", "colorspace", "scales", "osfr", "knitr")
 
     suppressWarnings({
       renv::install(cran_pkgs, verbose = FALSE)

@@ -5,7 +5,7 @@
 PROJECT_ROOT       := $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/.)
 
 # Top-level directories
-ASPECT             := $(PROJECT_ROOT)/aspect/build
+ASPECT             := $(PROJECT_ROOT)/aspect
 DEALII             := $(PROJECT_ROOT)/dealii
 BASH               := $(PROJECT_ROOT)/bash
 DRAFT              := $(PROJECT_ROOT)/draft
@@ -29,7 +29,7 @@ POSTPROCESS_VERBOSITY := 0
 SAVE_CSV              := true
 FORCE_REPROCESS       := false
 FORCE_REWRITE         := true
-RESULTS_KN             = $(foreach type,$(MODEL_TYPES), $(addprefix $(ASPECT_RESULTS)/$(type)_, $(UIDS_KN)))
+RESULTS_KN_WARM             = $(foreach type,$(MODEL_TYPES), $(addprefix $(ASPECT_RESULTS)/$(type)_, $(UIDS_KN_WARM)))
 RESULTS_KN_COLD_SLAB   = $(addprefix $(ASPECT_RESULTS)/slab_, $(UIDS_KN_COLD))
 TIMESTEPS_SYNC_PLUME   := 050
 TIMESTEPS_SYNC_SLAB    := 100
@@ -200,10 +200,10 @@ define MAKE_KN_UID
   KN_Dynp$(1)_Zol$(2)_Zwd$(3)_Zri$(4)_EtaTherm$(5)_EtaTrans$(6)-$(7)-$(8)-$(9)_MG$(10)_Vel$(11)_Temp$(12)
 endef
 
-# Derived UIDs. $(1) is the UID list to extend (UIDS_KN or UIDS_KN_COLD);
+# Derived UIDs. $(1) is the UID list to extend (UIDS_KN_WARM or UIDS_KN_COLD);
 # PARAM_* entries share the global namespace keyed by UID, so warm and cold
 # generations never clash (UIDs differ by Z/Temp).
-define REGISTER_UIDS_KN
+define REGISTER_UIDS
   $(eval _uid := $(strip $(call MAKE_KN_UID,$(2),$(3),$(4),$(5),$(6),$(7),$(8),$(9),$(10),$(11),$(12),$(13))))
   $(1)                   += $(_uid)
   PARAM_dynp_$(_uid)     := $(2)
@@ -318,29 +318,31 @@ endif
 # --------------------------------------------------
 # DEAL.II and ASPECT configuration
 # --------------------------------------------------
+# External installs, linked at the project root (aspect/aspect-release and
+# dealii/configuration/enable.sh must exist). Only needed to run simulations
+# from scratch; `make build` never touches them. To install from source, see
+# https://github.com/dealii/candi (deal.II >= v9.7.0, with the minimal
+# local.cfg at https://raw.githubusercontent.com/geodynamics/aspect/main/contrib/install/local.cfg)
+# and https://github.com/geodynamics/aspect (ASPECT >= 3.1.0).
 # Check operating system
 UNAME_SHELL := $(shell uname)
 OS_SYSTEM   := $(shell [ -f /etc/os-release ] && . /etc/os-release && echo $$ID || echo unknown)
 
-ASPECT_EXE     := $(ASPECT)/aspect-release
-DEALII_VERSION := v9.7.0
+ASPECT_EXE    := $(ASPECT)/aspect-release
+DEALII_ENABLE := $(DEALII)/configuration/enable.sh
+
+define CHECK_SIM_DEPS
+  $(error !! ERROR: simulation dependencies not found (missing $(1)). Link your installs at the project root as 'aspect/aspect-release' and 'dealii/configuration/enable.sh'. To install from source, see https://github.com/dealii/candi (deal.II >= v9.7.0) and https://github.com/geodynamics/aspect (ASPECT >= 3.1.0))
+endef
+
+$(ASPECT_EXE) $(DEALII_ENABLE):
+	$(call CHECK_SIM_DEPS,$@)
 
 ifeq ($(UNAME_SHELL), Darwin)
-  # Install config
-  DEALII_LIB       := $(DEALII)/deal.II-$(DEALII_VERSION)/lib/libdeal_II.dylib
-  INSTALL_DEALII   := $(BASH)/install/dealii-macos.sh
-  INSTALL_ASPECT   := $(BASH)/install/aspect-macos.sh
-  TRILINOS_VERSION := AUTO
-
   # Run config
   RUN_ASPECT       := $(BASH)/simulation/run-aspect-macos.sh
   NTASKS           := 8
 else ifeq ($(OS_SYSTEM), rocky)
-  # Install config
-  DEALII_LIB       := $(DEALII)/deal.II-$(DEALII_VERSION)/lib/libdeal_II.so
-  INSTALL_DEALII   := $(BASH)/install/dealii-barkla2.sh
-  INSTALL_ASPECT   := $(BASH)/install/aspect-barkla2.sh
-  TRILINOS_VERSION := AUTO
   GCC              := gcc/14.2.0
   OPENMPI          := openmpi/5.0.8-gcc14.2.0
   OPENBLAS         := openblas/0.3.29/gcc-14.2.0

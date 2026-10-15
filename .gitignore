@@ -3,17 +3,11 @@ aspect
 figs
 dealii
 bash/candi
-bash/install/log*.log
 perplex/**/*-table.txt
 perplex/**/*-profile.txt
 simulation/configs
 simulation/data
-simulation/parts/material_*.prm
 simulation/results
-simulation/*/output*
-simulation/results/*/statistics
-simulation/configs/logs/*.out
-simulation/configs/*.run
 simulation/plugins/CMakeFiles
 simulation/plugins/Makefile
 simulation/plugins/CMakeCache.txt

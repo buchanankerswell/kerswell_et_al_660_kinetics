@@ -5,16 +5,16 @@ include $(SIMULATION)/local.mk
 # Dependencies
 PROFILES       := $(foreach g,$(MG_NUM),$(SIMULATION)/data/olivine-wadsleyite-profile-Mg$(g).tsv)
 PERPLEX_MODELS := $(shell find $(PERPLEX) -type f -name '*.dat' -exec basename {} .dat \;)
-MODELS_WARM    := $(notdir $(RESULTS_KN))
+MODELS_WARM    := $(notdir $(RESULTS_KN_WARM))
 MODELS_COLD    := $(notdir $(RESULTS_KN_COLD_SLAB))
 
 # Composition plots (warm sluggish-Z reference scenarios)
-ID_1 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-11_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
-ID_2 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri1.90e-08_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
-ID_3 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-05_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
-ID_4 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-11_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02
-ID_5 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri1.90e-08_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02
-ID_6 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-05_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02
+ID_W1 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-11_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
+ID_W2 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri1.90e-08_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
+ID_W3 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-05_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
+ID_W4 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-11_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02
+ID_W5 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri1.90e-08_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02
+ID_W6 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-05_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02
 
 # Composition plots (cold nominal-Z counterparts, slab-only)
 ID_C1 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e-03_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp10e+02
@@ -36,15 +36,15 @@ all: visualize
 visualize: setup kubo meshes compositions-main
 
 sync-barkla:
-	@FORCE_SYNC=$(FORCE_SYNC) $(BASH)/simulation/sync-barkla2.sh "$(notdir $(RESULTS_KN) $(RESULTS_KN_COLD_SLAB))" "$(TIMESTEPS_SYNC_PLUME)" "$(TIMESTEPS_SYNC_SLAB)" "$(SIMULATION)" "$(BARKLA2_SIMULATION)"
+	@FORCE_SYNC=$(FORCE_SYNC) $(BASH)/simulation/sync-barkla2.sh "$(notdir $(RESULTS_KN_WARM) $(RESULTS_KN_COLD_SLAB))" "$(TIMESTEPS_SYNC_PLUME)" "$(TIMESTEPS_SYNC_SLAB)" "$(SIMULATION)" "$(BARKLA2_SIMULATION)"
 
 compositions-main: compositions-warm compositions-cold
 
 compositions-warm:
-	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS_SIM_WARM)/meshes" "$(FIGS_SIM_WARM)/compositions" "0050" "b01" "$(ID_1)" "$(ID_2)" "$(ID_3)")
-	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS_SIM_WARM)/meshes" "$(FIGS_SIM_WARM)/compositions" "0100" "b01" "$(ID_1)" "$(ID_2)" "$(ID_3)")
-	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS_SIM_WARM)/meshes" "$(FIGS_SIM_WARM)/compositions" "0050" "b50" "$(ID_4)" "$(ID_5)" "$(ID_6)")
-	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS_SIM_WARM)/meshes" "$(FIGS_SIM_WARM)/compositions" "0100" "b50" "$(ID_4)" "$(ID_5)" "$(ID_6)")
+	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS_SIM_WARM)/meshes" "$(FIGS_SIM_WARM)/compositions" "0050" "b01" "$(ID_W1)" "$(ID_W2)" "$(ID_W3)")
+	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS_SIM_WARM)/meshes" "$(FIGS_SIM_WARM)/compositions" "0100" "b01" "$(ID_W1)" "$(ID_W2)" "$(ID_W3)")
+	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS_SIM_WARM)/meshes" "$(FIGS_SIM_WARM)/compositions" "0050" "b50" "$(ID_W4)" "$(ID_W5)" "$(ID_W6)")
+	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS_SIM_WARM)/meshes" "$(FIGS_SIM_WARM)/compositions" "0100" "b50" "$(ID_W4)" "$(ID_W5)" "$(ID_W6)")
 
 compositions-cold:
 	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS_SIM_COLD)/meshes" "$(FIGS_SIM_COLD)/compositions" "0100" "b01" "$(ID_C1)" "$(ID_C2)" "$(ID_C3)")

@@ -2,27 +2,21 @@
 include project.mk
 
 # Targets
-.PHONY: build install uninstall models plume-models slab-models sync-barkla visualize manuscript download environments clean deep-clean help
+.PHONY: build models plume-models slab-models sync-barkla visualize manuscript download environments clean deep-clean help
 
 build: environments download visualize manuscript
 	@echo "    --------------------------------------------------"
 	@echo "    Study built successfully!"
 	@echo "    --------------------------------------------------"
 
-install:
-	@$(MAKE) --no-print-directory -C $(BASH) install
-
-uninstall:
-	@$(MAKE) --no-print-directory -C $(BASH) uninstall
-
 models:
 	@$(MAKE) --no-print-directory -C $(SIMULATION) all-models
 
 plume-models:
-	@$(MAKE) --no-print-directory -C $(SIMULATION) plume-models-kn
+	@$(MAKE) --no-print-directory -C $(SIMULATION) plume-models-kn-warm
 
 slab-models:
-	@$(MAKE) --no-print-directory -C $(SIMULATION) slab-models-kn
+	@$(MAKE) --no-print-directory -C $(SIMULATION) slab-models-kn-warm
 	@$(MAKE) --no-print-directory -C $(SIMULATION) slab-models-kn-cold
 
 sync-barkla:
@@ -61,9 +55,8 @@ help:
 	@echo "    --------------------------------------------------"
 	@echo "    Available targets:"
 	@echo "    --------------------------------------------------"
-	@echo "    install       Build deal.II and ASPECT"
-	@echo "    uninstall     Uninstall deal.II and ASPECT"
-	@echo "    models        Run ASPECT models"
+	@echo "    build         Fetch data and reproduce figures and manuscript"
+	@echo "    models        Run ASPECT models (needs aspect/dealii links)"
 	@echo "    plume-models  Run ASPECT plume models"
 	@echo "    slab-models   Run ASPECT slab models"
 	@echo "    sync-barkla   Sync data from barkla2"

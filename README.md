@@ -24,7 +24,7 @@ Pandoc is a universal document converter used to build a PDF version of the manu
 
 ## Reproducing the study
 
-The full set of ASPECT solution files and 660 structural measurement dataset can be downloaded from the [Open Science Framework repository](https://osf.io/kur93/files). The following steps will download all necessary data, reproduce the results and figures, and build a pdf version of the manuscript:
+`make build` fetches the archived datasets, reproduces all results and figures, and builds a pdf version of the manuscript. It does not run simulations:
 
 ```bash
 # Clone this repository
@@ -36,6 +36,10 @@ cd kerswell_et_al_660_kinetics
 # Get data and reproduce figures
 make build
 ```
+
+The full set of ASPECT solution files and 660 structural measurement dataset are downloaded from the [Open Science Framework repository](https://osf.io/kur93/files).
+
+To run the simulations from scratch instead, link your installs at the project root as `aspect/aspect-release` and `dealii/configuration/enable.sh` (needed only for this step), then run `make models`. See [candi](https://github.com/dealii/candi) (deal.II >= v9.7.0) and [ASPECT](https://github.com/geodynamics/aspect) (ASPECT >= 3.1.0) for installation.
 
 ## Coauthors
 
