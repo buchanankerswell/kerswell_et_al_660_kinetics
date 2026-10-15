@@ -1,6 +1,3 @@
-#######################################################
-## .0. Load Libraries                            !!! ##
-#######################################################
 from argparse import ArgumentParser, Namespace
 from dataclasses import dataclass
 from pathlib import Path
@@ -9,10 +6,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy import stats
 
-
-#######################################################
-## .1. Dataclasses                               !!! ##
-#######################################################
 @dataclass(frozen=True)
 class RegressionResults:
     """
@@ -39,7 +32,6 @@ class RegressionResults:
     slope_samples: np.ndarray
     intercept_samples: np.ndarray
 
-
 @dataclass(frozen=True)
 class KuboConstants:
     """Thermodynamic constants for the Ringwoodite-Postspinel transition."""
@@ -54,10 +46,6 @@ class KuboConstants:
         """Molar volume change [m^3/mol]."""
         return abs(self.v_postspinel - self.v_ringwoodite)
 
-
-#######################################################
-## .2. Logic                                     !!! ##
-#######################################################
 def parse_arguments() -> Namespace:
     """
     Handles command-line argument parsing for Kubo regression.
@@ -69,7 +57,6 @@ def parse_arguments() -> Namespace:
     parser.add_argument("--out-fig-dir", type=str, help="Output figure directory")
 
     return parser.parse_args()
-
 
 def regress_kubo2002_dataset(n_monte_carlo: int = 10000) -> RegressionResults:
     """
@@ -143,7 +130,6 @@ def regress_kubo2002_dataset(n_monte_carlo: int = 10000) -> RegressionResults:
     print(f"    Geometric mean K' = {res.kp_geo_mean:.3e}")
 
     return res
-
 
 def visualize(results: RegressionResults, out_path: Path) -> None:
     """
@@ -224,10 +210,6 @@ def visualize(results: RegressionResults, out_path: Path) -> None:
 
     plt.savefig(out_path)
 
-
-#######################################################
-## .3. Main                                      !!! ##
-#######################################################
 def main() -> None:
     """Main execution path."""
     args = parse_arguments()
@@ -243,7 +225,6 @@ def main() -> None:
     results = regress_kubo2002_dataset()
     visualize(results, out_path)
     print(f" -> {out_path}")
-
 
 if __name__ == "__main__":
     main()

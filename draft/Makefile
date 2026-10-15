@@ -11,14 +11,17 @@ DEEP_CLEAN :=
 .PRECIOUS: $(DRAFT)/%.tex
 
 # Targets
-.PHONY: all diff clean deep-clean help
+.PHONY: all manuscript diff clean deep-clean help
 
 all: $(PDFS) $(DOCXS)
+manuscript: $(DRAFT)/manuscript.pdf $(DRAFT)/manuscript.docx
 diff: all $(DRAFT)/diff-manuscript.pdf $(DRAFT)/diff-supplementary-information.pdf
 
-$(DRAFT)/%.docx: $(DRAFT)/%.md
+UPDATE_DATE = $(if $(META),sed -i.bak -E "s/^date: \".*\"/date: \"$(shell date '+%d %B %Y')\"/" $(META) && rm -f $(META).bak)
+
+$(DRAFT)/%.docx $(DRAFT)/%.tex: $(DRAFT)/%.md
 	@echo " -> $@"
-	@$(if $(META),sed -i '' -E "s/^date: \".*\"/date: \"$(shell date '+%d %B %Y')\"/" $(META))
+	@$(UPDATE_DATE)
 	@pandoc $< -o $@ $(PANDOC_FLAGS)
 
 $(DRAFT)/%.pdf: $(DRAFT)/%.tex
@@ -26,11 +29,6 @@ $(DRAFT)/%.pdf: $(DRAFT)/%.tex
 	@pandoc $(subst .tex,.md,$<) -o $@ $(PANDOC_FLAGS)
 
 $(DRAFT)/bak/%.tex: ;
-
-$(DRAFT)/%.tex: $(DRAFT)/%.md
-	@echo " -> $@"
-	@$(if $(META),sed -i '' -E "s/^date: \".*\"/date: \"$(shell date '+%d %B %Y')\"/" $(META))
-	@pandoc $< -o $@ $(PANDOC_FLAGS)
 
 $(DRAFT)/diff-%.pdf: $(DRAFT)/bak/%-$(BACKUP_DATE).tex $(DRAFT)/%.tex
 	@echo " -> $@ [bak: $(BACKUP_DATE)]"

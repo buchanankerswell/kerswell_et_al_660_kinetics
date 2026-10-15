@@ -1,6 +1,3 @@
-#######################################################
-## .0. Load Libraries                                ##
-#######################################################
 import argparse
 from dataclasses import dataclass
 from pathlib import Path
@@ -11,10 +8,6 @@ import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.collections import QuadMesh
 
-
-#######################################################
-## .1. Dataclasses                                   ##
-#######################################################
 @dataclass(frozen=True)
 class AnomalyParams:
     x0: float
@@ -44,7 +37,6 @@ class AnomalyParams:
             dT=dT,
         )
 
-
 @dataclass(frozen=True)
 class InitialSetupConfig:
     x_extent: float
@@ -57,10 +49,6 @@ class InitialSetupConfig:
     def from_args(cls, args, s: float = 1e-3):
         return cls(x_extent=args.width * s, y_extent=args.height * s)
 
-
-#######################################################
-## .2. Helpers                                       ##
-#######################################################
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Visualize ASPECT initial conditions.")
     parser.add_argument("--width", type=float, default=1500e3)
@@ -72,7 +60,6 @@ def parse_arguments():
             parser.add_argument(f"--{suffix}-{p}", type=float)
 
     return parser.parse_args()
-
 
 def compute_thermal_anomaly(X: np.ndarray, Y: np.ndarray, p: AnomalyParams) -> np.ndarray:
     """Calculates anomaly using tanh."""
@@ -87,7 +74,6 @@ def compute_thermal_anomaly(X: np.ndarray, Y: np.ndarray, p: AnomalyParams) -> n
     tanh2 = 1 + np.tanh((p.L - parallel_dist / p.L) / p.A)
 
     return p.dT * gaussian_term * 0.25 * tanh1 * tanh2
-
 
 def draw_initial_conditions(
     ax: Axes,
@@ -157,10 +143,6 @@ def draw_initial_conditions(
 
     return contour
 
-
-#######################################################
-## .3. Main                                          ##
-#######################################################
 def main():
     args = parse_arguments()
     out_dir = Path(args.out_fig_dir) if args.out_fig_dir else Path("./figures")
@@ -242,7 +224,6 @@ def main():
 
     plt.savefig(out_path, bbox_inches="tight", pad_inches=0.05)
     print(f" -> {out_path}")
-
 
 if __name__ == "__main__":
     main()

@@ -1,15 +1,8 @@
-#######################################################
-## .0. Load Libraries                            !!! ##
-#######################################################
 import argparse
 import re
 import sys
 from dataclasses import dataclass
 
-
-#######################################################
-## .1. PrmGenerator                                 !!! ##
-#######################################################
 @dataclass(frozen=True)
 class PrmGenerator:
     """
@@ -25,7 +18,6 @@ class PrmGenerator:
     output_path: str
     mapping: dict[str, str]
 
-
 def parse_arguments() -> argparse.Namespace:
     """
     Handles command-line argument parsing for PRM generation.
@@ -39,7 +31,6 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument("params", nargs="+", help="Key-value pairs in 'key=value' format")
 
     return parser.parse_args()
-
 
 def generate_prm(config: PrmGenerator) -> None:
     """
@@ -71,10 +62,6 @@ def generate_prm(config: PrmGenerator) -> None:
         print(f" !! ERROR: Failed to generate {config.output_path}: {e}")
         sys.exit(1)
 
-
-#######################################################
-## .2. Main                                      !!! ##
-#######################################################
 def main() -> None:
     """
     Main execution logic: parses CLI pairs into a mapping and triggers generation.
@@ -93,7 +80,6 @@ def main() -> None:
     config = PrmGenerator(template_path=args.template, output_path=args.output, mapping=param_map)
 
     generate_prm(config)
-
 
 if __name__ == "__main__":
     main()

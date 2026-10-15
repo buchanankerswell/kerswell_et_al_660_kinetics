@@ -1,14 +1,7 @@
-#######################################################
-## .0. Load Libraries                            !!! ##
-#######################################################
 from pathlib import Path
 
 import pandas as pd
 
-
-#######################################################
-## .1. Write markdown table                      !!! ##
-#######################################################
 def csv_to_rounded_markdown(in_path, out_path):
     """ """
     try:
@@ -41,7 +34,6 @@ def csv_to_rounded_markdown(in_path, out_path):
         print(f" !! Error: the file '{in_path.name}' was not found!")
     except Exception as e:
         print(f" !! Error: {e}")
-
 
 if __name__ == "__main__":
     in_path = Path("../simulation/data/centerline-profile-data.csv")

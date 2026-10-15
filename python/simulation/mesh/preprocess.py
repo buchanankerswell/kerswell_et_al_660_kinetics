@@ -1,15 +1,8 @@
-#######################################################
-## .0. Load Libraries                            !!! ##
-#######################################################
 from dataclasses import dataclass
 from typing import Callable, ClassVar
 
 import pyvista as pv
 
-
-#######################################################
-## .1. MeshPreProcessor                          !!! ##
-#######################################################
 @dataclass
 class MeshPreProcessor:
 
@@ -35,7 +28,6 @@ class MeshPreProcessor:
         ),
     }
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def prepare_mesh(self, mesh: pv.UnstructuredGrid, field: str) -> None:
         """Derive computed fields from raw mesh data where required source fields are present."""
         if field not in self._DERIVED_FIELDS:
@@ -48,12 +40,10 @@ class MeshPreProcessor:
             missing = [r for r in required if r not in mesh.point_data]
             print(f" !! Warning: cannot derive '{field}', missing source fields: {missing}")
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def check_mesh(self, mesh: pv.UnstructuredGrid, field: str) -> bool:
         """Return True if field is present in mesh point data after preparation."""
         return field in mesh.point_data
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def get_mesh_time_myr(self, mesh: pv.UnstructuredGrid, model_id: str, tstep: int) -> float:
         """Extract simulation time in Myr from mesh field data."""
         if "TIME" in mesh.field_data:

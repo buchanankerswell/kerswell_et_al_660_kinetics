@@ -1,6 +1,3 @@
-#######################################################
-## .0. Load Libraries                            !!! ##
-#######################################################
 import gc
 import pickle
 import re
@@ -18,10 +15,6 @@ from preprocess import MeshPreProcessor
 from simulation.params.transitions import PhaseTransition
 from tqdm import tqdm
 
-
-#######################################################
-## .1. BasePipeline                              !!! ##
-#######################################################
 @dataclass
 class BasePipeline:
     """
@@ -36,7 +29,6 @@ class BasePipeline:
     trans_data: dict[str, PhaseTransition]
     verbosity: int = 0
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def __post_init__(self) -> None:
         self.preprocessor = MeshPreProcessor(self.verbosity)
         self._pvtu_file_cache: dict | None = None
@@ -59,7 +51,6 @@ class BasePipeline:
             ),
         }
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _iter_valid_timesteps(self, pvtu_files: list[Path], timesteps: list[int]) -> Generator[tuple[Path, int], None, None]:
         """
         Yield (path, timestep) pairs that are in the requested timestep list.
@@ -70,7 +61,6 @@ class BasePipeline:
             if tstep != -1 and tstep in self.tsteps:
                 yield pvtu_path, tstep
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _load_mesh(self, pvtu_path: Path) -> pv.UnstructuredGrid | None:
         """Load a .pvtu file and return the mesh, or None on failure."""
         try:
@@ -80,14 +70,12 @@ class BasePipeline:
                 print(f" !! Warning: Error loading {pvtu_path.name}:\n    {e}")
             return None
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _get_ordered_pvtu_files(self) -> dict[str, tuple[list[Path], list[int]]]:
         """Return the ordered file/timestep dict, building and caching it on first call."""
         if self._pvtu_file_cache is None:
             self._pvtu_file_cache = self._build_ordered_pvtu_files()
         return self._pvtu_file_cache
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _build_ordered_pvtu_files(self) -> dict[str, tuple[list[Path], list[int]]]:
         """
         Glob each model's solution directory, parse timesteps, and return a dict of model_id -> (sorted_files, sorted_timesteps), ordered by model_id.
@@ -134,7 +122,6 @@ class BasePipeline:
         model_entries.sort(key=lambda x: self._extract_sort_key(x[0]))
         return dict(model_entries)
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _get_prams_from_model_uid(self, model_id_str: str) -> tuple[float, float, float, float, float, float, float, float, float, float]:
         """
         Parse z_ol_wd, z_wd_ri, z_ri_ps, eta_therm, prescribed_velocity, and prescribed_temperature_anomaly from a model ID string.
@@ -205,7 +192,6 @@ class BasePipeline:
                 print(f" !! Warning: could not extract parameters from model_id '{model_id_str}':\n    {e}")
             return np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _extract_sort_key(self, model_id: str) -> tuple:
         """Return a (prefix, number) sort key so model IDs sort numerically by trailing integer."""
         match = re.match(r"(.*?)(\d+)$", model_id)
@@ -214,10 +200,6 @@ class BasePipeline:
             return (prefix, int(number))
         return (model_id, float("inf"))
 
-
-#######################################################
-## .2. PostProcessing Pipeline                   !!! ##
-#######################################################
 @dataclass
 class PostProcessingPipeline(BasePipeline):
     """
@@ -225,12 +207,10 @@ class PostProcessingPipeline(BasePipeline):
     downstream use.
     """
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def __post_init__(self) -> None:
         super().__post_init__()
         self.postprocessor = MeshPostProcessor(self.config, self.verbosity)
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def run(
         self, transition_summary_cache_path: Path | None = None, seismic_profile_cache_path: Path | None = None, force_reprocess: bool = False
     ) -> tuple[dict, dict]:
@@ -401,7 +381,6 @@ class PostProcessingPipeline(BasePipeline):
 
         return transition_summary_cache, seismic_profile_cache
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def export_transition_summary(
         self,
         csv_path: Path,
@@ -468,7 +447,6 @@ class PostProcessingPipeline(BasePipeline):
             print(f" !! Error: Failed to write csv:\n    {e}")
             return pd.DataFrame()
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def export_seismic_profiles(
         self, out_dir: Path, target_fields: list[str] = ["density", "seismic_Vp", "seismic_Vs"], seismic_profile_cache: dict | None = None
     ) -> None:
@@ -509,7 +487,6 @@ class PostProcessingPipeline(BasePipeline):
                         cols = ["depth", "trace_x"] + [f for f in target_fields if f != "trace_x"]
                         df[cols].to_csv(csv_path, index=False)
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _process_transition(
         self,
         representative_trace: dict,
@@ -587,7 +564,6 @@ class PostProcessingPipeline(BasePipeline):
 
         entry[f"fields_{suffix}"] = fields_cache
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_transition_structure_from_trace(
         self,
         trace_depths: np.ndarray,
@@ -624,7 +600,6 @@ class PostProcessingPipeline(BasePipeline):
 
         return {"x_position": np.nan, "displacement": displacement, "width": width}
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _extract_representative_trace(
         self,
         mesh: pv.UnstructuredGrid,
@@ -700,7 +675,6 @@ class PostProcessingPipeline(BasePipeline):
 
         return representative_trace
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _cache_to_summary(self, cache: dict) -> list[dict]:
         """
         Flatten the nested cache into a list of row dicts for DataFrame construction.
@@ -736,7 +710,6 @@ class PostProcessingPipeline(BasePipeline):
                 summary.append(row)
         return summary
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _save_cache(self, cache: dict, path: Path) -> None:
         """Pickle the cache dict to disk, creating parent directories as needed."""
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -744,10 +717,6 @@ class PostProcessingPipeline(BasePipeline):
             pickle.dump(cache, f)
         print(f" -> {path}")
 
-
-#######################################################
-## .3. Plotting Pipeline                        !!! ##
-#######################################################
 @dataclass
 class PlottingPipeline(BasePipeline):
     """
@@ -759,13 +728,11 @@ class PlottingPipeline(BasePipeline):
 
     cache: dict = field(default_factory=dict)
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def __post_init__(self) -> None:
         super().__post_init__()
         self.postprocessor = MeshPostProcessor(self.config, self.verbosity)
         self.plotter = MeshPlotter(self.config, self.trans_info, self.verbosity)
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def run(self, fields_to_plot: list[str] | None) -> None:
         """
         Render and save plots for each field, model, and timestep.
@@ -821,7 +788,6 @@ class PlottingPipeline(BasePipeline):
                 del mesh
                 gc.collect()
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _get_annotation_data(self, field_name: str, cached_data: dict) -> list[dict]:
         """
         Returns a list of annotation objects.
@@ -856,7 +822,6 @@ class PlottingPipeline(BasePipeline):
 
         return annotations
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @classmethod
     def load_cache(cls, cache_path: Path) -> dict:
         """Load and return a pickled cache dict from disk."""
@@ -864,10 +829,6 @@ class PlottingPipeline(BasePipeline):
         with open(cache_path, "rb") as f:
             return pickle.load(f)
 
-
-#######################################################
-## .4. Full Pipeline                             !!! ##
-#######################################################
 @dataclass
 class FullPipeline(BasePipeline):
     """
@@ -876,7 +837,6 @@ class FullPipeline(BasePipeline):
     Passes the post-processing cache directly to the plotting pipeline and reuses the file-discovery cache to avoid redundant filesystem globbing.
     """
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def run(
         self,
         fields_to_plot: list[str] | None,

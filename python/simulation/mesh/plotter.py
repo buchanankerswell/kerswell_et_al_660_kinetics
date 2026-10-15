@@ -1,6 +1,3 @@
-#######################################################
-## .0. Load Libraries                            !!! ##
-#######################################################
 import gc
 from dataclasses import dataclass
 from pathlib import Path
@@ -18,10 +15,6 @@ from vtkmodules.vtkCommonCore import vtkLogger
 
 vtkLogger.SetStderrVerbosity(vtkLogger.VERBOSITY_ERROR)
 
-
-#######################################################
-## .1. MeshPlotter                               !!! ##
-#######################################################
 @dataclass
 class MeshPlotter:
     """
@@ -108,7 +101,6 @@ class MeshPlotter:
     # Phase fraction fields for which the sequential colormap end-color is modified
     _MODIFIED_SEQ_FIELDS: ClassVar[set[str]] = {"stress_second_invariant", "X_ol", "X_wd", "X_ri", "X_ps"}
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def plot_mesh(
         self,
         mesh: pv.UnstructuredGrid,
@@ -210,7 +202,6 @@ class MeshPlotter:
             if self.verbosity >= 1:
                 print(f" !! Warning: PIL failed to resave {out_path.name} with new DPI:\n    {e}")
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _add_phase_contours(self, pl: pv.Plotter, mesh: pv.UnstructuredGrid, color: str = "black", alpha: float = 1.0, line_width: int = 7) -> None:
         """
         Draw X=0.1 and X=0.9 contours for each enabled phase fraction field.
@@ -229,7 +220,6 @@ class MeshPlotter:
                 if self.verbosity >= 1:
                     print(f" !! Warning: failed generating {phase_field} contours:\n    {e}")
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _add_trace_line(
         self,
         pl: pv.Plotter,
@@ -267,7 +257,6 @@ class MeshPlotter:
         polyline = pv.lines_from_points(pts[sort_idx], close=False)
         pl.add_mesh(polyline, color=color, line_width=line_width, opacity=alpha, render_lines_as_tubes=True)
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _add_vertical_line(
         self,
         pl: pv.Plotter,
@@ -302,7 +291,6 @@ class MeshPlotter:
         polyline = pv.lines_from_points(pts[sort_idx], close=False)
         pl.add_mesh(polyline, color=color, line_width=line_width, opacity=alpha, render_lines_as_tubes=True)
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _add_horizontal_line(
         self,
         pl: pv.Plotter,
@@ -340,7 +328,6 @@ class MeshPlotter:
         polyline = pv.lines_from_points(pts[sort_idx], close=False)
         pl.add_mesh(polyline, color=color, line_width=line_width, opacity=alpha, render_lines_as_tubes=True)
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _add_vertical_arrows(
         self,
         plotter: pv.Plotter,
@@ -400,7 +387,6 @@ class MeshPlotter:
         plotter.add_mesh(arrow_up_indicator, color=color, opacity=alpha)
         plotter.add_mesh(arrow_down_indicator, color=color, opacity=alpha)
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _configure_cmap(
         self, mesh: pv.UnstructuredGrid, field: str
     ) -> tuple[np.ndarray, mcolors.Colormap | mcolors.ListedColormap, tuple[float, float]]:
@@ -459,17 +445,14 @@ class MeshPlotter:
 
         return scalars, final_cmap, clim
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _is_diverging_cmap(self, cmap_name: str) -> bool:
         """Return True if cmap_name is a recognised diverging colormap."""
         return cmap_name in self._DIVERGING_CMAPS
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _is_sequential_cmap(self, cmap_name: str) -> bool:
         """Return True if cmap_name is a recognised sequential colormap."""
         return cmap_name in self._SEQUENTIAL_CMAPS
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _modify_diverging_cmap(self, cmap_name: str, central_color_hex: str, n_colors: int = 11) -> mcolors.Colormap | mcolors.ListedColormap:
         """
         Return a diverging colormap with its central color replaced.
@@ -491,7 +474,6 @@ class MeshPlotter:
         colors[n_colors // 2] = mcolors.to_rgba(central_color_hex)
         return mcolors.ListedColormap(colors)
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _modify_sequential_cmap(self, cmap_name: str, end_color_hex: str, n_colors: int = 11) -> mcolors.Colormap | mcolors.ListedColormap:
         """
         Return a sequential colormap with one end color replaced.
@@ -517,7 +499,6 @@ class MeshPlotter:
         colors[idx] = mcolors.to_rgba(end_color_hex)
         return mcolors.ListedColormap(colors)
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _compute_camera_settings(self, mesh: pv.UnstructuredGrid) -> list[tuple[float, ...]]:
         """
         Return PyVista camera position, focal point, and up-vector for the mesh.
@@ -545,7 +526,6 @@ class MeshPlotter:
             (0.0, 1.0, 0.0),
         ]
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _add_scale_bar(self, mesh: pv.UnstructuredGrid, pl: pv.Plotter) -> None:
         """
         Draw a scale bar in the lower-left region of the plot.

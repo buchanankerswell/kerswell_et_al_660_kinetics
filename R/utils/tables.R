@@ -1,6 +1,3 @@
-#######################################################
-## Write markdown tables                         !!! ##
-#######################################################
 write_simulation_results_summary_table <- function(csv_path, out_dir, quiet = TRUE) {
   if (!file.exists(csv_path)) {
     if (!quiet) cat(" !! Error: Input CSV file not found:", csv_path, "\n")

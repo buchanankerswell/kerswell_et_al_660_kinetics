@@ -1,6 +1,3 @@
-#######################################################
-## Load libraries                                    ##
-#######################################################
 suppressPackageStartupMessages({
   suppressWarnings({
     library(tidyverse)

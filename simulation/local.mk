@@ -13,7 +13,7 @@ $(foreach etaps,$(ETA_PREF_PS),\
 $(foreach mgnum,$(MG_NUM),\
 $(foreach vel,$(VELOCITY_BC),\
 $(foreach dt,$(TEMPERATURE_BC),\
-$(eval $(call REGISTER_UIDS_KN,$(dynp),$(zol),$(zwd),$(zri),$(etatherm),$(etaol),$(etawd),$(etari),$(etaps),$(mgnum),$(vel),$(dt)))))))))))))))
+$(eval $(call REGISTER_UIDS_KN,UIDS_KN,$(dynp),$(zol),$(zwd),$(zri),$(etatherm),$(etaol),$(etawd),$(etari),$(etaps),$(mgnum),$(vel),$(dt)))))))))))))))
 
 # --------------------------------------------------
 # Cold slab UID registration (slab-only, Temp10e+02, nominal Z)
@@ -32,7 +32,7 @@ $(foreach etaps,$(ETA_PREF_PS),\
 $(foreach mgnum,$(MG_NUM),\
 $(foreach vel,$(VELOCITY_BC),\
 $(foreach dt,$(TEMP_COLD),\
-$(eval $(call REGISTER_UIDS_KN_COLD,$(dynp),$(zol),$(zwd),$(zri),$(etatherm),$(etaol),$(etawd),$(etari),$(etaps),$(mgnum),$(vel),$(dt)))))))))))))))
+$(eval $(call REGISTER_UIDS_KN,UIDS_KN_COLD,$(dynp),$(zol),$(zwd),$(zri),$(etatherm),$(etaol),$(etawd),$(etari),$(etaps),$(mgnum),$(vel),$(dt)))))))))))))))
 
 # --------------------------------------------------
 # Derived file lists

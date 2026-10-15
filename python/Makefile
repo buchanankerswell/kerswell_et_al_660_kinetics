@@ -5,6 +5,8 @@ include $(SIMULATION)/local.mk
 # Dependencies
 PROFILES       := $(foreach g,$(MG_NUM),$(SIMULATION)/data/olivine-wadsleyite-profile-Mg$(g).tsv)
 PERPLEX_MODELS := $(shell find $(PERPLEX) -type f -name '*.dat' -exec basename {} .dat \;)
+MODELS_WARM    := $(notdir $(RESULTS_KN))
+MODELS_COLD    := $(notdir $(RESULTS_KN_COLD_SLAB))
 
 # Composition plots (warm sluggish-Z reference scenarios)
 ID_1 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-11_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
@@ -22,9 +24,10 @@ ID_C4 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e-03_EtaTherm5_EtaTrans1-1-1-50_MG
 ID_C5 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp10e+02
 ID_C6 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e+03_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp10e+02
 
-# Cleanup
+# Cleanup: clean removes regenerable products; deep-clean adds fetched content
 CLEAN      := $(PYTHON)/**/__pycache__ $(PYTHON)/simulation/**/__pycache__
-DEEP_CLEAN := $(FIGS)/adiabat $(FIGS_SIM_WARM) $(FIGS_SIM_COLD)
+CLEAN      += $(FIGS)/adiabat $(FIGS_SIM_WARM) $(FIGS_SIM_COLD) $(DATA_WARM) $(DATA_COLD)
+DEEP_CLEAN :=
 
 # Targets
 .PHONY: all visualize sync-barkla compositions-main compositions-warm compositions-cold setup kubo meshes meshes-warm meshes-cold clean deep-clean help
@@ -76,8 +79,10 @@ kubo:
 
 meshes: meshes-warm meshes-cold
 
-meshes-warm: $(PROFILES)
-	@$(eval MODELS := $(notdir $(RESULTS_KN)))
+meshes-warm: SUITE := WARM
+meshes-cold: SUITE := COLD
+meshes-warm meshes-cold: $(PROFILES)
+	@$(eval MODELS := $(MODELS_$(SUITE)))
 	@$(eval DIRS := $(addprefix $(SIMULATION)/results/, $(MODELS)))
 	@for mg in $(MG_NUM); do \
 	  PYTHONPATH=$(PYTHON) $(CONDA_PYTHON) -u $(PYTHON)/simulation/mesh/main.py \
@@ -86,10 +91,10 @@ meshes-warm: $(PROFILES)
 	    $(SIMULATION)/data/ringwoodite-postspinel-profile-Mg$$mg.tsv \
 	    $(MODEL_HEIGHT) \
 	    $(SURFACE_PRESSURE) \
-	    $(FIGS_SIM_WARM) \
-	    $(DATA_WARM) \
+	    $(FIGS_SIM_$(SUITE)) \
+	    $(DATA_$(SUITE)) \
 	    --model-ids $(MODELS) \
-	    --timesteps $(TIMESTEPS_MESH) \
+	    --timesteps $(TIMESTEPS_MESH_$(SUITE)) \
 	    --in-dirs $(DIRS) \
 	    --depth-corr-ol-wd=$(DEPTH_CORRECTION_OL_WD) \
 	    --depth-corr-wd-ri=$(DEPTH_CORRECTION_WD_RI) \
@@ -98,32 +103,7 @@ meshes-warm: $(PROFILES)
 	    --save-csv=$(SAVE_CSV) \
 	    --force-reprocess=$(FORCE_REPROCESS) \
 	    --verbosity=$(POSTPROCESS_VERBOSITY) \
-    --chunk-size=$(CHUNK_SIZE); \
-	done
-
-meshes-cold: $(PROFILES)
-	@$(eval MODELS := $(notdir $(RESULTS_KN_COLD_SLAB)))
-	@$(eval DIRS := $(addprefix $(SIMULATION)/results/, $(MODELS)))
-	@for mg in $(MG_NUM); do \
-	  PYTHONPATH=$(PYTHON) $(CONDA_PYTHON) -u $(PYTHON)/simulation/mesh/main.py \
-	    $(SIMULATION)/data/olivine-wadsleyite-profile-Mg$$mg.tsv \
-	    $(SIMULATION)/data/wadsleyite-ringwoodite-profile-Mg$$mg.tsv \
-	    $(SIMULATION)/data/ringwoodite-postspinel-profile-Mg$$mg.tsv \
-	    $(MODEL_HEIGHT) \
-	    $(SURFACE_PRESSURE) \
-	    $(FIGS_SIM_COLD) \
-	    $(DATA_COLD) \
-	    --model-ids $(MODELS) \
-	    --timesteps $(TIMESTEPS_MESH_COLD) \
-	    --in-dirs $(DIRS) \
-	    --depth-corr-ol-wd=$(DEPTH_CORRECTION_OL_WD) \
-	    --depth-corr-wd-ri=$(DEPTH_CORRECTION_WD_RI) \
-	    --depth-corr-ri-ps=$(DEPTH_CORRECTION_RI_PS) \
-	    --mode=$(POSTPROCESS_MODE) \
-	    --save-csv=$(SAVE_CSV) \
-	    --force-reprocess=$(FORCE_REPROCESS) \
-	    --verbosity=$(POSTPROCESS_VERBOSITY) \
-    --chunk-size=$(CHUNK_SIZE); \
+	    --chunk-size=$(CHUNK_SIZE); \
 	done
 
 adiabat: $(PROFILES)

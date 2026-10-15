@@ -20,29 +20,24 @@ uninstall-aspect:
 uninstall-dealii:
 	@$(call SAFE_RM_LIST,$(DEALII))
 
-$(ASPECT_EXE): $(LOG_FILE)
+define INSTALL_RECIPE
 	@if [ "$(OS_SYSTEM)" = "rocky" ]; then \
 	  if echo "$(shell hostname)" | grep -qE "login|viz"; then \
 	    echo " !! Warning: This script cannot be run on the BARKLA login node!" $(LOGGER); \
 	    echo " !!          Start an interactive session with 'srun --ntasks=<N> --pty /bin/bash'" $(LOGGER); \
 	    exit 1; \
 	  fi; \
-	  bash -i -c "source $(INSTALL_ASPECT) $(DEALII_VERSION) $(GCC) $(OPENMPI) $(OPENBLAS) $(CMAKE)" $(LOGGER) || exit 1; \
+	  bash -i -c "source $(1)" $(LOGGER) || exit 1; \
 	else \
-	  $(INSTALL_ASPECT) $(DEALII_VERSION) $(LOGGER); \
+	  $(2) $(LOGGER); \
 	fi
+endef
+
+$(ASPECT_EXE): $(LOG_FILE)
+	$(call INSTALL_RECIPE,$(INSTALL_ASPECT) $(DEALII_VERSION) $(GCC) $(OPENMPI) $(OPENBLAS) $(CMAKE),$(INSTALL_ASPECT) $(DEALII_VERSION))
 
 $(DEALII_LIB): $(LOG_FILE)
-	@if [ "$(OS_SYSTEM)" = "rocky" ]; then \
-	  if echo "$(shell hostname)" | grep -qE "login|viz"; then \
-	    echo " !! Warning: This script cannot be run on the BARKLA login node!" $(LOGGER); \
-	    echo " !!          Start an interactive session with 'srun --ntasks=<N> --pty /bin/bash'" $(LOGGER); \
-	    exit 1; \
-	  fi; \
-	  bash -i -c "source $(INSTALL_DEALII) $(DEALII_VERSION) $(TRILINOS_VERSION) $(GCC) $(OPENMPI) $(OPENBLAS) $(CMAKE)" $(LOGGER) || exit 1; \
-	else \
-	  $(INSTALL_DEALII) $(DEALII_VERSION) $(LOGGER); \
-	fi
+	$(call INSTALL_RECIPE,$(INSTALL_DEALII) $(DEALII_VERSION) $(TRILINOS_VERSION) $(GCC) $(OPENMPI) $(OPENBLAS) $(CMAKE),$(INSTALL_DEALII) $(DEALII_VERSION))
 
 clean:
 	@$(call SAFE_RM_LIST,$(CLEAN))

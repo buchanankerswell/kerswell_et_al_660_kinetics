@@ -1,6 +1,3 @@
-#######################################################
-## Helpers                                       !!! ##
-#######################################################
 read_seismic_profile <- function(filepath) {
   df <- read_csv(filepath, show_col_types = FALSE)
   fname <- basename(filepath)
@@ -10,14 +7,11 @@ read_seismic_profile <- function(filepath) {
       tstep = as.numeric(str_extract(fname, "(?<=_t)[0-9]+(?=_)")),
       type = if_else(str_detect(fname, "plume"), "Plume", "Slab"),
       z_ri = as.numeric(str_extract(fname, "(?<=Zri)[0-9e.+-]+")),
-      seismic_Vp = seismic_Vp,
-      seismic_Vs = seismic_Vs,
       depth = depth / 1e3,
       trace_x = trace_x / 1e3,
     )
 }
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 visualize_seismic_profiles <- function(data_dir, out_path) {
   if (plot_exists(out_path)) {
     return(invisible())
@@ -58,9 +52,6 @@ visualize_seismic_profiles <- function(data_dir, out_path) {
   }
 
   lim_vp <- range(data$seismic_Vp, na.rm = TRUE)
-  lim_vs <- range(data$seismic_Vs, na.rm = TRUE)
-  lim_ro <- range(data$density, na.rm = TRUE)
-  lim_trace <- c(0, 1500)
 
   p0 <- (
     p_profile(df_plume, "seismic_Vp", "Plumes", expression(V[p] ~ (km / s)), TRUE, TRUE) +
@@ -87,19 +78,11 @@ visualize_seismic_profiles <- function(data_dir, out_path) {
         annotate("text", x = 10.9, y = 835, label = "-T~-Z[ri]", vjust = 1, parse = TRUE, size = 8)
     )
 
-  # p1 <- (p_profile(df_plume, "seismic_Vs", NULL, expression(V[s] ~ (km / s)), TRUE) + scale_x_continuous(limits = lim_vs)) |
-  #   (p_profile(df_slab, "seismic_Vs", NULL, expression(V[s] ~ (km / s)), FALSE) + scale_x_continuous(limits = lim_vs))
-  #
-  # p2 <- (p_profile(df_plume, "trace_x", NULL, "X (km)", TRUE) + scale_x_continuous(limits = lim_trace)) |
-  #   (p_profile(df_slab, "trace_x", NULL, "X (km)", FALSE) + scale_x_continuous(limits = lim_trace))
-
-  # p <- p0 / p1 / p2
   p <- p0
 
   ggsave(out_path, plot = p, width = 12, height = 6, dpi = 300, bg = "white", create.dir = TRUE)
 }
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 theme_profile <- function() {
   theme(
     panel.grid.major = element_blank(),

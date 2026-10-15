@@ -1,7 +1,3 @@
-#######################################################
-## Download ASPECT results from OSF repo         !!! ##
-#######################################################
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 download_simulation_results_from_osf <- function(data_dir) {
   old_path <- file.path(data_dir, "depth-profile-data.csv")
   new_path <- file.path(data_dir, "structure-summary-kerswell-et-al-2026.csv")

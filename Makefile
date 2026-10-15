@@ -8,7 +8,6 @@ build: environments download visualize manuscript
 	@echo "    --------------------------------------------------"
 	@echo "    Study built successfully!"
 	@echo "    --------------------------------------------------"
-	@open draft/manuscript.pdf
 
 install:
 	@$(MAKE) --no-print-directory -C $(BASH) install
@@ -44,19 +43,19 @@ environments:
 	@Rscript $(R)/environment.R
 
 clean:
-	@$(MAKE) --no-print-directory -C $(BASH) clean || true
-	@$(MAKE) --no-print-directory -C $(PYTHON) clean || true
-	@$(MAKE) --no-print-directory -C $(R) clean || true
-	@$(MAKE) --no-print-directory -C $(SIMULATION) clean || true
-	@$(MAKE) --no-print-directory -C $(DRAFT) clean || true
+	@$(MAKE) --no-print-directory -C $(BASH) clean
+	@$(MAKE) --no-print-directory -C $(PYTHON) clean
+	@$(MAKE) --no-print-directory -C $(R) clean
+	@$(MAKE) --no-print-directory -C $(SIMULATION) clean
+	@$(MAKE) --no-print-directory -C $(DRAFT) clean
 	@find . -name ".DS_Store" -type f -delete
 
 deep-clean: clean
-	@$(MAKE) --no-print-directory -C $(BASH) deep-clean || true
-	@$(MAKE) --no-print-directory -C $(PYTHON) deep-clean || true
-	@$(MAKE) --no-print-directory -C $(R) deep-clean || true
-	@$(MAKE) --no-print-directory -C $(SIMULATION) deep-clean || true
-	@$(MAKE) --no-print-directory -C $(DRAFT) deep-clean || true
+	@$(MAKE) --no-print-directory -C $(BASH) deep-clean
+	@$(MAKE) --no-print-directory -C $(PYTHON) deep-clean
+	@$(MAKE) --no-print-directory -C $(R) deep-clean
+	@$(MAKE) --no-print-directory -C $(SIMULATION) deep-clean
+	@$(MAKE) --no-print-directory -C $(DRAFT) deep-clean
 
 help:
 	@echo "    --------------------------------------------------"

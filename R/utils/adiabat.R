@@ -1,7 +1,3 @@
-#######################################################
-## Visualize Adiabatic Reference Conditions      !!! ##
-#######################################################
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 read_burnman_profile <- function(filepath) {
   file_lines <- readLines(filepath)
   header_lines <- file_lines[str_detect(file_lines, "^#")]
@@ -15,7 +11,6 @@ read_burnman_profile <- function(filepath) {
     mutate(across(everything(), ~ as.numeric(.)))
 }
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 read_material_table <- function(filepath) {
   file_lines <- readLines(filepath)
   header_pattern <- "^T\\(K\\)\\s+P\\(bar\\)\\s+rho"
@@ -64,7 +59,6 @@ read_material_table <- function(filepath) {
     )
 }
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 expand_range_iqr <- function(x, threshold = 5.0) {
   x <- x[is.finite(x)]
   q <- quantile(x, probs = c(0.25, 0.75), na.rm = TRUE)
@@ -75,7 +69,6 @@ expand_range_iqr <- function(x, threshold = 5.0) {
   range(inliers, na.rm = TRUE)
 }
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 get_profile_metadata <- function(filepath) {
   fname <- basename(filepath)
   parts <- str_split(fname, "-")[[1]]
@@ -111,7 +104,6 @@ get_profile_metadata <- function(filepath) {
   list(name_a = name_a, name_b = name_b, limits = file_limits, phase_limits = phase_limits, delta_label = paste0(name_a, "-", name_b))
 }
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 theme_profile <- function() {
   theme(
     panel.grid.major = element_blank(),
@@ -134,7 +126,6 @@ theme_profile <- function() {
   )
 }
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 theme_table <- function() {
   theme(
     panel.grid.major = element_blank(),
@@ -162,7 +153,6 @@ theme_table <- function() {
   )
 }
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 visualize_thermodynamic_profile <- function(profile_paths, out_path) {
   if (plot_exists(out_path)) {
     return(invisible())
@@ -272,7 +262,6 @@ visualize_thermodynamic_profile <- function(profile_paths, out_path) {
   ggsave(out_path, plot = p, width = 15, height = 13)
 }
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 visualize_material_profile <- function(profile_paths, out_path) {
   if (plot_exists(out_path)) {
     return(invisible())
@@ -342,7 +331,6 @@ visualize_material_profile <- function(profile_paths, out_path) {
   ggsave(out_path, plot = p, width = 20, height = 7, dpi = 300)
 }
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 visualize_material_table <- function(profile_path, table_path, out_path) {
   if (plot_exists(out_path)) {
     return(invisible())

@@ -1,9 +1,5 @@
 #!/usr/bin/env Rscript
 
-#######################################################
-## Download ASPECT results from OSF repo         !!! ##
-#######################################################
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 main <- function() {
   args <- commandArgs(trailingOnly = TRUE)
 

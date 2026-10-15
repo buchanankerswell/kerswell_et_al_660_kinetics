@@ -5,9 +5,10 @@ include $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/../project.mk)
 KERSWELL_410_DATA := $(SIMULATION)/data/structure-summary-kerswell-et-al-2026.csv
 PERPLEX_MODELS    := $(shell find $(PERPLEX) -type f -name '*.dat' -exec basename {} .dat \;)
 
-# Cleanup
-CLEAN      :=
-DEEP_CLEAN := $(FIGS)/kubo
+# Cleanup: clean removes regenerable products (figures); suite data dirs are
+# owned by the python mesh pipeline. deep-clean has nothing to add here.
+CLEAN      := $(FIGS)/kubo $(FIGS_STRUCT_WARM) $(FIGS_STRUCT_COLD) $(FIGS_SEISMIC_WARM) $(FIGS_SEISMIC_COLD)
+DEEP_CLEAN :=
 
 # Targets
 .PHONY: all visualize tables tables-warm tables-cold adiabat simulation simulation-warm simulation-cold seismic seismic-warm seismic-cold download upload clean deep-clean help
@@ -17,30 +18,36 @@ visualize: adiabat simulation seismic
 
 tables: tables-warm tables-cold
 
-tables-warm:
-	@Rscript $(R)/tables.R $(R)/utils $(COMBINED_CSV_FILTERED_WARM) $(DATA_WARM)
-
-tables-cold:
-	@Rscript $(R)/tables.R $(R)/utils $(COMBINED_CSV_FILTERED_COLD) $(DATA_COLD)
+tables-warm: SUITE := WARM
+tables-cold: SUITE := COLD
+tables-warm tables-cold:
+	@Rscript $(R)/tables.R $(R)/utils $(COMBINED_CSV_FILTERED_$(SUITE)) $(DATA_$(SUITE))
 
 adiabat:
 	@for model in $(PERPLEX_MODELS); do Rscript $(R)/adiabat.R $(R)/utils $$model $(SIMULATION)/data $(FIGS)/adiabat; done
 
 seismic: seismic-warm seismic-cold
 
+seismic-warm: SUITE := WARM
+seismic-cold: SUITE := COLD
 seismic-warm: $(DATA_WARM)/seismic_profiles
-	@Rscript $(R)/seismic.R $(R)/utils $(DATA_WARM)/seismic_profiles $(FIGS_SEISMIC_WARM)
-
 seismic-cold: $(DATA_COLD)/seismic_profiles
-	@Rscript $(R)/seismic.R $(R)/utils $(DATA_COLD)/seismic_profiles $(FIGS_SEISMIC_COLD)
+seismic-warm seismic-cold:
+	@Rscript $(R)/seismic.R $(R)/utils $(DATA_$(SUITE))/seismic_profiles $(FIGS_SEISMIC_$(SUITE))
 
 simulation: simulation-warm simulation-cold
 
-simulation-warm: $(KERSWELL_410_DATA)
-	@Rscript $(R)/simulation.R $(R)/utils $(DATA_WARM) $(FIGS_STRUCT_WARM) $(COMBINED_CSV_RAW_WARM) $(COMBINED_CSV_FILTERED_WARM) $(SAVE_CSV) $(FORCE_REWRITE)
+LINK_WARM := $(DATA_WARM)/structure-summary-kerswell-et-al-2026.csv
+LINK_COLD := $(DATA_COLD)/structure-summary-kerswell-et-al-2026.csv
+$(LINK_WARM) $(LINK_COLD): $(KERSWELL_410_DATA)
+	@mkdir -p $(dir $@) && ln -sf ../$(notdir $(KERSWELL_410_DATA)) $@
 
-simulation-cold: $(KERSWELL_410_DATA)
-	@Rscript $(R)/simulation.R $(R)/utils $(DATA_COLD) $(FIGS_STRUCT_COLD) $(COMBINED_CSV_RAW_COLD) $(COMBINED_CSV_FILTERED_COLD) $(SAVE_CSV) $(FORCE_REWRITE)
+simulation-warm: SUITE := WARM
+simulation-cold: SUITE := COLD
+simulation-warm: $(KERSWELL_410_DATA) $(LINK_WARM)
+simulation-cold: $(KERSWELL_410_DATA) $(LINK_COLD)
+simulation-warm simulation-cold:
+	@Rscript $(R)/simulation.R $(R)/utils $(DATA_$(SUITE)) $(FIGS_STRUCT_$(SUITE)) $(COMBINED_CSV_RAW_$(SUITE)) $(COMBINED_CSV_FILTERED_$(SUITE)) $(SAVE_CSV) $(FORCE_REWRITE)
 
 download:
 	@Rscript $(R)/osf.R $(R)/utils $(ASPECT_RESULTS) $(SIMULATION)/data "download"

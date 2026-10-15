@@ -35,7 +35,7 @@ TIMESTEPS_SYNC_PLUME   := 050
 TIMESTEPS_SYNC_SLAB    := 100
 # Set to 1 to re-sync all models even when local files exist
 FORCE_SYNC            := 0
-TIMESTEPS_MESH        := $(shell seq -f "%03g" 0 50 100)
+TIMESTEPS_MESH_WARM   := 000 050 100
 TIMESTEPS_MESH_COLD   := 100
 # Max models per mesh-pipeline process (bounds pyvista memory growth)
 CHUNK_SIZE            := 32
@@ -200,41 +200,24 @@ define MAKE_KN_UID
   KN_Dynp$(1)_Zol$(2)_Zwd$(3)_Zri$(4)_EtaTherm$(5)_EtaTrans$(6)-$(7)-$(8)-$(9)_MG$(10)_Vel$(11)_Temp$(12)
 endef
 
-# Derived UIDs
+# Derived UIDs. $(1) is the UID list to extend (UIDS_KN or UIDS_KN_COLD);
+# PARAM_* entries share the global namespace keyed by UID, so warm and cold
+# generations never clash (UIDs differ by Z/Temp).
 define REGISTER_UIDS_KN
-  $(eval _uid := $(strip $(call MAKE_KN_UID,$(1),$(2),$(3),$(4),$(5),$(6),$(7),$(8),$(9),$(10),$(11),$(12))))
-  UIDS_KN                += $(_uid)
-  PARAM_dynp_$(_uid)     := $(1)
-  PARAM_zol_$(_uid)      := $(2)
-  PARAM_zwd_$(_uid)      := $(3)
-  PARAM_zri_$(_uid)      := $(4)
-  PARAM_etatherm_$(_uid) := $(5)
-  PARAM_etaol_$(_uid)    := $(6)
-  PARAM_etawd_$(_uid)    := $(7)
-  PARAM_etari_$(_uid)    := $(8)
-  PARAM_etaps_$(_uid)    := $(9)
-  PARAM_mgnum_$(_uid)    := $(10)
-  PARAM_vel_$(_uid)      := $(11)
-  PARAM_dt_$(_uid)       := $(12)
-endef
-
-# Cold KN UIDs (slab-only). PARAM_* entries share the global namespace keyed
-# by UID, so warm and cold generations never clash (UIDs differ by Z/Temp).
-define REGISTER_UIDS_KN_COLD
-  $(eval _uid := $(strip $(call MAKE_KN_UID,$(1),$(2),$(3),$(4),$(5),$(6),$(7),$(8),$(9),$(10),$(11),$(12))))
-  UIDS_KN_COLD           += $(_uid)
-  PARAM_dynp_$(_uid)     := $(1)
-  PARAM_zol_$(_uid)      := $(2)
-  PARAM_zwd_$(_uid)      := $(3)
-  PARAM_zri_$(_uid)      := $(4)
-  PARAM_etatherm_$(_uid) := $(5)
-  PARAM_etaol_$(_uid)    := $(6)
-  PARAM_etawd_$(_uid)    := $(7)
-  PARAM_etari_$(_uid)    := $(8)
-  PARAM_etaps_$(_uid)    := $(9)
-  PARAM_mgnum_$(_uid)    := $(10)
-  PARAM_vel_$(_uid)      := $(11)
-  PARAM_dt_$(_uid)       := $(12)
+  $(eval _uid := $(strip $(call MAKE_KN_UID,$(2),$(3),$(4),$(5),$(6),$(7),$(8),$(9),$(10),$(11),$(12),$(13))))
+  $(1)                   += $(_uid)
+  PARAM_dynp_$(_uid)     := $(2)
+  PARAM_zol_$(_uid)      := $(3)
+  PARAM_zwd_$(_uid)      := $(4)
+  PARAM_zri_$(_uid)      := $(5)
+  PARAM_etatherm_$(_uid) := $(6)
+  PARAM_etaol_$(_uid)    := $(7)
+  PARAM_etawd_$(_uid)    := $(8)
+  PARAM_etari_$(_uid)    := $(9)
+  PARAM_etaps_$(_uid)    := $(10)
+  PARAM_mgnum_$(_uid)    := $(11)
+  PARAM_vel_$(_uid)      := $(12)
+  PARAM_dt_$(_uid)       := $(13)
 endef
 
 # Parameter file generator
@@ -331,10 +314,6 @@ endif
 ifeq ($(shell command -v Rscript 2>/dev/null),)
   $(error !! ERROR: 'Rscript' not found in PATH. This project requires R)
 endif
-
-# ifeq ($(shell command -v pandoc 2>/dev/null),)
-#   $(error !! ERROR: 'pandoc' not found in PATH. Required for rendering the manuscript)
-# endif
 
 # --------------------------------------------------
 # DEAL.II and ASPECT configuration

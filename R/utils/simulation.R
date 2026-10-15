@@ -1,11 +1,6 @@
-#######################################################
-## Helpers                                       !!! ##
-#######################################################
 read_kerswell_data <- function(filepath, scenario_offset = 0) {
-  # The archived 410 dataset records nominal Z values. Per the 410 erratum,
-  # those runs effectively used Z' = Z / 3.15e7 (time_scale division with
-  # time in years). The OSF archive is read-only, so rescale on the fly here
-  # rather than renaming upstream.
+  # Archived 410 runs effectively used Z' = Z / 3.15e7 (see erratum); rescale
+  # on the fly since the OSF archive is read-only.
   sec_per_year <- 3.15e7
 
   raw <- suppressWarnings(read_csv(filepath, show_col_types = FALSE)) |>
@@ -30,7 +25,6 @@ read_kerswell_data <- function(filepath, scenario_offset = 0) {
     filter(is.finite(max_reaction_rate), max_reaction_rate > 0)
 }
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 read_local_data <- function(filepath) {
   raw_df <- suppressWarnings(read_csv(filepath, show_col_types = FALSE))
 
@@ -51,14 +45,11 @@ read_local_data <- function(filepath) {
     extract_transition_data(raw_df, "410"),
     extract_transition_data(raw_df, "660")
   ) |>
-    # Cold nominal-Z slabs share velocity/viscosity values with the warm
-    # archive, so both suites compute scenarios 0-7. Offset the cold suite
-    # by +8 (mirroring the 410 scenario_offset) to keep regime assignment
-    # and tile axes unambiguous.
+    # Cold slabs also compute scenarios 0-7; offset by +8 to keep regime
+    # assignment and tile axes unambiguous.
     mutate(scenario = scenario + 8L * str_detect(model_id, fixed("Temp10e+02")))
 }
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 process_and_combine_data <- function(filepath_local,
                                      filepath_kerswell,
                                      csv_path_raw = NULL,
@@ -129,7 +120,6 @@ process_and_combine_data <- function(filepath_local,
   df_filtered_final
 }
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 calculate_tile_boundaries <- function(data_frame) {
   z_unique <- sort(unique(data_frame$z_ri_ps))
   z_boundaries <- c(
@@ -145,7 +135,6 @@ calculate_tile_boundaries <- function(data_frame) {
   data_frame |> left_join(z_factor_map, by = "z_ri_ps")
 }
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 assign_regimes <- function(df) {
   df_tiled <- calculate_tile_boundaries(df)
 
@@ -242,17 +231,11 @@ assign_regimes <- function(df) {
   list(df_tiled = df_tiled, scenario_thresholds = scenario_thresholds)
 }
 
-#######################################################
-## Regime transition thresholds                  !!! ##
-#######################################################
 max_velocity_vertical_stagnation_660 <- 5e-1
 characteristic_length_scale_quasi_eq_660 <- 5
 rxn_rate_stagnation_410 <- 6.76e-2
 rxn_rate_quasi_eq_410 <- 2.14e0
 
-#######################################################
-## Visualize                                     !!! ##
-#######################################################
 visualize_composition <- function(data_dir, out_path, csv_path_raw = NULL, csv_path_filtered = NULL, save_csv = FALSE, force_rewrite = TRUE) {
   if (plot_exists(out_path)) {
     return(invisible())
@@ -326,7 +309,6 @@ visualize_composition <- function(data_dir, out_path, csv_path_raw = NULL, csv_p
   ggsave(out_path, plot = p, width = 4.5, height = 4.5, dpi = 300, bg = "white", create.dir = TRUE)
 }
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 visualize_tiles <- function(in_path, out_path) {
   if (plot_exists(out_path)) {
     return(invisible())
@@ -418,7 +400,6 @@ visualize_tiles <- function(in_path, out_path) {
   suppressWarnings(ggsave(out_path, plot = p, width = 4.5, height = 5.0, dpi = 300, bg = "white"))
 }
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 theme_1 <- function() {
   theme(
     panel.grid.major = element_blank(),
@@ -452,7 +433,6 @@ theme_1 <- function() {
   )
 }
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 theme_2 <- function() {
   theme(
     panel.grid.major = element_blank(),

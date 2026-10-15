@@ -1,9 +1,5 @@
 #!/usr/bin/env Rscript
 
-#######################################################
-## Visualize Adiabatic Reference Conditions      !!! ##
-#######################################################
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 main <- function() {
   args <- commandArgs(trailingOnly = TRUE)
 
@@ -33,10 +29,7 @@ main <- function() {
   out_material_profiles <- file.path(out_dir, "material-property-profiles.png")
   out_thermodynamic_profiles <- file.path(out_dir, "thermodynamic-property-profiles.png")
 
-  missing <- c()
-  if (!file.exists(in_material_table)) missing <- c(missing, in_material_table)
-  if (!file.exists(in_profiles[1])) missing <- c(missing, in_profiles[1])
-  if (!file.exists(in_profiles[2])) missing <- c(missing, in_profiles[1])
+  missing <- c(in_material_table, in_profiles)[!file.exists(c(in_material_table, in_profiles))]
 
   if (length(missing) > 0) {
     cat(" !! Warning: the following input files do not exist:\n")

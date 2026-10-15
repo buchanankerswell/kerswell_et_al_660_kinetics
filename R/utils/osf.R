@@ -1,6 +1,3 @@
-#######################################################
-## Sync data with OSF repo kur93                     ##
-#######################################################
 upload_results_to_osf <- function(up_dir, conflicts = "skip", verbose = TRUE) {
   if (Sys.getenv("OSF_PAT") == "") {
     stop(
@@ -19,12 +16,11 @@ upload_results_to_osf <- function(up_dir, conflicts = "skip", verbose = TRUE) {
     osf_upload(path = up_dir, recurse = TRUE, conflicts = conflicts, verbose = verbose)
 }
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 download_results_from_osf <- function(data_dir, sim_dir, conflicts = "skip", verbose = TRUE) {
   node_id <- "kur93"
 
-  if (!dir.exists(out_dir_data)) dir.create(out_dir_data, recursive = TRUE)
-  if (!dir.exists(out_dir_sim)) dir.create(out_dir_sim, recursive = TRUE)
+  if (!dir.exists(data_dir)) dir.create(data_dir, recursive = TRUE)
+  if (!dir.exists(sim_dir)) dir.create(sim_dir, recursive = TRUE)
 
   osf_node <- osf_retrieve_node(node_id)
   node_files <- osf_ls_files(osf_node)
@@ -32,10 +28,10 @@ download_results_from_osf <- function(data_dir, sim_dir, conflicts = "skip", ver
   data_dir_node <- node_files[node_files$name == "data", ]
 
   if (nrow(data_dir_node) == 1) {
-    if (length(list.files(out_dir_data)) == 0) {
-      osf_download(data_dir_node, path = out_dir_data, conflicts = conflicts, recurse = TRUE)
+    if (length(list.files(data_dir)) == 0) {
+      osf_download(data_dir_node, path = data_dir, conflicts = conflicts, recurse = TRUE)
     } else {
-      cat(" -- Found local data in: ", out_dir_data, "\n", sep = "")
+      cat(" -- Found local data in: ", data_dir, "\n", sep = "")
     }
   } else {
     cat(" !! Warning: could not find a unique folder named 'data' in the OSF repository.\n")
@@ -62,13 +58,13 @@ download_results_from_osf <- function(data_dir, sim_dir, conflicts = "skip", ver
     osf_results_files <- osf_ls_files(results_dir_node)
 
     walk(patterns, ~ {
-      target_local_dir <- file.path(out_dir_sim, .x)
+      target_local_dir <- file.path(sim_dir, .x)
 
       if (!dir.exists(target_local_dir)) {
         matched_node <- osf_results_files[osf_results_files$name == .x, ]
 
         if (nrow(matched_node) == 1) {
-          osf_download(matched_node, path = out_dir_sim, conflicts = conflicts, recurse = TRUE)
+          osf_download(matched_node, path = sim_dir, conflicts = conflicts, recurse = TRUE)
         } else {
           cat(" !! Warning: target not found on OSF or ambiguous: ", .x, "\n")
         }

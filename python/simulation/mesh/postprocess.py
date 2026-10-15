@@ -1,16 +1,9 @@
-#######################################################
-## .0. Load Libraries                            !!! ##
-#######################################################
 from dataclasses import dataclass
 
 import numpy as np
 import pyvista as pv
 from config import MeshConfig
 
-
-#######################################################
-## .1. MeshPostProcessor                         !!! ##
-#######################################################
 @dataclass
 class MeshPostProcessor:
     """
@@ -23,7 +16,6 @@ class MeshPostProcessor:
     config: MeshConfig
     verbosity: int = 0
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def measure_discontinuity_structure(
         self,
         mesh: pv.UnstructuredGrid,
@@ -78,7 +70,6 @@ class MeshPostProcessor:
 
         return {"x_position": x_vals[best_idx], "displacement": displacements[best_idx], "width": widths[best_idx]}
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def extract_depth_profile(self, mesh: pv.UnstructuredGrid, field: str, x_pos: float, tolerance=500.0) -> tuple[np.ndarray, np.ndarray]:
         """
         Return (depths, values) along a vertical profile at x_pos, sorted by depth.
@@ -102,7 +93,6 @@ class MeshPostProcessor:
         sort_idx = np.argsort(depths)
         return depths[sort_idx], values[sort_idx]
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def calculate_max_in_region(
         self, depths: np.ndarray, values: np.ndarray, rxn_depth: float, displacement: float, width: float, width_threshold: float = 15e3
     ) -> float:
@@ -135,7 +125,6 @@ class MeshPostProcessor:
 
         return float(np.nanmax(np.abs(values[mask]))) if np.any(mask) else np.nan
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def transition_depth_bounds(self, rxn_depth: float, displacement: float, width: float, width_threshold: float = 15e3, for_visualizing: bool = False) -> tuple[float, float]:
         """
         Return (lower, upper) mesh-relative depth bounds for the transition window.
@@ -161,7 +150,6 @@ class MeshPostProcessor:
 
         return lower, upper
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _bound_factors(self, width: float, width_threshold: float = 15e3) -> tuple[float, float]:
         """
         Return (lower_factor, upper_factor) for the transition depth window.
@@ -170,7 +158,6 @@ class MeshPostProcessor:
         """
         return (2.5, 1.5) if width <= width_threshold else (2.0, 1.0)
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_transition_structure(
         self,
         depths: np.ndarray,
@@ -283,7 +270,6 @@ class MeshPostProcessor:
         displacement = trans_depth - rxn_depth
         return trans_depth, displacement, width
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _repair_monotonic(self, values: np.ndarray, depths: np.ndarray, rxn_depth: float, search_window: float = 100e3) -> np.ndarray:
         """
         Repair monotonicity violations in a phase fraction profile near a known reaction depth.

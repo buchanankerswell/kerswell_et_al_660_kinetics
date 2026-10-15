@@ -63,7 +63,6 @@ compose_figures() {
 COMP_SETS=(
   "set1:temperature-nonadiabatic-density-nonadiabatic-velocity-vertical"
   "set2:temperature-nonadiabatic-viscosity-X-ps"
-  "set3:another-composition-suffix-here"
 )
 
 for TYPE in "slab" "plume"; do

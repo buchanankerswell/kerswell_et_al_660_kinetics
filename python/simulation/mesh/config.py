@@ -1,15 +1,9 @@
-#######################################################
-## .0. Load Libraries                            !!! ##
-#######################################################
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 import matplotlib
 
-#######################################################
-## .1. Field Defaults Table                      !!! ##
-#######################################################
 # Single source of truth for all per-field display configuration
 # Columns: file_id, cmap, clim, label, fmt, scaling, edges, transition_contours, representative_trace
 _FIELD_DEFAULTS: dict[str, tuple] = {
@@ -46,10 +40,6 @@ _FIELD_DEFAULTS: dict[str, tuple] = {
     # fmt: on
 }
 
-
-#######################################################
-## .2. MeshConfig                                !!! ##
-#######################################################
 @dataclass
 class MeshConfig:
     """Configuration for mesh plotting and post-processing pipelines.
@@ -137,7 +127,6 @@ class MeshConfig:
         }
     )
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def __post_init__(self) -> None:
         """Populate per-field maps from _FIELD_DEFAULTS and apply rcParams."""
         if not self.file_map:

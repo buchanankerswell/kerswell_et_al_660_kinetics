@@ -1,6 +1,3 @@
-#######################################################
-## .0. Load Libraries                            !!! ##
-#######################################################
 import re
 import subprocess
 import sys
@@ -12,10 +9,6 @@ from simulation.mesh.pipeline import FullPipeline, PlottingPipeline, PostProcess
 from simulation.params.transitions import PhaseTransition, find_surface_depth_offset, find_transition, read_dG_profile
 from tile import ImageTiler
 
-
-#######################################################
-## .1. Helpers                                   !!! ##
-#######################################################
 def str2bool(v):
     if isinstance(v, bool):
         return v
@@ -25,7 +18,6 @@ def str2bool(v):
         return False
     else:
         raise ArgumentTypeError("Boolean value expected.")
-
 
 def parse_arguments() -> Namespace:
     """ """
@@ -59,10 +51,6 @@ def parse_arguments() -> Namespace:
 
     return parser.parse_args()
 
-
-#######################################################
-## .2. Main                                      !!! ##
-#######################################################
 def main():
     """ """
     args = parse_arguments()
@@ -145,9 +133,7 @@ def main():
         "nonadiabatic_temperature",
         "nonadiabatic_density",
         "velocity_vertical",
-        # "nonadiabatic_pressure",
         "viscosity",
-        # "seismic_Vp",
         "reaction_rate_C0",
         "reaction_rate_C1",
         "reaction_rate_C2",
@@ -218,7 +204,6 @@ def main():
                 if fields and len(fields) == 3:
                     tiler = ImageTiler(plot_config, out_fig_dir / "meshes" / model_id_padded, fields[0], fields[1], fields[2], tags)
                     tiler.tile_images()
-
 
 if __name__ == "__main__":
     main()
