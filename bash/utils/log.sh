@@ -7,9 +7,17 @@
 _log_width() {
   if [[ -n "${COLUMNS:-}" ]]; then
     printf '%s' "$COLUMNS"
-  else
-    tput cols 2>/dev/null || printf '80'
+    return
   fi
+  # stdout is often piped (e.g. make | tee), so ask the controlling
+  # terminal directly for the real screen width.
+  local tty_cols
+  tty_cols=$( { stty size < /dev/tty 2>/dev/null; } 2>/dev/null | awk '{print $2}')
+  if [[ "$tty_cols" =~ ^[0-9]+$ ]] && ((tty_cols > 0)); then
+    printf '%s' "$tty_cols"
+    return
+  fi
+  tput cols 2>/dev/null || printf '80'
 }
 
 _log_emit() {

@@ -4,6 +4,21 @@
 # Lines wrap at screen width (cli::console_width, else getOption("width")).
 
 .log_width <- function() {
+  cols <- suppressWarnings(as.integer(Sys.getenv("COLUMNS", unset = NA)))
+  if (length(cols) == 1L && !is.na(cols) && cols > 0) {
+    return(max(cols, 40L))
+  }
+  # stdout is often piped (e.g. make | tee), so ask the controlling
+  # terminal directly for the real screen width (no shell involved).
+  tty <- suppressWarnings(tryCatch(
+    system2("stty", "size", stdin = "/dev/tty", stdout = TRUE, stderr = FALSE),
+    error = function(e) ""
+  ))
+  if (!length(tty)) tty <- ""
+  n <- suppressWarnings(as.integer(strsplit(tty, " ", fixed = TRUE)[[1L]][2L]))
+  if (length(n) == 1L && !is.na(n) && n > 0) {
+    return(max(n, 40L))
+  }
   w <- tryCatch(suppressWarnings(as.integer(cli::console_width())), error = function(e) NA_integer_)
   if (length(w) != 1L || is.na(w)) w <- getOption("width", 80L)
   max(w, 40L)

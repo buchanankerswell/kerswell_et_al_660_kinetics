@@ -5,11 +5,22 @@ Glyphs live in the 4-char gutter only; continuation lines indent 4 spaces.
 Lines wrap at screen width (shutil.get_terminal_size, fallback 80).
 """
 
+import os
 import shutil
 import textwrap
 
 
 def _width() -> int:
+    cols = os.environ.get("COLUMNS", "")
+    if cols.isdigit() and int(cols) > 0:
+        return max(int(cols), 40)
+    # stdout is often piped (e.g. make | tee), so ask the controlling
+    # terminal directly for the real screen width.
+    try:
+        with open("/dev/tty") as f:
+            return max(os.get_terminal_size(f.fileno()).columns, 40)
+    except Exception:
+        pass
     try:
         return max(shutil.get_terminal_size(fallback=(80, 24)).columns, 40)
     except Exception:
