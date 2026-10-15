@@ -2,9 +2,9 @@
 # Execute UID registration
 # --------------------------------------------------
 $(foreach dynp,$(DYNAMIC_P),\
-$(foreach zol,$(Z_OL),\
-$(foreach zwd,$(Z_WD),\
-$(foreach zri,$(Z_RI),\
+$(foreach zol,$(Z_OL_WARM),\
+$(foreach zwd,$(Z_WD_WARM),\
+$(foreach zri,$(Z_RI_WARM),\
 $(foreach etatherm,$(ETA_THERM),\
 $(foreach etaol,$(ETA_PREF_OL),\
 $(foreach etawd,$(ETA_PREF_WD),\
@@ -12,7 +12,7 @@ $(foreach etari,$(ETA_PREF_RI),\
 $(foreach etaps,$(ETA_PREF_PS),\
 $(foreach mgnum,$(MG_NUM),\
 $(foreach vel,$(VELOCITY_BC),\
-$(foreach dt,$(TEMPERATURE_BC),\
+$(foreach dt,$(TEMPERATURE_BC_WARM),\
 $(eval $(call REGISTER_UIDS,UIDS_KN_WARM,$(dynp),$(zol),$(zwd),$(zri),$(etatherm),$(etaol),$(etawd),$(etari),$(etaps),$(mgnum),$(vel),$(dt)))))))))))))))
 
 # --------------------------------------------------
@@ -31,7 +31,7 @@ $(foreach etari,$(ETA_PREF_RI),\
 $(foreach etaps,$(ETA_PREF_PS),\
 $(foreach mgnum,$(MG_NUM),\
 $(foreach vel,$(VELOCITY_BC),\
-$(foreach dt,$(TEMP_COLD),\
+$(foreach dt,$(TEMPERATURE_BC_COLD),\
 $(eval $(call REGISTER_UIDS,UIDS_KN_COLD,$(dynp),$(zol),$(zwd),$(zri),$(etatherm),$(etaol),$(etawd),$(etari),$(etaps),$(mgnum),$(vel),$(dt)))))))))))))))
 
 # --------------------------------------------------

@@ -1,27 +1,25 @@
 # --------------------------------------------------
-# Environments and top-level directories (no edits)
+# Paths (no edits)
 # --------------------------------------------------
 # Canonical project root (works from any subdir)
-PROJECT_ROOT       := $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/.)
+PROJECT_ROOT := $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/.)
 export PROJECT_ROOT
 
-# Top-level directories
-ASPECT             := $(PROJECT_ROOT)/aspect
-DEALII             := $(PROJECT_ROOT)/dealii
-BASH               := $(PROJECT_ROOT)/bash
-DRAFT              := $(PROJECT_ROOT)/draft
-PYTHON             := $(PROJECT_ROOT)/python
-R                  := $(PROJECT_ROOT)/R
-SIMULATION         := $(PROJECT_ROOT)/simulation
-FIGS               := $(PROJECT_ROOT)/figs
-PERPLEX            := $(PROJECT_ROOT)/perplex
+ASPECT     := $(PROJECT_ROOT)/aspect
+DEALII     := $(PROJECT_ROOT)/dealii
+BASH       := $(PROJECT_ROOT)/bash
+DRAFT      := $(PROJECT_ROOT)/draft
+PYTHON     := $(PROJECT_ROOT)/python
+R          := $(PROJECT_ROOT)/R
+SIMULATION := $(PROJECT_ROOT)/simulation
+FIGS       := $(PROJECT_ROOT)/figs
+PERPLEX    := $(PROJECT_ROOT)/perplex
 
-# Remote Barkla2 directories
 BARKLA2_ROOT       := /users/kersweb/scratch/kerswell_et_al_660_kinetics
 BARKLA2_SIMULATION := $(BARKLA2_ROOT)/simulation
 
 # --------------------------------------------------
-# ASPECT model postprocessing (can edit)
+# Suites and outputs (can edit)
 # --------------------------------------------------
 MODEL_TYPES           := plume slab
 ASPECT_RESULTS        := $(SIMULATION)/results
@@ -30,31 +28,29 @@ POSTPROCESS_VERBOSITY := 0
 SAVE_CSV              := true
 FORCE_REPROCESS       := false
 FORCE_REWRITE         := true
-RESULTS_KN_WARM             = $(foreach type,$(MODEL_TYPES), $(addprefix $(ASPECT_RESULTS)/$(type)_, $(UIDS_KN_WARM)))
-RESULTS_KN_COLD_SLAB   = $(addprefix $(ASPECT_RESULTS)/slab_, $(UIDS_KN_COLD))
-TIMESTEPS_SYNC_PLUME   := 050
-TIMESTEPS_SYNC_SLAB    := 100
-# Set to 1 to re-sync all models even when local files exist
+RESULTS_KN_WARM       = $(foreach type,$(MODEL_TYPES), $(addprefix $(ASPECT_RESULTS)/$(type)_, $(UIDS_KN_WARM)))
+RESULTS_KN_COLD_SLAB  = $(addprefix $(ASPECT_RESULTS)/slab_, $(UIDS_KN_COLD))
+TIMESTEPS_SYNC_PLUME  := 050
+TIMESTEPS_SYNC_SLAB   := 100
 FORCE_SYNC            := 0
 TIMESTEPS_MESH_WARM   := 000 050 100
 TIMESTEPS_MESH_COLD   := 100
-# Max models per mesh-pipeline process (bounds pyvista memory growth)
 CHUNK_SIZE            := 32
-# Per-suite output layout (warm = sluggish-Z archive, cold = nominal-Z slabs)
 DATA_WARM             := $(SIMULATION)/data/warm
 DATA_COLD             := $(SIMULATION)/data/cold
-FIGS_SIM_WARM         := $(FIGS)/simulation-warm
-FIGS_SIM_COLD         := $(FIGS)/simulation-cold
-FIGS_STRUCT_WARM      := $(FIGS)/structure-warm
-FIGS_STRUCT_COLD      := $(FIGS)/structure-cold
-FIGS_SEISMIC_WARM     := $(FIGS)/seismic-warm
-FIGS_SEISMIC_COLD     := $(FIGS)/seismic-cold
+FIGS_SIM_WARM         := $(FIGS)/simulation_warm
+FIGS_SIM_COLD         := $(FIGS)/simulation_cold
+FIGS_STRUCT_WARM      := $(FIGS)/structure_warm
+FIGS_STRUCT_COLD      := $(FIGS)/structure_cold
+FIGS_SEISMIC_WARM     := $(FIGS)/seismic_warm
+FIGS_SEISMIC_COLD     := $(FIGS)/seismic_cold
+
 COMBINED_CSV_RAW_WARM      := $(DATA_WARM)/structure-summary-combined.csv
 COMBINED_CSV_FILTERED_WARM := $(DATA_WARM)/structure-summary-combined-filtered.csv
 COMBINED_CSV_RAW_COLD      := $(DATA_COLD)/structure-summary-combined.csv
 COMBINED_CSV_FILTERED_COLD := $(DATA_COLD)/structure-summary-combined-filtered.csv
 
-# Composition reference models (warm sluggish-Z scenarios)
+# Composition reference models
 ID_W1 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-11_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
 ID_W2 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri1.90e-08_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
 ID_W3 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-05_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
@@ -62,7 +58,6 @@ ID_W4 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-11_EtaTherm5_EtaTrans1-1-1-50
 ID_W5 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri1.90e-08_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02
 ID_W6 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-05_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02
 
-# Composition reference models (cold nominal-Z counterparts, slab-only)
 ID_C1 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e-03_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp10e+02
 ID_C2 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp10e+02
 ID_C3 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e+03_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp10e+02
@@ -70,16 +65,14 @@ ID_C4 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e-03_EtaTherm5_EtaTrans1-1-1-50_MG
 ID_C5 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp10e+02
 ID_C6 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e+03_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp10e+02
 
-# Subset to render and tile (all models are still postprocessed)
-VIS_IDS_WARM := $(ID_W1) $(ID_W2) $(ID_W3) $(ID_W4) $(ID_W5) $(ID_W6)
-VIS_IDS_COLD := $(ID_C1) $(ID_C2) $(ID_C3) $(ID_C4) $(ID_C5) $(ID_C6)
+VIS_IDS_WARM    := $(ID_W1) $(ID_W2) $(ID_W3) $(ID_W4) $(ID_W5) $(ID_W6)
+VIS_IDS_COLD    := $(ID_C1) $(ID_C2) $(ID_C3) $(ID_C4) $(ID_C5) $(ID_C6)
 VIS_MODELS_WARM := $(foreach id,$(VIS_IDS_WARM),plume_$(id) slab_$(id))
 VIS_MODELS_COLD := $(foreach id,$(VIS_IDS_COLD),slab_$(id))
 
 # --------------------------------------------------
-# ASPECT model parameter space (can edit)
+# Model parameters (can edit)
 # --------------------------------------------------
-# Globals
 END_TIME            := 150e+06
 SURFACE_TEMPERATURE := 1706
 SURFACE_PRESSURE    := 2e+09
@@ -87,84 +80,69 @@ SOLVER_TOLERANCE    := 1e-04
 MAX_SOLVER_ITER     := 100
 MAX_SOLVER_TSTEP    := 25e+04
 
-# Postprocess
-VIZ_OUT_TIME        := 1e+06
-CHECKPOINT_TIME     := 300
+VIZ_OUT_TIME    := 1e+06
+CHECKPOINT_TIME := 300
+DYNAMIC_P       := 0
+MG_NUM          := 100
 
-# Use dynamic pressure correction [0: false, 1: true]
-DYNAMIC_P           := 0
+ETA_REF   := 1e+21
+ETA_MIN   := 1e+19
+ETA_MAX   := 1e+24
+ETA_GIBBS := 1e+03
+ETA_THERM := 5 10
 
-# Material composition [100: pure MgO, 90: Mg90, etc.]
-MG_NUM              := 100
-
-# Viscosity [reference, min, max, thermal exponent, Gibbs: defines width of ETA jump]
-ETA_REF     := 1e+21
-ETA_MIN     := 1e+19
-ETA_MAX     := 1e+24
-ETA_GIBBS   := 1e+03
-ETA_THERM   := 5 10
-
-# Material prefactors [1: no contrast, 100: 100x contrast, etc.]
 ETA_PREF_OL := 1
 ETA_PREF_WD := 1
 ETA_PREF_RI := 1
 ETA_PREF_PS := 1 50
 
-# Phase transition kinetics [Z: prefactor, H: activation enthalpy, V: activation volume, E: activation energy]
-# WARM suite (Temp5e+02): effective Z' = nominal Z / 3.15e7, run with the
-# time_scale bug (see erratum). Filenames record the effective values actually
-# simulated. With the time_scale removal in mtz-kinetics.cc, these inputs now
-# reproduce the archived physics natively.
-Z_OL := 4.44e-04
-Z_WD := 4.44e-04
-Z_RI := 5.08e-11 3.81e-10 2.63e-09 1.90e-08 1.37e-07 9.84e-07 6.98e-06 5.08e-05
-# COLD suite (Temp10e+02, slab-only): intended nominal Z, run without scaling
-# at -1000 K slab anomalies.
+# Warm kinetics (effective Z, Temp5e+02)
+Z_OL_WARM := 4.44e-04
+Z_WD_WARM := 4.44e-04
+Z_RI_WARM := 5.08e-11 3.81e-10 2.63e-09 1.90e-08 1.37e-07 9.84e-07 6.98e-06 5.08e-05
+
+# Cold kinetics (nominal Z, Temp10e+02 slabs)
 Z_OL_COLD := 1.4e+04
 Z_WD_COLD := 1.4e+04
 Z_RI_COLD := 1.6e-03 1.2e-02 8.3e-02 6.0e-01 4.3e+00 3.1e+01 2.2e+02 1.6e+03
-TEMP_COLD := 10e+02
 
 V_OL := 3.3e-06
 V_WD := 3.3e-06
-
 H_OL := 274e+03
 H_WD := 274e+03
-
 E_RI := 355e+03
 
 DEPTH_CORRECTION_OL_WD := 5e+03
 DEPTH_CORRECTION_WD_RI := 5e+03
 DEPTH_CORRECTION_RI_PS := 15e+03
 
-# Plume/slab initial and boundary conditions
-VELOCITY_BC        :=    5e-02 10e-02
-TEMPERATURE_BC     :=    5e+02
+VELOCITY_BC          := 5e-02 10e-02
+TEMPERATURE_BC_WARM  := 5e+02
+TEMPERATURE_BC_COLD  := 10e+02
 
-# Geometry inputs
 MODEL_WIDTH        := 1500e+03
 MODEL_HEIGHT       := 1000e+03
-MESH_X             :=        3
-MESH_Y             :=        2
-MESH_REFINE_GLOBAL :=        3
-MESH_REFINE_ADAPT  :=        3
-MESH_REFINE_TSTEP  :=       10
+MESH_X             := 3
+MESH_Y             := 2
+MESH_REFINE_GLOBAL := 3
+MESH_REFINE_ADAPT  := 3
+MESH_REFINE_TSTEP  := 10
 
-SLAB_XC            :=  617e+03
-SLAB_YC            := 1050e+03
-SLAB_L             :=  250e+03
-SLAB_FW            :=   66e+03
-SLAB_A             :=    5e+03
-SLAB_DIP           :=       65
+SLAB_XC  := 617e+03
+SLAB_YC  := 1050e+03
+SLAB_L   := 250e+03
+SLAB_FW  := 66e+03
+SLAB_A   := 5e+03
+SLAB_DIP := 65
 
-PLUME_XC           :=  750e+03
-PLUME_YC           :=    0e+03
-PLUME_L            :=  280e+03
-PLUME_FW           :=   66e+03
-PLUME_A            :=    5e+03
+PLUME_XC := 750e+03
+PLUME_YC := 0e+03
+PLUME_L  := 280e+03
+PLUME_FW := 66e+03
+PLUME_A  := 5e+03
 
 # --------------------------------------------------
-# Evaluate slab/plume geometry
+# Derived geometry (no edits)
 # --------------------------------------------------
 CONDA_ENV    := kerswell-et-al-mtz-kinetics
 CONDA_PYTHON := $(shell conda run -n $(CONDA_ENV) which python 2>/dev/null || echo python3)
@@ -193,9 +171,8 @@ L_PLUME  := $(PLUME_L)
 A_PLUME  := $(PLUME_A)
 
 # --------------------------------------------------
-# Macro definitions
+# Macros (no edits)
 # --------------------------------------------------
-# Derived phase transitions
 define COMPUTE_PHASES
   $(eval _OL_WD  := $(SIMULATION)/data/olivine-wadsleyite-profile-Mg$(1).tsv)
   $(eval _WD_RI  := $(SIMULATION)/data/wadsleyite-ringwoodite-profile-Mg$(1).tsv)
@@ -218,14 +195,10 @@ define COMPUTE_PHASES
   $(eval TRANS_RI_PS_DRHO_$(1)   := $(word 15,$(_PH_OUT)))
 endef
 
-# UID generators
 define MAKE_KN_UID
   KN_Dynp$(1)_Zol$(2)_Zwd$(3)_Zri$(4)_EtaTherm$(5)_EtaTrans$(6)-$(7)-$(8)-$(9)_MG$(10)_Vel$(11)_Temp$(12)
 endef
 
-# Derived UIDs. $(1) is the UID list to extend (UIDS_KN_WARM or UIDS_KN_COLD);
-# PARAM_* entries share the global namespace keyed by UID, so warm and cold
-# generations never clash (UIDs differ by Z/Temp).
 define REGISTER_UIDS
   $(eval _uid := $(strip $(call MAKE_KN_UID,$(2),$(3),$(4),$(5),$(6),$(7),$(8),$(9),$(10),$(11),$(12),$(13))))
   $(1)                   += $(_uid)
@@ -243,7 +216,6 @@ define REGISTER_UIDS
   PARAM_dt_$(_uid)       := $(13)
 endef
 
-# Parameter file generator
 define GENERATE_PRM
 	$(eval _MG := $(PARAM_mgnum_$(2)))
 	$(call COMPUTE_PHASES,$(_MG))
@@ -323,7 +295,7 @@ define GENERATE_PRM
 endef
 
 # --------------------------------------------------
-# Check dependencies
+# Environment checks (no edits)
 # --------------------------------------------------
 ifeq ($(shell command -v conda 2>/dev/null),)
   $(error !! ERROR: 'conda' not found in PATH)
@@ -339,15 +311,8 @@ ifeq ($(shell command -v Rscript 2>/dev/null),)
 endif
 
 # --------------------------------------------------
-# DEAL.II and ASPECT configuration
+# ASPECT and deal.II (only needed for `make models`)
 # --------------------------------------------------
-# External installs, linked at the project root (aspect/aspect-release and
-# dealii/configuration/enable.sh must exist). Only needed to run simulations
-# from scratch; `make build` never touches them. To install from source, see
-# https://github.com/dealii/candi (deal.II >= v9.7.0, with the minimal
-# local.cfg at https://raw.githubusercontent.com/geodynamics/aspect/main/contrib/install/local.cfg)
-# and https://github.com/geodynamics/aspect (ASPECT >= 3.1.0).
-# Check operating system
 UNAME_SHELL := $(shell uname)
 OS_SYSTEM   := $(shell [ -f /etc/os-release ] && . /etc/os-release && echo $$ID || echo unknown)
 
@@ -362,28 +327,26 @@ $(ASPECT_EXE) $(DEALII_ENABLE):
 	$(call CHECK_SIM_DEPS,$@)
 
 ifeq ($(UNAME_SHELL), Darwin)
-  # Run config
-  RUN_ASPECT       := $(BASH)/simulation/run-aspect-macos.sh
-  NTASKS           := 8
+  RUN_ASPECT := $(BASH)/simulation/run-aspect-macos.sh
+  NTASKS     := 8
 else ifeq ($(OS_SYSTEM), rocky)
-  GCC              := gcc/14.2.0
-  OPENMPI          := openmpi/5.0.8-gcc14.2.0
-  OPENBLAS         := openblas/0.3.29/gcc-14.2.0
-  CMAKE            := cmake/3.30.5-gcc14.2.0
+  GCC      := gcc/14.2.0
+  OPENMPI  := openmpi/5.0.8-gcc14.2.0
+  OPENBLAS := openblas/0.3.29/gcc-14.2.0
+  CMAKE    := cmake/3.30.5-gcc14.2.0
 
-  # Run config
-  RUN_ASPECT       := $(BASH)/simulation/run-aspect-barkla2.sh
-  NTASKS           := 128
-  NTASKSPERNODE    := 168
-  TIME             := 2-12:00:00
-  MAIL_ADDRESS     := b.kerswell@liverpool.ac.uk
-  MAIL_TYPE        := ALL
+  RUN_ASPECT    := $(BASH)/simulation/run-aspect-barkla2.sh
+  NTASKS        := 128
+  NTASKSPERNODE := 168
+  TIME          := 2-12:00:00
+  MAIL_ADDRESS  := b.kerswell@liverpool.ac.uk
+  MAIL_TYPE     := ALL
 else
   $(error Unsupported OS: Only macOS and Rocky Linux are supported!)
 endif
 
 # --------------------------------------------------
-# Logging
+# Logging (no edits)
 # --------------------------------------------------
 DATE            := $(shell date +"%d-%m-%Y")
 LOG_FILE        := $(PROJECT_ROOT)/log-$(DATE).out
@@ -395,7 +358,7 @@ $(LOG_FILE):
 	@touch $(LOG_FILE)
 
 # --------------------------------------------------
-# Safe removal macro
+# Safe removal (no edits)
 # --------------------------------------------------
 define SAFE_RM
 	if [ -e "$(1)" ]; then \
@@ -407,9 +370,6 @@ define SAFE_RM
 	fi
 endef
 
-# --------------------------------------------------
-# Loop removal macro
-# --------------------------------------------------
 define SAFE_RM_LIST
 	for item in $(1); do $(call SAFE_RM,$$item); done
 endef
