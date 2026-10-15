@@ -4,7 +4,7 @@ main <- function() {
   args <- commandArgs(trailingOnly = TRUE)
 
   if (length(args) < 4) {
-    cat(" !! Usage: Rscript osf.R [util_dir] [data_dir] [sim_dir] [sync_dir]\n")
+    cat(" !! Warning: Usage: Rscript osf.R [util_dir] [data_dir] [sim_dir] [sync_dir]\n")
     return(invisible())
   }
 
@@ -21,7 +21,7 @@ main <- function() {
     upload_results_to_osf(data_dir)
     upload_results_to_osf(sim_dir)
   } else {
-    log_error(paste0("Error: unknown sync command '", sync_dir, "'. Use 'upload' or 'download'."))
+    log_error(paste0("unknown sync command '", sync_dir, "'. Use 'upload' or 'download'."))
   }
 }
 

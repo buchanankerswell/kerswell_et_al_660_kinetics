@@ -4,7 +4,7 @@ main <- function() {
   args <- commandArgs(trailingOnly = TRUE)
 
   if (length(args) < 3) {
-    cat(" !! Usage: Rscript tables.R [util_dir] [csv_path] [out_dir]\n")
+    cat(" !! Warning: Usage: Rscript tables.R [util_dir] [csv_path] [out_dir]\n")
     return(invisible())
   }
 

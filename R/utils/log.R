@@ -22,5 +22,5 @@
 log_info <- function(...) .log_emit("..", ...)
 log_detail <- function(...) .log_emit("--", ...)
 log_artifact <- function(...) .log_emit("->", ...)
-log_warn <- function(...) .log_emit("!!", ...)
-log_error <- function(...) .log_emit("XX", ...)
+log_warn <- function(...) .log_emit("!!", "Warning: ", ...)
+log_error <- function(...) .log_emit("XX", "Error: ", ...)

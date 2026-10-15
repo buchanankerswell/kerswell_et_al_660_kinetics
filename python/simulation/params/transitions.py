@@ -77,7 +77,7 @@ def read_dG_profile(filepath: str) -> tuple[list[str], np.ndarray]:
 
     # Logic check to satisfy the type checker and ensure file integrity
     if headers is None or not data:
-        raise ValueError(f" XX ERROR: No valid header or data rows found in {filepath}")
+        raise ValueError(f" XX Error: No valid header or data rows found in {filepath}")
 
     return headers, np.array(data)
 
@@ -130,7 +130,7 @@ def find_transition(headers: list[str], data: np.ndarray, model_height: float, s
             trans_drho = interp(delta_density)
 
             if abs(trans_dV) < 1e-20:
-                raise ValueError(" XX ERROR: delta_molar_volume is zero at transition.")
+                raise ValueError(" XX Error: delta_molar_volume is zero at transition.")
 
             clapeyron = trans_dS / trans_dV
             model_depth = trans_depth_profile - surface_depth_offset
@@ -138,7 +138,7 @@ def find_transition(headers: list[str], data: np.ndarray, model_height: float, s
 
             return PhaseTransition(y=model_y, depth=model_depth, temperature=trans_T, clapeyron=clapeyron, density_jump=trans_drho)
 
-    raise ValueError(" XX ERROR: no zero crossing found in delta_molar_gibbs")
+    raise ValueError(" XX Error: no zero crossing found in delta_molar_gibbs")
 
 def main() -> None:
     """

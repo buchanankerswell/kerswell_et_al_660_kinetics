@@ -38,8 +38,8 @@ def log_artifact(path: object) -> None:
 
 
 def log_warn(msg: object) -> None:
-    _emit("!!", str(msg))
+    _emit("!!", f"Warning: {msg}")
 
 
 def log_error(msg: object) -> None:
-    _emit("XX", str(msg))
+    _emit("XX", f"Error: {msg}")

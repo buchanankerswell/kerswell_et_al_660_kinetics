@@ -4,7 +4,7 @@ main <- function() {
   args <- commandArgs(trailingOnly = TRUE)
 
   if (length(args) < 5) {
-    cat(" !! Usage: Rscript simulation.R [util_dir] [data_dir] [out_dir] [csv_path_raw] [csv_path_filtered]\n")
+    cat(" !! Warning: Usage: Rscript simulation.R [util_dir] [data_dir] [out_dir] [csv_path_raw] [csv_path_filtered]\n")
     return(invisible())
   }
 

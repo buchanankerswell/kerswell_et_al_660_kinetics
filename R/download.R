@@ -4,7 +4,7 @@ main <- function() {
   args <- commandArgs(trailingOnly = TRUE)
 
   if (length(args) < 2) {
-    cat(" !! Usage: Rscript main.R [util_dir] [data_dir]\n")
+    cat(" !! Warning: Usage: Rscript main.R [util_dir] [data_dir]\n")
     return(invisible())
   }
 

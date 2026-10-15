@@ -4,7 +4,7 @@ main <- function() {
   args <- commandArgs(trailingOnly = TRUE)
 
   if (length(args) < 3) {
-    cat(" !! Usage: Rscript seismic.R [util_dir] [data_dir] [out_dir]\n")
+    cat(" !! Warning: Usage: Rscript seismic.R [util_dir] [data_dir] [out_dir]\n")
     return(invisible())
   }
 

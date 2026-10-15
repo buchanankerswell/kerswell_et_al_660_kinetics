@@ -39,7 +39,7 @@ class MeshPreProcessor:
             mesh[field] = compute(mesh)
         elif self.verbosity >= 1:
             missing = [r for r in required if r not in mesh.point_data]
-            log_warn(f"Warning: cannot derive '{field}', missing source fields: {missing}")
+            log_warn(f"cannot derive '{field}', missing source fields: {missing}")
 
     def check_mesh(self, mesh: pv.UnstructuredGrid, field: str) -> bool:
         """Return True if field is present in mesh point data after preparation."""
@@ -50,5 +50,5 @@ class MeshPreProcessor:
         if "TIME" in mesh.field_data:
             return float(mesh.field_data["TIME"][0]) / 1e6  # seconds → Myr
         if self.verbosity >= 1:
-            log_warn(f"Warning: 'TIME' not found in field_data for model {model_id}, timestep {tstep}.")
+            log_warn(f"'TIME' not found in field_data for model {model_id}, timestep {tstep}.")
         return 0.0

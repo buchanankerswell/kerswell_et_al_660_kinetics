@@ -4,7 +4,7 @@ main <- function() {
   args <- commandArgs(trailingOnly = TRUE)
 
   if (length(args) < 4) {
-    cat(" !! Usage: Rscript adiabat.R [util_dir] [model_id] [data_dir] [out_dir]\n")
+    cat(" !! Warning: Usage: Rscript adiabat.R [util_dir] [model_id] [data_dir] [out_dir]\n")
     return(invisible())
   }
 
@@ -32,7 +32,7 @@ main <- function() {
   missing <- c(in_material_table, in_profiles)[!file.exists(c(in_material_table, in_profiles))]
 
   if (length(missing) > 0) {
-    log_warn("Warning: the following input files do not exist:")
+    log_warn("the following input files do not exist:")
     for (f in missing) log_detail(f)
     return(invisible())
   }
@@ -44,7 +44,7 @@ main <- function() {
       visualize_thermodynamic_profile(in_profiles, out_thermodynamic_profiles)
     },
     error = function(e) {
-      log_error(paste("Error: drawing issue:", conditionMessage(e)))
+      log_error(paste("drawing issue:", conditionMessage(e)))
     }
   )
 }

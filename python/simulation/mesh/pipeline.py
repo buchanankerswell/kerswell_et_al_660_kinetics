@@ -68,7 +68,7 @@ class BasePipeline:
             return pv.UnstructuredGrid(pvtu_path)
         except Exception as e:
             if self.verbosity >= 1:
-                log_warn(f"Warning: error loading {pvtu_path.name}: {e}")
+                log_warn(f"error loading {pvtu_path.name}: {e}")
             return None
 
     def _get_ordered_pvtu_files(self) -> dict[str, tuple[list[Path], list[int]]]:
@@ -87,7 +87,7 @@ class BasePipeline:
             solution_dir = directory / "solution"
             if not solution_dir.is_dir():
                 if self.verbosity >= 1:
-                    log_warn(f"Warning: solution directory not found for model: {model_id}")
+                    log_warn(f"solution directory not found for model: {model_id}")
                 model_entries.append((model_id, ([], [])))
                 continue
 
@@ -95,12 +95,12 @@ class BasePipeline:
                 files = list(solution_dir.glob("*.pvtu"))
                 if not files:
                     if self.verbosity >= 1:
-                        log_warn(f"Warning: no .pvtu files found for model: {model_id}")
+                        log_warn(f"no .pvtu files found for model: {model_id}")
                     model_entries.append((model_id, ([], [])))
                     continue
             except Exception as e:
                 if self.verbosity >= 1:
-                    log_warn(f"Warning: error processing directory {solution_dir}: {e}")
+                    log_warn(f"error processing directory {solution_dir}: {e}")
                 model_entries.append((model_id, ([], [])))
                 continue
 
@@ -112,7 +112,7 @@ class BasePipeline:
                 else:
                     timestep = -1
                     if self.verbosity >= 1:
-                        log_warn(f"Warning: could not parse timestep from filename: {file.name}")
+                        log_warn(f"could not parse timestep from filename: {file.name}")
                 parsed.append((timestep, file))
 
             parsed.sort(key=lambda x: x[0])
@@ -190,7 +190,7 @@ class BasePipeline:
 
         except Exception as e:
             if self.verbosity >= 1:
-                log_warn(f"Warning: could not extract parameters from model_id '{model_id_str}': {e}")
+                log_warn(f"could not extract parameters from model_id '{model_id_str}': {e}")
             return np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
 
     def _extract_sort_key(self, model_id: str) -> tuple:
@@ -251,7 +251,7 @@ class PostProcessingPipeline(BasePipeline):
                         else:
                             seismic_profile_cache = loaded or {}
                     except Exception as e:
-                        log_error(f"Error: could not load cache: {e}")
+                        log_error(f"could not load cache: {e}")
 
         requested = set(self.pvtu_in_dirs)
         if (
@@ -294,7 +294,7 @@ class PostProcessingPipeline(BasePipeline):
         for model_id, (pvtu_files, timesteps) in pbar:
             if not pvtu_files:
                 if self.verbosity >= 1:
-                    log_warn(f"Warning: no result files for model: {model_id}")
+                    log_warn(f"no result files for model: {model_id}")
                 continue
 
             z_ol_wd, z_wd_ri, z_ri_ps, eta_therm, eta_trans_ol_wd, eta_trans_wd_ri, eta_trans_ri_ps, velocity, temperature, mg_num = (
@@ -307,7 +307,7 @@ class PostProcessingPipeline(BasePipeline):
                 k = eta_trans_idx[eta_trans_ri_ps]
             except Exception as e:
                 if self.verbosity >= 1:
-                    log_warn(f"Warning: could not compute scenario for {model_id}: {e}")
+                    log_warn(f"could not compute scenario for {model_id}: {e}")
                 continue
 
             scenario = k * (len(velocity_vals) * len(eta_therm_vals)) + i * len(eta_therm_vals) + j
@@ -445,7 +445,7 @@ class PostProcessingPipeline(BasePipeline):
             log_artifact(csv_path)
             return df
         except Exception as e:
-            log_error(f"Error: failed to write csv: {e}")
+            log_error(f"failed to write csv: {e}")
             return pd.DataFrame()
 
     def export_seismic_profiles(
@@ -758,7 +758,7 @@ class PlottingPipeline(BasePipeline):
         for model_id, (pvtu_files, timesteps) in pbar:
             if not pvtu_files:
                 if self.verbosity >= 1:
-                    log_warn(f"Warning: no result files for model: {model_id}")
+                    log_warn(f"no result files for model: {model_id}")
                 continue
 
             model_id_padded = re.sub(r"B(\d+)", lambda m: f"B{int(m.group(1)):0{2}d}", model_id)

@@ -29,7 +29,7 @@ download_results_from_osf <- function(data_dir, sim_dir, conflicts = "skip", ver
       log_detail(paste("Found local data in:", data_dir))
     }
   } else {
-    log_warn("Warning: could not find a unique folder named 'data' in the OSF repository.")
+    log_warn("could not find a unique folder named 'data' in the OSF repository.")
   }
 
   results_dir_node <- node_files[node_files$name == "results", ]
@@ -63,7 +63,7 @@ download_results_from_osf <- function(data_dir, sim_dir, conflicts = "skip", ver
         if (nrow(matched_node) == 1) {
           osf_download(matched_node, path = sim_dir, conflicts = conflicts, recurse = TRUE)
         } else {
-          log_warn(paste("Warning: target not found on OSF or ambiguous:", pattern))
+          log_warn(paste("target not found on OSF or ambiguous:", pattern))
         }
       } else {
         log_detail(paste("Found data:", target_local_dir))
@@ -72,6 +72,6 @@ download_results_from_osf <- function(data_dir, sim_dir, conflicts = "skip", ver
     }
     cli::cli_progress_done()
   } else {
-    log_warn("Warning: could not find a unique folder named 'results' in the OSF repository.")
+    log_warn("could not find a unique folder named 'results' in the OSF repository.")
   }
 }

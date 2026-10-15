@@ -50,8 +50,8 @@ _log_emit() {
 log_info() { _log_emit ".." "$*"; }
 log_detail() { _log_emit "--" "$*"; }
 log_artifact() { _log_emit "->" "$*"; }
-log_warn() { _log_emit "!!" "$*"; }
-log_error() { _log_emit "XX" "$*"; }
+log_warn() { _log_emit "!!" "Warning: $*"; }
+log_error() { _log_emit "XX" "Error: $*"; }
 
 # Indent piped tool output as gutter-blank continuations.
 log_pipe() { sed 's/^/    /'; }
