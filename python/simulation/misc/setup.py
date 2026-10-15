@@ -5,7 +5,7 @@ from pathlib import Path
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
-from log_utils import log_artifact
+from utils.logging import log_artifact
 from matplotlib.axes import Axes
 from matplotlib.collections import QuadMesh
 

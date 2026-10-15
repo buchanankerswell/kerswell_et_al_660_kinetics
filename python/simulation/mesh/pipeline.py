@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import pyvista as pv
 from config import MeshConfig
-from log_utils import log_artifact, log_info, log_warn
+from utils.logging import log_artifact, log_info, log_warn
 from plotter import MeshPlotter
 from postprocess import MeshPostProcessor
 from preprocess import MeshPreProcessor

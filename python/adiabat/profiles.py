@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from burnman import Material, PerplexMaterial, constants
 from burnman.classes.perplex import create_perplex_table
-from log_utils import log_artifact
+from utils.logging import log_artifact
 from scipy.integrate import odeint
 from scipy.interpolate import interp1d
 from scipy.optimize import newton

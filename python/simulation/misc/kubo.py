@@ -4,7 +4,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
-from log_utils import log_artifact, log_detail, log_info
+from utils.logging import log_artifact, log_detail, log_info
 from scipy import stats
 
 @dataclass(frozen=True)

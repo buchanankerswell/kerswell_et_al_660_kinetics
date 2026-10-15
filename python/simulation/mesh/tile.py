@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from config import MeshConfig
-from log_utils import log_artifact, log_warn
+from utils.logging import log_artifact, log_warn
 from PIL import Image, ImageDraw, ImageFont
 
 @dataclass

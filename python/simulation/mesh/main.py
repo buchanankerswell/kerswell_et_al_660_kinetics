@@ -7,7 +7,7 @@ from pathlib import Path
 from simulation.mesh.config import MeshConfig
 from simulation.mesh.pipeline import FullPipeline, PlottingPipeline, PostProcessingPipeline
 from simulation.params.transitions import PhaseTransition, find_surface_depth_offset, find_transition, read_dG_profile
-from log_utils import log_info
+from utils.logging import log_info
 from tile import ImageTiler
 from tqdm import tqdm
 

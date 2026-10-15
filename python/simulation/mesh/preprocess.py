@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Callable, ClassVar
 
 import pyvista as pv
-from log_utils import log_warn
+from utils.logging import log_warn
 
 @dataclass
 class MeshPreProcessor:

@@ -9,7 +9,7 @@ import numpy as np
 import pyvista as pv
 import vtk
 from config import MeshConfig
-from log_utils import log_artifact, log_warn
+from utils.logging import log_artifact, log_warn
 from PIL import Image
 from pyvista import Color
 from vtkmodules.vtkCommonCore import vtkLogger
