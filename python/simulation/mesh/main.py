@@ -7,9 +7,8 @@ from pathlib import Path
 from simulation.mesh.config import MeshConfig
 from simulation.mesh.pipeline import FullPipeline, PlottingPipeline, PostProcessingPipeline
 from simulation.params.transitions import PhaseTransition, find_surface_depth_offset, find_transition, read_dG_profile
-from utils.logging import log_info
+from utils.logging import log_artifact, log_info
 from tile import ImageTiler
-from tqdm import tqdm
 
 def str2bool(v):
     if isinstance(v, bool):
@@ -36,6 +35,7 @@ def parse_arguments() -> Namespace:
     parser.add_argument("--model-ids", nargs="+", type=str, required=True, help="Simulation names")
     parser.add_argument("--timesteps", nargs="+", type=int, required=True, help="Timesteps to process")
     parser.add_argument("--in-dirs", nargs="+", type=str, required=True, help="Simulation results directories")
+    parser.add_argument("--visualize-ids", nargs="*", type=str, default=None, help="Subset to render and tile (default: all).")
 
     parser.add_argument("--depth-corr-ol-wd", type=float, default=0.0, help="Depth correction for the olivine -> wadsleyite transition [m].")
     parser.add_argument("--depth-corr-wd-ri", type=float, default=0.0, help="Depth correction for the wadsleyite -> ringwoodite transition [m].")
@@ -75,31 +75,31 @@ def main():
         ]
         n_chunks = (len(model_ids) + args.chunk_size - 1) // args.chunk_size
         log_info(f"Processing {len(model_ids)} models in {n_chunks} chunks")
-        for start in tqdm(range(0, len(model_ids), args.chunk_size), total=n_chunks, desc="Processing chunks", unit="chunk"):
+        for idx, start in enumerate(range(0, len(model_ids), args.chunk_size)):
             chunk_ids = model_ids[start : start + args.chunk_size]
             chunk_dirs = in_dirs[start : start + args.chunk_size]
-            log_info(f"Chunk {start // args.chunk_size + 1}: {len(chunk_ids)} models")
-            subprocess.run(
-                [
-                    sys.executable,
-                    __file__,
-                    *positionals,
-                    "--model-ids",
-                    *chunk_ids,
-                    "--in-dirs",
-                    *chunk_dirs,
-                    "--timesteps",
-                    *[str(t) for t in (args.timesteps or [])],
-                    f"--depth-corr-ol-wd={args.depth_corr_ol_wd}",
-                    f"--depth-corr-wd-ri={args.depth_corr_wd_ri}",
-                    f"--depth-corr-ri-ps={args.depth_corr_ri_ps}",
-                    f"--mode={args.mode}",
-                    f"--save-csv={args.save_csv}",
-                    f"--force-reprocess={args.force_reprocess}",
-                    f"--verbosity={args.verbosity}",
-                ],
-                check=True,
-            )
+            log_info(f"Chunk {idx + 1}/{n_chunks}: {len(chunk_ids)} models")
+            cmd = [
+                sys.executable,
+                __file__,
+                *positionals,
+                "--model-ids",
+                *chunk_ids,
+                "--in-dirs",
+                *chunk_dirs,
+                "--timesteps",
+                *[str(t) for t in (args.timesteps or [])],
+                f"--depth-corr-ol-wd={args.depth_corr_ol_wd}",
+                f"--depth-corr-wd-ri={args.depth_corr_wd_ri}",
+                f"--depth-corr-ri-ps={args.depth_corr_ri_ps}",
+                f"--mode={args.mode}",
+                f"--save-csv={args.save_csv}",
+                f"--force-reprocess={args.force_reprocess}",
+                f"--verbosity={args.verbosity}",
+            ]
+            if args.visualize_ids:
+                cmd += ["--visualize-ids", *args.visualize_ids]
+            subprocess.run(cmd, check=True)
         return
 
     model_height = args.model_height
@@ -153,6 +153,7 @@ def main():
     plot_config.default_fig_dir = out_fig_dir
 
     pvtu_in_dirs = dict(zip(model_ids, in_dirs))
+    visualize_ids = args.visualize_ids or list(pvtu_in_dirs.keys())
     transition_summary_path = out_data_dir / "structure-cache.pkl"
     seismic_profile_cache_path = out_data_dir / "seismic-profile-cache.pkl"
     csv_path = out_data_dir / "structure-summary-local.csv"
@@ -161,25 +162,31 @@ def main():
     transition_summary = None
     seismic_profile_cache = None
     if mode == "postprocess":
+        log_info(f"Postprocessing {len(pvtu_in_dirs)} models")
         pipeline = PostProcessingPipeline(plot_config, pvtu_in_dirs, tsteps, trans_data, verbosity)
 
         transition_summary, seismic_profile_cache = pipeline.run(transition_summary_path, seismic_profile_cache_path, force_reprocess)
         pipeline.export_transition_summary(csv_path, transition_summary)
 
         pipeline.export_seismic_profiles(out_seismic_profile_dir, fields_for_seismic_profiles, seismic_profile_cache)
+        log_artifact(csv_path)
 
     elif mode == "visualize":
         if not transition_summary_path.exists() or force_reprocess:
+            log_info(f"Postprocessing {len(pvtu_in_dirs)} models")
             post_pipeline = PostProcessingPipeline(plot_config, pvtu_in_dirs, tsteps, trans_data, verbosity)
             transition_summary, seismic_profile_cache = post_pipeline.run(transition_summary_path, seismic_profile_cache_path, force_reprocess)
         else:
             transition_summary = PlottingPipeline.load_cache(transition_summary_path)
 
+        log_info(f"Rendering {len(visualize_ids)} models")
         plot_pipeline = PlottingPipeline(plot_config, pvtu_in_dirs, tsteps, trans_data, verbosity, transition_summary)
-        plot_pipeline.run(fields_to_plot)
+        plot_pipeline.run(fields_to_plot, visualize_ids)
 
     else:
+        log_info(f"Postprocessing {len(pvtu_in_dirs)} models")
         pipeline = FullPipeline(plot_config, pvtu_in_dirs, tsteps, trans_data, verbosity)
+        log_info(f"Rendering {len(visualize_ids)} models")
         pipeline.run(
             fields_to_plot,
             fields_for_seismic_profiles,
@@ -189,7 +196,9 @@ def main():
             seismic_profile_cache_path,
             save_csv,
             force_reprocess,
+            visualize_ids,
         )
+        log_artifact(csv_path)
 
     if mode in ["visualize", "full"]:
         tile_sets = {
@@ -199,7 +208,8 @@ def main():
             "set3": {"tags": None, "fields": ["nonadiabatic_temperature", "viscosity", "X_ps"]},
         }
 
-        for model_id in pvtu_in_dirs.keys():
+        log_info(f"Tiling {len(visualize_ids)} models")
+        for model_id in visualize_ids:
             model_id_padded = re.sub(r"B(\d+)", lambda m: f"B{int(m.group(1)):0{2}d}", model_id)
 
             for config in tile_sets.values():

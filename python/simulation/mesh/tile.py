@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from config import MeshConfig
-from utils.logging import log_artifact, log_warn
+from utils.logging import log_warn
 from PIL import Image, ImageDraw, ImageFont
 
 @dataclass
@@ -189,7 +189,6 @@ class ImageTiler:
         combined.save(out_tile)
 
         self.tiled_images.append(out_tile)
-        log_artifact(out_tile)
 
     def tile_images(self) -> None:
         """Tile all matched timestep images across the configured fields.

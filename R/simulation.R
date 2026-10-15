@@ -23,6 +23,7 @@ main <- function() {
   out_path_composition <- file.path(out_dir, "composition.png")
   out_path_tiles <- file.path(out_dir, "tiles-660.png")
 
+  log_info(paste("Visualizing structure:", basename(data_dir)))
   visualize_composition(data_dir, out_path_composition, csv_path_raw, csv_path_filtered, save_csv, force_rewrite)
   visualize_tiles(in_data, out_path_tiles)
 }

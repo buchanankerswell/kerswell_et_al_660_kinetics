@@ -9,12 +9,11 @@ import numpy as np
 import pandas as pd
 import pyvista as pv
 from config import MeshConfig
-from utils.logging import log_artifact, log_error, log_info, log_warn
+from utils.logging import gutter_tqdm, log_error, log_warn
 from plotter import MeshPlotter
 from postprocess import MeshPostProcessor
 from preprocess import MeshPreProcessor
 from simulation.params.transitions import PhaseTransition
-from tqdm import tqdm
 
 @dataclass
 class BasePipeline:
@@ -243,7 +242,6 @@ class PostProcessingPipeline(BasePipeline):
             ):
                 if path is not None and path.exists():
                     try:
-                        log_info(f"Loading {path}")
                         with open(path, "rb") as f:
                             loaded = pickle.load(f)
                         if name == "transition summary":
@@ -284,13 +282,7 @@ class PostProcessingPipeline(BasePipeline):
         eta_trans_idx = {v: k for k, v in enumerate(eta_trans_vals)}
 
         model_items = self._get_ordered_pvtu_files().items()
-        pbar = tqdm(
-            model_items,
-            desc="Processing meshes",
-            unit="model",
-            ncols=None,
-            bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}{postfix}]",
-        )
+        pbar = gutter_tqdm(model_items, desc="Postprocessing", unit="model")
         for model_id, (pvtu_files, timesteps) in pbar:
             if not pvtu_files:
                 if self.verbosity >= 1:
@@ -442,7 +434,6 @@ class PostProcessingPipeline(BasePipeline):
 
             csv_path.parent.mkdir(parents=True, exist_ok=True)
             df.rename(columns=lambda x: re.sub(r"_C\d+", "", x)).to_csv(csv_path, index=False)
-            log_artifact(csv_path)
             return df
         except Exception as e:
             log_error(f"failed to write csv: {e}")
@@ -716,7 +707,6 @@ class PostProcessingPipeline(BasePipeline):
         path.parent.mkdir(parents=True, exist_ok=True)
         with open(path, "wb") as f:
             pickle.dump(cache, f)
-        log_artifact(path)
 
 @dataclass
 class PlottingPipeline(BasePipeline):
@@ -734,7 +724,7 @@ class PlottingPipeline(BasePipeline):
         self.postprocessor = MeshPostProcessor(self.config, self.verbosity)
         self.plotter = MeshPlotter(self.config, self.trans_info, self.verbosity)
 
-    def run(self, fields_to_plot: list[str] | None) -> None:
+    def run(self, fields_to_plot: list[str] | None, plot_ids: list[str] | None = None) -> None:
         """
         Render and save plots for each field, model, and timestep.
 
@@ -743,19 +733,17 @@ class PlottingPipeline(BasePipeline):
 
         Args:
             fields_to_plot: Fields to render. Defaults to all fields in config.file_map.
+            plot_ids: Only render these model IDs (None = all). Postprocessing still covers every model.
         """
         if fields_to_plot is None:
             fields_to_plot = list(self.config.file_map.keys())
 
+        allowed = set(plot_ids) if plot_ids else None
         model_items = self._get_ordered_pvtu_files().items()
-        pbar = tqdm(
-            model_items,
-            desc="Rendering meshes",
-            unit="model",
-            ncols=None,
-            bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}{postfix}]",
-        )
+        pbar = gutter_tqdm(model_items, desc="Rendering", unit="model")
         for model_id, (pvtu_files, timesteps) in pbar:
+            if allowed is not None and model_id not in allowed:
+                continue
             if not pvtu_files:
                 if self.verbosity >= 1:
                     log_warn(f"no result files for model: {model_id}")
@@ -834,7 +822,6 @@ class PlottingPipeline(BasePipeline):
     @classmethod
     def load_cache(cls, cache_path: Path) -> dict:
         """Load and return a pickled cache dict from disk."""
-        log_info(f"Loading cache {cache_path.name}")
         with open(cache_path, "rb") as f:
             return pickle.load(f)
 
@@ -856,6 +843,7 @@ class FullPipeline(BasePipeline):
         seismic_profile_cache_path: Path | None = None,
         save_csv: bool = True,
         force_reprocess: bool = False,
+        plot_ids: list[str] | None = None,
     ) -> None:
         """
         Run post-processing then plotting, optionally exporting a csv summary.
@@ -884,4 +872,4 @@ class FullPipeline(BasePipeline):
 
         plotter = PlottingPipeline(self.config, self.pvtu_in_dirs, self.tsteps, self.trans_data, self.verbosity, transition_summary_cache)
         plotter._pvtu_file_cache = post_processor._pvtu_file_cache
-        plotter.run(fields_to_plot)
+        plotter.run(fields_to_plot, plot_ids)

@@ -53,7 +53,7 @@ download_results_from_osf <- function(data_dir, sim_dir, conflicts = "skip", ver
     osf_results_files <- osf_ls_files(results_dir_node)
 
     log_info("Syncing archived simulation results from OSF")
-    cli::cli_progress_bar("Syncing results", total = length(patterns))
+    cli::cli_progress_bar(" .. Syncing", total = length(patterns), format = " .. Syncing [{pb_bar}] {pb_current}/{pb_total}")
     for (pattern in patterns) {
       target_local_dir <- file.path(sim_dir, pattern)
 

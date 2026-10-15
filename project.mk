@@ -3,6 +3,7 @@
 # --------------------------------------------------
 # Canonical project root (works from any subdir)
 PROJECT_ROOT       := $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/.)
+export PROJECT_ROOT
 
 # Top-level directories
 ASPECT             := $(PROJECT_ROOT)/aspect
@@ -52,6 +53,28 @@ COMBINED_CSV_RAW_WARM      := $(DATA_WARM)/structure-summary-combined.csv
 COMBINED_CSV_FILTERED_WARM := $(DATA_WARM)/structure-summary-combined-filtered.csv
 COMBINED_CSV_RAW_COLD      := $(DATA_COLD)/structure-summary-combined.csv
 COMBINED_CSV_FILTERED_COLD := $(DATA_COLD)/structure-summary-combined-filtered.csv
+
+# Composition reference models (warm sluggish-Z scenarios)
+ID_W1 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-11_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
+ID_W2 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri1.90e-08_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
+ID_W3 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-05_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
+ID_W4 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-11_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02
+ID_W5 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri1.90e-08_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02
+ID_W6 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-05_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02
+
+# Composition reference models (cold nominal-Z counterparts, slab-only)
+ID_C1 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e-03_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp10e+02
+ID_C2 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp10e+02
+ID_C3 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e+03_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp10e+02
+ID_C4 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e-03_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp10e+02
+ID_C5 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp10e+02
+ID_C6 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e+03_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp10e+02
+
+# Subset to render and tile (all models are still postprocessed)
+VIS_IDS_WARM := $(ID_W1) $(ID_W2) $(ID_W3) $(ID_W4) $(ID_W5) $(ID_W6)
+VIS_IDS_COLD := $(ID_C1) $(ID_C2) $(ID_C3) $(ID_C4) $(ID_C5) $(ID_C6)
+VIS_MODELS_WARM := $(foreach id,$(VIS_IDS_WARM),plume_$(id) slab_$(id))
+VIS_MODELS_COLD := $(foreach id,$(VIS_IDS_COLD),slab_$(id))
 
 # --------------------------------------------------
 # ASPECT model parameter space (can edit)

@@ -28,10 +28,19 @@ adiabat:
 
 seismic: seismic-warm seismic-cold
 
+# Mesh outputs owned by the python pipeline; building them on demand
+# fixes `make clean && make visualize` (R previously ran before meshes).
+MESH_CSV_WARM := $(DATA_WARM)/structure-summary-local.csv
+MESH_CSV_COLD := $(DATA_COLD)/structure-summary-local.csv
+$(MESH_CSV_WARM):
+	@$(MAKE) --no-print-directory -C $(PYTHON) meshes-warm
+$(MESH_CSV_COLD):
+	@$(MAKE) --no-print-directory -C $(PYTHON) meshes-cold
+
 seismic-warm: SUITE := WARM
 seismic-cold: SUITE := COLD
-seismic-warm: $(DATA_WARM)/seismic_profiles
-seismic-cold: $(DATA_COLD)/seismic_profiles
+seismic-warm: $(MESH_CSV_WARM)
+seismic-cold: $(MESH_CSV_COLD)
 seismic-warm seismic-cold:
 	@Rscript $(R)/seismic.R $(R)/utils $(DATA_$(SUITE))/seismic_profiles $(FIGS_SEISMIC_$(SUITE))
 
@@ -44,8 +53,8 @@ $(LINK_WARM) $(LINK_COLD): $(KERSWELL_410_DATA)
 
 simulation-warm: SUITE := WARM
 simulation-cold: SUITE := COLD
-simulation-warm: $(KERSWELL_410_DATA) $(LINK_WARM)
-simulation-cold: $(KERSWELL_410_DATA) $(LINK_COLD)
+simulation-warm: $(KERSWELL_410_DATA) $(LINK_WARM) $(MESH_CSV_WARM)
+simulation-cold: $(KERSWELL_410_DATA) $(LINK_COLD) $(MESH_CSV_COLD)
 simulation-warm simulation-cold:
 	@Rscript $(R)/simulation.R $(R)/utils $(DATA_$(SUITE)) $(FIGS_STRUCT_$(SUITE)) $(COMBINED_CSV_RAW_$(SUITE)) $(COMBINED_CSV_FILTERED_$(SUITE)) $(SAVE_CSV) $(FORCE_REWRITE)
 

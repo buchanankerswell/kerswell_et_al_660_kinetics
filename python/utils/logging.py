@@ -44,8 +44,22 @@ def log_detail(msg: object) -> None:
     _emit("--", str(msg))
 
 
+def _relpath(path: object) -> str:
+    """Return path relative to PROJECT_ROOT when possible."""
+    try:
+        from pathlib import Path as _P
+
+        p = _P(str(path))
+        root = _P(str(__import__("os").environ.get("PROJECT_ROOT", "")))
+        if str(root) and root in p.parents or p == root:
+            return str(p.relative_to(root))
+    except Exception:
+        pass
+    return str(path)
+
+
 def log_artifact(path: object) -> None:
-    _emit("->", str(path))
+    _emit("->", _relpath(path))
 
 
 def log_warn(msg: object) -> None:
@@ -54,3 +68,17 @@ def log_warn(msg: object) -> None:
 
 def log_error(msg: object) -> None:
     _emit("XX", f"Error: {msg}")
+
+
+def gutter_tqdm(iterable, desc: str, unit: str = "model"):
+    """tqdm with gutter prefix and full-screen width."""
+    from tqdm import tqdm as _tqdm
+
+    return _tqdm(
+        iterable,
+        desc=f" .. {desc}",
+        unit=unit,
+        ncols=_width(),
+        ascii="=-",
+        bar_format="{desc}: [{bar}] {n_fmt}/{total_fmt}",
+    )

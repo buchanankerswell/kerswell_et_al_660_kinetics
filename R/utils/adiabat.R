@@ -260,6 +260,7 @@ visualize_thermodynamic_profile <- function(profile_paths, out_path) {
 
   p <- p0 / p1 & theme(legend.key.width = unit(2, "cm"))
   ggsave(out_path, plot = p, width = 15, height = 13)
+  log_artifact(out_path)
 }
 
 visualize_material_profile <- function(profile_paths, out_path) {
@@ -329,6 +330,7 @@ visualize_material_profile <- function(profile_paths, out_path) {
     )
 
   ggsave(out_path, plot = p, width = 20, height = 7, dpi = 300)
+  log_artifact(out_path)
 }
 
 visualize_material_table <- function(profile_path, table_path, out_path) {
@@ -412,5 +414,6 @@ visualize_material_table <- function(profile_path, table_path, out_path) {
     p <- p1 + p2
 
     ggsave(out_path, plot = p, width = 10, height = 5.5, dpi = 300, bg = "white", create.dir = TRUE)
+    log_artifact(out_path)
   })
 }

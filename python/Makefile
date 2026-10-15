@@ -8,22 +8,6 @@ PERPLEX_MODELS := $(shell find $(PERPLEX) -type f -name '*.dat' -exec basename {
 MODELS_WARM    := $(notdir $(RESULTS_KN_WARM))
 MODELS_COLD    := $(notdir $(RESULTS_KN_COLD_SLAB))
 
-# Composition plots (warm sluggish-Z reference scenarios)
-ID_W1 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-11_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
-ID_W2 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri1.90e-08_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
-ID_W3 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-05_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
-ID_W4 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-11_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02
-ID_W5 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri1.90e-08_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02
-ID_W6 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-05_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02
-
-# Composition plots (cold nominal-Z counterparts, slab-only)
-ID_C1 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e-03_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp10e+02
-ID_C2 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp10e+02
-ID_C3 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e+03_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp10e+02
-ID_C4 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e-03_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp10e+02
-ID_C5 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp10e+02
-ID_C6 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e+03_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp10e+02
-
 # Cleanup: clean removes regenerable products; deep-clean adds fetched content
 CLEAN      := $(PYTHON)/**/__pycache__ $(PYTHON)/simulation/**/__pycache__
 CLEAN      += $(FIGS)/adiabat $(FIGS_SIM_WARM) $(FIGS_SIM_COLD) $(DATA_WARM) $(DATA_COLD)
@@ -84,6 +68,7 @@ meshes-cold: SUITE := COLD
 meshes-warm meshes-cold: $(PROFILES)
 	@$(eval MODELS := $(MODELS_$(SUITE)))
 	@$(eval DIRS := $(addprefix $(SIMULATION)/results/, $(MODELS)))
+	@$(eval VIS := $(VIS_MODELS_$(SUITE)))
 	@for mg in $(MG_NUM); do \
 	  PYTHONPATH=$(PYTHON) $(CONDA_PYTHON) -u $(PYTHON)/simulation/mesh/main.py \
 	    $(SIMULATION)/data/olivine-wadsleyite-profile-Mg$$mg.tsv \
@@ -96,6 +81,7 @@ meshes-warm meshes-cold: $(PROFILES)
 	    --model-ids $(MODELS) \
 	    --timesteps $(TIMESTEPS_MESH_$(SUITE)) \
 	    --in-dirs $(DIRS) \
+	    --visualize-ids $(VIS) \
 	    --depth-corr-ol-wd=$(DEPTH_CORRECTION_OL_WD) \
 	    --depth-corr-wd-ri=$(DEPTH_CORRECTION_WD_RI) \
 	    --depth-corr-ri-ps=$(DEPTH_CORRECTION_RI_PS) \

@@ -36,6 +36,15 @@
 
 log_info <- function(...) .log_emit("..", ...)
 log_detail <- function(...) .log_emit("--", ...)
-log_artifact <- function(...) .log_emit("->", ...)
+.log_relpath <- function(path) {
+  root <- Sys.getenv("PROJECT_ROOT", unset = "")
+  if (nzchar(root) && startsWith(path, root)) {
+    sub(paste0("^", root, "/?"), "", path)
+  } else {
+    path
+  }
+}
+
+log_artifact <- function(...) .log_emit("->", .log_relpath(paste0(..., collapse = "")))
 log_warn <- function(...) .log_emit("!!", "Warning: ", ...)
 log_error <- function(...) .log_emit("XX", "Error: ", ...)

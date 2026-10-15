@@ -18,8 +18,12 @@ visualize_seismic_profiles <- function(data_dir, out_path) {
   }
 
   file_list <- list.files(data_dir, pattern = "*.csv", full.names = TRUE)
-  log_info("Reading seismic profiles")
-  cli::cli_progress_bar("Reading profiles", total = length(file_list))
+  if (!length(file_list)) {
+    log_error(paste("no seismic profiles in:", data_dir, "(run meshes first)"))
+    return(invisible())
+  }
+  log_info(paste("Reading", length(file_list), "seismic profiles"))
+  cli::cli_progress_bar(" .. Reading", total = length(file_list), format = " .. Reading [{pb_bar}] {pb_current}/{pb_total}")
   data <- map_df(file_list, function(f) {
     cli::cli_progress_update()
     read_seismic_profile(f)
@@ -87,6 +91,7 @@ visualize_seismic_profiles <- function(data_dir, out_path) {
   p <- p0
 
   ggsave(out_path, plot = p, width = 12, height = 6, dpi = 300, bg = "white", create.dir = TRUE)
+  log_artifact(out_path)
 }
 
 theme_profile <- function() {

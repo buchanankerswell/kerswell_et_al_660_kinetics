@@ -91,7 +91,6 @@ process_and_combine_data <- function(filepath_local,
       df_combined_raw |>
         apply_neat_formats() |>
         write_csv(csv_path_raw)
-      log_artifact(csv_path_raw)
     }
   }
 
@@ -113,7 +112,6 @@ process_and_combine_data <- function(filepath_local,
       df_filtered_final |>
         apply_neat_formats() |>
         write_csv(csv_path_filtered)
-      log_artifact(csv_path_filtered)
     }
   }
 
@@ -241,6 +239,12 @@ visualize_composition <- function(data_dir, out_path, csv_path_raw = NULL, csv_p
     return(invisible())
   }
 
+  in_local <- file.path(data_dir, "structure-summary-local.csv")
+  if (!file.exists(in_local)) {
+    log_error(paste("missing mesh output:", in_local, "(run meshes first)"))
+    return(invisible())
+  }
+
   df_combined <- process_and_combine_data(
     file.path(data_dir, "structure-summary-local.csv"),
     file.path(data_dir, "structure-summary-kerswell-et-al-2026.csv"),
@@ -307,10 +311,16 @@ visualize_composition <- function(data_dir, out_path, csv_path_raw = NULL, csv_p
   p <- p0 / p1
 
   ggsave(out_path, plot = p, width = 4.5, height = 4.5, dpi = 300, bg = "white", create.dir = TRUE)
+  log_artifact(out_path)
 }
 
 visualize_tiles <- function(in_path, out_path) {
   if (plot_exists(out_path)) {
+    return(invisible())
+  }
+
+  if (!file.exists(in_path)) {
+    log_error(paste("missing mesh output:", in_path, "(run meshes first)"))
     return(invisible())
   }
 
@@ -398,6 +408,7 @@ visualize_tiles <- function(in_path, out_path) {
 
   p <- (p0 | p3) / (p2 | p1)
   suppressWarnings(ggsave(out_path, plot = p, width = 4.5, height = 5.0, dpi = 300, bg = "white"))
+  log_artifact(out_path)
 }
 
 theme_1 <- function() {

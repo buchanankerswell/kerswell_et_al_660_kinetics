@@ -57,7 +57,13 @@ _log_emit() {
 
 log_info() { _log_emit ".." "$*"; }
 log_detail() { _log_emit "--" "$*"; }
-log_artifact() { _log_emit "->" "$*"; }
+log_artifact() {
+  local p="$*"
+  if [[ -n "${PROJECT_ROOT:-}" && "$p" == "$PROJECT_ROOT"* ]]; then
+    p="${p#$PROJECT_ROOT/}"
+  fi
+  _log_emit "->" "$p"
+}
 log_warn() { _log_emit "!!" "Warning: $*"; }
 log_error() { _log_emit "XX" "Error: $*"; }
 

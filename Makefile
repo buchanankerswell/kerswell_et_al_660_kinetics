@@ -23,8 +23,8 @@ sync-barkla:
 	@$(MAKE) --no-print-directory -C $(PYTHON) sync-barkla
 
 visualize:
-	@$(MAKE) --no-print-directory -C $(R) visualize
 	@$(MAKE) --no-print-directory -C $(PYTHON) visualize
+	@$(MAKE) --no-print-directory -C $(R) visualize
 
 manuscript:
 	@$(MAKE) --no-print-directory -C $(DRAFT) manuscript
