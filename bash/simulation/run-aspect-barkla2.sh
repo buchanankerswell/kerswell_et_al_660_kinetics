@@ -1,17 +1,16 @@
 #!/usr/bin/bash -l
 
-if [ $# -ne 2 ]; then
-  echo "    Usage: $0 <ASPECT_EXEC> <CONFIG_FILE>"
+if [ $# -ne 2 ] && [ $# -ne 6 ]; then
+  echo "    Usage: $0 <ASPECT_EXEC> <CONFIG_FILE> [GCC] [OPENMPI] [OPENBLAS] [CMAKE]"
   exit 1
 fi
 
 ASPECT_EXEC=$1
 CONFIG_FILE=$2
-
-GCC=gcc/14.2.0
-OPENMPI=openmpi/5.0.8-gcc14.2.0
-OPENBLAS=openblas/0.3.29/gcc-14.2.0
-CMAKE=cmake/3.30.5-gcc14.2.0
+GCC=${3:-gcc/14.2.0}
+OPENMPI=${4:-openmpi/5.0.8-gcc14.2.0}
+OPENBLAS=${5:-openblas/0.3.29/gcc-14.2.0}
+CMAKE=${6:-cmake/3.30.5-gcc14.2.0}
 
 module purge
 module load $GCC $OPENMPI $OPENBLAS $CMAKE

@@ -54,7 +54,7 @@ $(ASPECT_CONFIGS):
 	      --time=$(TIME) \
 	      --mail-user=$(MAIL_ADDRESS) \
 	      --mail-type=$(MAIL_TYPE) \
-	      $(RUN_ASPECT) $(ASPECT_EXE) "$<" 2>&1 | sed 's/^/ .. /'; \
+	      $(RUN_ASPECT) $(ASPECT_EXE) "$<" $(GCC) $(OPENMPI) $(OPENBLAS) $(CMAKE) 2>&1 | sed 's/^/ .. /'; \
 	  else \
 	    $(RUN_ASPECT) $(NTASKS) $(ASPECT_EXE) "$<" 2>&1 | tee -a "$(SIMULATION)/results/$(PRM_NAME)/$(PRM_NAME).log"; \
 	  fi \
