@@ -1,0 +1,41 @@
+"""Shared gutter logging for python scripts.
+
+Glyphs live in the 4-char gutter only; continuation lines indent 4 spaces.
+  " .. " info step | " -- " detail | " -> " artifact | " !! " warning/error
+Lines wrap at screen width (shutil.get_terminal_size, fallback 80).
+"""
+
+import shutil
+import textwrap
+
+
+def _width() -> int:
+    try:
+        return max(shutil.get_terminal_size(fallback=(80, 24)).columns, 40)
+    except Exception:
+        return 80
+
+
+def _emit(glyph: str, msg: str) -> None:
+    width = max(_width() - 4, 20)
+    out: list[str] = []
+    for para in str(msg).split("\n"):
+        for line in textwrap.wrap(para, width=width, break_long_words=False, break_on_hyphens=False) or [""]:
+            out.append(f" {glyph} {line}" if not out else f"    {line}")
+    print("\n".join(out))
+
+
+def log_info(msg: object) -> None:
+    _emit("..", str(msg))
+
+
+def log_detail(msg: object) -> None:
+    _emit("--", str(msg))
+
+
+def log_artifact(path: object) -> None:
+    _emit("->", str(path))
+
+
+def log_warn(msg: object) -> None:
+    _emit("!!", str(msg))

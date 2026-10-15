@@ -9,6 +9,7 @@ import numpy as np
 import pyvista as pv
 import vtk
 from config import MeshConfig
+from log_utils import log_artifact, log_warn
 from PIL import Image
 from pyvista import Color
 from vtkmodules.vtkCommonCore import vtkLogger
@@ -125,7 +126,7 @@ class MeshPlotter:
         if out_path.exists():
             return
 
-        print(f" -> {out_path.name}")
+        log_artifact(out_path)
         cfg = self.config
         annotations = annotations or []
 
@@ -200,7 +201,7 @@ class MeshPlotter:
             img.save(out_path, dpi=cfg.screenshot_dpi)
         except Exception as e:
             if self.verbosity >= 1:
-                print(f" !! Warning: PIL failed to resave {out_path.name} with new DPI:\n    {e}")
+                log_warn(f"Warning: PIL failed to resave {out_path.name} with new DPI: {e}")
 
     def _add_phase_contours(self, pl: pv.Plotter, mesh: pv.UnstructuredGrid, color: str = "black", alpha: float = 1.0, line_width: int = 7) -> None:
         """
@@ -218,7 +219,7 @@ class MeshPlotter:
                 pl.add_mesh(contour, color=color, opacity=alpha, line_width=line_width, render_lines_as_tubes=True)
             except Exception as e:
                 if self.verbosity >= 1:
-                    print(f" !! Warning: failed generating {phase_field} contours:\n    {e}")
+                    log_warn(f"Warning: failed generating {phase_field} contours: {e}")
 
     def _add_trace_line(
         self,
@@ -313,7 +314,7 @@ class MeshPlotter:
         """
         if "depth" not in mesh.point_data:
             if self.verbosity >= 1:
-                print(" !! Warning: 'depth' field not found in mesh")
+                log_warn("Warning: 'depth' field not found in mesh")
             return
 
         try:
@@ -360,7 +361,7 @@ class MeshPlotter:
         y_upper = depth_to_y(upper_depth)
 
         if y_lower is None or y_upper is None:
-            print(f" !! Warning: Could not find depth boundaries at x={x_pos/1e3:.1f}km")
+            log_warn(f"Warning: could not find depth boundaries at x={x_pos/1e3:.1f}km")
             return
 
         tip_point_lower = np.array([x_pos, y_upper, 0.0])
@@ -429,7 +430,7 @@ class MeshPlotter:
             else:
                 clim = (0.0, 1.0)
             if self.verbosity >= 1:
-                print(f" !! Warning: using auto CLIM for '{field}': {clim}")
+                log_warn(f"Warning: using auto CLIM for '{field}': {clim}")
         elif isinstance(clim_config, (tuple, list)) and len(clim_config) == 2:
             clim = (float(clim_config[0]), float(clim_config[1]))
         else:
@@ -467,7 +468,7 @@ class MeshPlotter:
         """
         if not self._is_diverging_cmap(cmap_name):
             if self.verbosity >= 1:
-                print(f" !! Warning: '{cmap_name}' is not a recognised diverging colormap.")
+                log_warn(f"Warning: '{cmap_name}' is not a recognised diverging colormap.")
             return plt.get_cmap(cmap_name, n_colors)
 
         colors = plt.get_cmap(cmap_name)(np.linspace(0, 1, n_colors))
@@ -491,7 +492,7 @@ class MeshPlotter:
         """
         if not self._is_sequential_cmap(cmap_name):
             if self.verbosity >= 1:
-                print(f" !! Warning: '{cmap_name}' is not a recognised sequential colormap.")
+                log_warn(f"Warning: '{cmap_name}' is not a recognised sequential colormap.")
             return plt.get_cmap(cmap_name, n_colors)
 
         colors = plt.get_cmap(cmap_name)(np.linspace(0, 1, n_colors))

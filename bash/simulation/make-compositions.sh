@@ -2,8 +2,11 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../utils/log.sh"
+
 if [ $# -ne 7 ]; then
-  echo "    Usage: $0 <FIG_DIR> <OUT_DIR> <TIMESTEP> <BATCH_NAME> <ID1> <ID2> <ID3>"
+  log_warn "Usage: $0 <FIG_DIR> <OUT_DIR> <TIMESTEP> <BATCH_NAME> <ID1> <ID2> <ID3>"
   exit 1
 fi
 
@@ -30,7 +33,7 @@ compose_figures() {
     return
   fi
 
-  echo " -> ${OUT_PATH}"
+  log_artifact "$OUT_PATH"
 
   if [[ "$MODE" == "triple" ]]; then
     local DIR1="${TYPE}_${ID1}"

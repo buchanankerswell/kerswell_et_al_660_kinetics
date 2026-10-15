@@ -7,7 +7,9 @@ from pathlib import Path
 from simulation.mesh.config import MeshConfig
 from simulation.mesh.pipeline import FullPipeline, PlottingPipeline, PostProcessingPipeline
 from simulation.params.transitions import PhaseTransition, find_surface_depth_offset, find_transition, read_dG_profile
+from log_utils import log_info
 from tile import ImageTiler
+from tqdm import tqdm
 
 def str2bool(v):
     if isinstance(v, bool):
@@ -71,10 +73,12 @@ def main():
             args.out_fig_dir,
             args.out_data_dir,
         ]
-        for start in range(0, len(model_ids), args.chunk_size):
+        n_chunks = (len(model_ids) + args.chunk_size - 1) // args.chunk_size
+        log_info(f"Processing {len(model_ids)} models in {n_chunks} chunks")
+        for start in tqdm(range(0, len(model_ids), args.chunk_size), total=n_chunks, desc="Processing chunks", unit="chunk"):
             chunk_ids = model_ids[start : start + args.chunk_size]
             chunk_dirs = in_dirs[start : start + args.chunk_size]
-            print(f" .. Chunk {start // args.chunk_size + 1}: {len(chunk_ids)} models")
+            log_info(f"Chunk {start // args.chunk_size + 1}: {len(chunk_ids)} models")
             subprocess.run(
                 [
                     sys.executable,

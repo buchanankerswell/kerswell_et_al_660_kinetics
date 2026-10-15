@@ -1,10 +1,10 @@
 write_simulation_results_summary_table <- function(csv_path, out_dir, quiet = TRUE) {
   if (!file.exists(csv_path)) {
-    if (!quiet) cat(" !! Error: Input CSV file not found:", csv_path, "\n")
+    if (!quiet) log_warn(paste("Error: Input CSV file not found:", csv_path))
     return(invisible())
   }
 
-  if (!quiet) cat(" .. Reading and formatting plume simulation data\n")
+  if (!quiet) log_info("Reading and formatting plume simulation data")
 
   summary_data <- read_csv(csv_path, show_col_types = FALSE)
 
@@ -16,7 +16,7 @@ write_simulation_results_summary_table <- function(csv_path, out_dir, quiet = TR
     md_filename <- sub("\\.csv$", ".md", csv_filename)
     out_path_md <- file.path(md_dir, md_filename)
 
-    if (!quiet) cat(" -> ", out_path_md, "\n", sep = "")
+    if (!quiet) log_artifact(out_path_md)
 
     formatted_summary <- summary_data |>
       select(-z_ol_wd) |>

@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from config import MeshConfig
+from log_utils import log_artifact, log_warn
 from PIL import Image, ImageDraw, ImageFont
 
 @dataclass
@@ -90,10 +91,10 @@ class ImageTiler:
                 return ImageFont.truetype(font_path, self.tag_size)
             except IOError:
                 if self.verbosity >= 1:
-                    print(f" !! Warning: failed to load truetype font at {font_path}.")
+                    log_warn(f"Warning: failed to load truetype font at {font_path}.")
 
         if self.verbosity >= 1:
-            print(" !! Warning: falling back to default font (tiny and non-scalable).")
+            log_warn("Warning: falling back to default font (tiny and non-scalable).")
         return ImageFont.load_default()
 
     def _annotate_image(self, img_path: Path, tag: str | None) -> Image.Image:
@@ -167,12 +168,12 @@ class ImageTiler:
 
         if ts1 is None or ts2 is None or ts3 is None:
             if self.verbosity >= 1:
-                print(f" !! Warning: failed to extract timestep ({ts1}, {ts2}, {ts3})")
+                log_warn(f"Warning: failed to extract timestep ({ts1}, {ts2}, {ts3})")
             return
 
         if ts1 != ts2 or ts1 != ts3:
             if self.verbosity >= 1:
-                print(f" !! Warning: timestep mismatch ({ts1}, {ts2}, {ts3})")
+                log_warn(f"Warning: timestep mismatch ({ts1}, {ts2}, {ts3})")
             return
 
         out_tile = self._build_tile_path(ts1, tags)
@@ -188,7 +189,7 @@ class ImageTiler:
         combined.save(out_tile)
 
         self.tiled_images.append(out_tile)
-        print(f" -> {out_tile.name}")
+        log_artifact(out_tile)
 
     def tile_images(self) -> None:
         """Tile all matched timestep images across the configured fields.

@@ -1,15 +1,9 @@
 upload_results_to_osf <- function(up_dir, conflicts = "skip", verbose = TRUE) {
   if (Sys.getenv("OSF_PAT") == "") {
-    stop(
-      "\n ======================================================================\n",
-      " [Access Denied] Unauthorized Operation.\n",
-      " Only the OSF repository owner can upload data to this project.\n",
-      " ======================================================================\n",
-      call. = FALSE
-    )
+    stop(" !! Access denied: only the OSF repository owner can upload data to this project.", call. = FALSE)
   }
   if (!dir.exists(up_dir)) {
-    stop(" -- Error: Local directory '", up_dir, "' not found. Nothing to upload.\n", sep = "")
+    stop(paste0(" -- Error: Local directory '", up_dir, "' not found. Nothing to upload."), call. = FALSE)
   }
 
   osf_retrieve_node("kur93") |>
@@ -29,12 +23,13 @@ download_results_from_osf <- function(data_dir, sim_dir, conflicts = "skip", ver
 
   if (nrow(data_dir_node) == 1) {
     if (length(list.files(data_dir)) == 0) {
+      log_info("Downloading archived data from OSF")
       osf_download(data_dir_node, path = data_dir, conflicts = conflicts, recurse = TRUE)
     } else {
-      cat(" -- Found local data in: ", data_dir, "\n", sep = "")
+      log_detail(paste("Found local data in:", data_dir))
     }
   } else {
-    cat(" !! Warning: could not find a unique folder named 'data' in the OSF repository.\n")
+    log_warn("Warning: could not find a unique folder named 'data' in the OSF repository.")
   }
 
   results_dir_node <- node_files[node_files$name == "results", ]
@@ -57,22 +52,26 @@ download_results_from_osf <- function(data_dir, sim_dir, conflicts = "skip", ver
 
     osf_results_files <- osf_ls_files(results_dir_node)
 
-    walk(patterns, ~ {
-      target_local_dir <- file.path(sim_dir, .x)
+    log_info("Syncing archived simulation results from OSF")
+    cli::cli_progress_bar("Syncing results", total = length(patterns))
+    for (pattern in patterns) {
+      target_local_dir <- file.path(sim_dir, pattern)
 
       if (!dir.exists(target_local_dir)) {
-        matched_node <- osf_results_files[osf_results_files$name == .x, ]
+        matched_node <- osf_results_files[osf_results_files$name == pattern, ]
 
         if (nrow(matched_node) == 1) {
           osf_download(matched_node, path = sim_dir, conflicts = conflicts, recurse = TRUE)
         } else {
-          cat(" !! Warning: target not found on OSF or ambiguous: ", .x, "\n")
+          log_warn(paste("Warning: target not found on OSF or ambiguous:", pattern))
         }
       } else {
-        cat(" -- Found data: ", target_local_dir, "\n", sep = "")
+        log_detail(paste("Found data:", target_local_dir))
       }
-    })
+      cli::cli_progress_update()
+    }
+    cli::cli_progress_done()
   } else {
-    cat(" !! Warning: could not find a unique folder named 'results' in the OSF repository.\n")
+    log_warn("Warning: could not find a unique folder named 'results' in the OSF repository.")
   }
 }

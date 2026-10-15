@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 import pyvista as pv
 from config import MeshConfig
+from log_utils import log_artifact, log_info, log_warn
 from plotter import MeshPlotter
 from postprocess import MeshPostProcessor
 from preprocess import MeshPreProcessor
@@ -67,7 +68,7 @@ class BasePipeline:
             return pv.UnstructuredGrid(pvtu_path)
         except Exception as e:
             if self.verbosity >= 1:
-                print(f" !! Warning: Error loading {pvtu_path.name}:\n    {e}")
+                log_warn(f"Warning: error loading {pvtu_path.name}: {e}")
             return None
 
     def _get_ordered_pvtu_files(self) -> dict[str, tuple[list[Path], list[int]]]:
@@ -86,7 +87,7 @@ class BasePipeline:
             solution_dir = directory / "solution"
             if not solution_dir.is_dir():
                 if self.verbosity >= 1:
-                    print(f" !! Warning: solution directory not found for model: {model_id}")
+                    log_warn(f"Warning: solution directory not found for model: {model_id}")
                 model_entries.append((model_id, ([], [])))
                 continue
 
@@ -94,12 +95,12 @@ class BasePipeline:
                 files = list(solution_dir.glob("*.pvtu"))
                 if not files:
                     if self.verbosity >= 1:
-                        print(f" !! Warning: no .pvtu files found for model: {model_id}")
+                        log_warn(f"Warning: no .pvtu files found for model: {model_id}")
                     model_entries.append((model_id, ([], [])))
                     continue
             except Exception as e:
                 if self.verbosity >= 1:
-                    print(f" !! Warning: error processing directory {solution_dir}:\n    {e}")
+                    log_warn(f"Warning: error processing directory {solution_dir}: {e}")
                 model_entries.append((model_id, ([], [])))
                 continue
 
@@ -111,7 +112,7 @@ class BasePipeline:
                 else:
                     timestep = -1
                     if self.verbosity >= 1:
-                        print(f" !! Warning: could not parse timestep from filename:\n    {file.name}")
+                        log_warn(f"Warning: could not parse timestep from filename: {file.name}")
                 parsed.append((timestep, file))
 
             parsed.sort(key=lambda x: x[0])
@@ -189,7 +190,7 @@ class BasePipeline:
 
         except Exception as e:
             if self.verbosity >= 1:
-                print(f" !! Warning: could not extract parameters from model_id '{model_id_str}':\n    {e}")
+                log_warn(f"Warning: could not extract parameters from model_id '{model_id_str}': {e}")
             return np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
 
     def _extract_sort_key(self, model_id: str) -> tuple:
@@ -242,7 +243,7 @@ class PostProcessingPipeline(BasePipeline):
             ):
                 if path is not None and path.exists():
                     try:
-                        print(f" .. Loading {path}")
+                        log_info(f"Loading {path}")
                         with open(path, "rb") as f:
                             loaded = pickle.load(f)
                         if name == "transition summary":
@@ -250,7 +251,7 @@ class PostProcessingPipeline(BasePipeline):
                         else:
                             seismic_profile_cache = loaded or {}
                     except Exception as e:
-                        print(f" !! Error: Could not load cache:\n    {e}")
+                        log_warn(f"Error: could not load cache: {e}")
 
         requested = set(self.pvtu_in_dirs)
         if (
@@ -287,13 +288,13 @@ class PostProcessingPipeline(BasePipeline):
             model_items,
             desc="Processing meshes",
             unit="model",
-            ncols=80,
+            ncols=None,
             bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}{postfix}]",
         )
         for model_id, (pvtu_files, timesteps) in pbar:
             if not pvtu_files:
                 if self.verbosity >= 1:
-                    print(f" !! Warning: no result files for model: {model_id}")
+                    log_warn(f"Warning: no result files for model: {model_id}")
                 continue
 
             z_ol_wd, z_wd_ri, z_ri_ps, eta_therm, eta_trans_ol_wd, eta_trans_wd_ri, eta_trans_ri_ps, velocity, temperature, mg_num = (
@@ -306,7 +307,7 @@ class PostProcessingPipeline(BasePipeline):
                 k = eta_trans_idx[eta_trans_ri_ps]
             except Exception as e:
                 if self.verbosity >= 1:
-                    print(f" !! Warning: could not compute scenario for {model_id}:\n    {e}")
+                    log_warn(f"Warning: could not compute scenario for {model_id}: {e}")
                 continue
 
             scenario = k * (len(velocity_vals) * len(eta_therm_vals)) + i * len(eta_therm_vals) + j
@@ -441,10 +442,10 @@ class PostProcessingPipeline(BasePipeline):
 
             csv_path.parent.mkdir(parents=True, exist_ok=True)
             df.rename(columns=lambda x: re.sub(r"_C\d+", "", x)).to_csv(csv_path, index=False)
-            print(f" -> {csv_path}")
+            log_artifact(csv_path)
             return df
         except Exception as e:
-            print(f" !! Error: Failed to write csv:\n    {e}")
+            log_warn(f"Error: failed to write csv: {e}")
             return pd.DataFrame()
 
     def export_seismic_profiles(
@@ -715,7 +716,7 @@ class PostProcessingPipeline(BasePipeline):
         path.parent.mkdir(parents=True, exist_ok=True)
         with open(path, "wb") as f:
             pickle.dump(cache, f)
-        print(f" -> {path}")
+        log_artifact(path)
 
 @dataclass
 class PlottingPipeline(BasePipeline):
@@ -746,10 +747,18 @@ class PlottingPipeline(BasePipeline):
         if fields_to_plot is None:
             fields_to_plot = list(self.config.file_map.keys())
 
-        for model_id, (pvtu_files, timesteps) in self._get_ordered_pvtu_files().items():
+        model_items = self._get_ordered_pvtu_files().items()
+        pbar = tqdm(
+            model_items,
+            desc="Rendering meshes",
+            unit="model",
+            ncols=None,
+            bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}{postfix}]",
+        )
+        for model_id, (pvtu_files, timesteps) in pbar:
             if not pvtu_files:
                 if self.verbosity >= 1:
-                    print(f" !! Warning: no result files for model: {model_id}")
+                    log_warn(f"Warning: no result files for model: {model_id}")
                 continue
 
             model_id_padded = re.sub(r"B(\d+)", lambda m: f"B{int(m.group(1)):0{2}d}", model_id)
@@ -825,7 +834,7 @@ class PlottingPipeline(BasePipeline):
     @classmethod
     def load_cache(cls, cache_path: Path) -> dict:
         """Load and return a pickled cache dict from disk."""
-        print(f" .. Loading cache {cache_path.name}")
+        log_info(f"Loading cache {cache_path.name}")
         with open(cache_path, "rb") as f:
             return pickle.load(f)
 

@@ -4,6 +4,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
+from log_utils import log_artifact, log_detail, log_info
 from scipy import stats
 
 @dataclass(frozen=True)
@@ -125,9 +126,9 @@ def regress_kubo2002_dataset(n_monte_carlo: int = 10000) -> RegressionResults:
         intercept_samples=intercepts,
     )
 
-    print(f"    Mean E_a          = {res.ea_mean/1e3:.0f} ± {np.std(res.ea_samples)/1e3:.0f} kJ/mol")
-    print(f"    Mean ln(K')       = {lnk_mean:.1f} ± {lnk_std:.1f}")
-    print(f"    Geometric mean K' = {res.kp_geo_mean:.3e}")
+    log_detail(f"Mean E_a = {res.ea_mean/1e3:.0f} ± {np.std(res.ea_samples)/1e3:.0f} kJ/mol")
+    log_detail(f"Mean ln(K') = {lnk_mean:.1f} ± {lnk_std:.1f}")
+    log_detail(f"Geometric mean K' = {res.kp_geo_mean:.3e}")
 
     return res
 
@@ -221,10 +222,10 @@ def main() -> None:
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    print(" .. Processing Kubo et al. (2002) Dataset")
+    log_info("Processing Kubo et al. (2002) Dataset")
     results = regress_kubo2002_dataset()
     visualize(results, out_path)
-    print(f" -> {out_path}")
+    log_artifact(out_path)
 
 if __name__ == "__main__":
     main()

@@ -91,7 +91,7 @@ process_and_combine_data <- function(filepath_local,
       df_combined_raw |>
         apply_neat_formats() |>
         write_csv(csv_path_raw)
-      cat(" -> ", csv_path_raw, "\n", sep = "")
+      log_artifact(csv_path_raw)
     }
   }
 
@@ -113,7 +113,7 @@ process_and_combine_data <- function(filepath_local,
       df_filtered_final |>
         apply_neat_formats() |>
         write_csv(csv_path_filtered)
-      cat(" -> ", csv_path_filtered, "\n", sep = "")
+      log_artifact(csv_path_filtered)
     }
   }
 

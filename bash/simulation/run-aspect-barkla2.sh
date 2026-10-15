@@ -1,7 +1,10 @@
 #!/usr/bin/bash -l
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../utils/log.sh"
+
 if [ $# -ne 2 ] && [ $# -ne 6 ]; then
-  echo "    Usage: $0 <ASPECT_EXEC> <CONFIG_FILE> [GCC] [OPENMPI] [OPENBLAS] [CMAKE]"
+  log_warn "Usage: $0 <ASPECT_EXEC> <CONFIG_FILE> [GCC] [OPENMPI] [OPENBLAS] [CMAKE]"
   exit 1
 fi
 
@@ -30,51 +33,44 @@ export CXX=mpicxx
 export FC=mpif90
 export FF=mpif77
 
-echo "    ========================================================="
-echo "    SLURM job: submitted  date = $(date)"
+log_info "SLURM job submitted: $(date)"
 date_start=$(date +%s)
-hostname
-echo "    Current directory: $(pwd)"
-echo "    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-echo "    Config file                : $CONFIG_FILE"
-echo "    Job name                   : $SLURM_JOB_NAME"
-echo "    Job ID                     : $SLURM_JOB_ID"
-echo "    Job user                   : $SLURM_JOB_USER"
-echo "    Job array index            : $SLURM_ARRAY_TASK_ID"
-echo "    Submit directory           : $SLURM_SUBMIT_DIR"
-echo "    Submit host                : $SLURM_SUBMIT_HOST"
-echo "    Queue/Partition name       : $SLURM_JOB_PARTITION"
-echo "    Node list                  : $SLURM_JOB_NODELIST"
-echo "    Hostname of 1st node       : $HOSTNAME"
-echo "    Number of nodes allocated  : $SLURM_JOB_NUM_NODES"
-echo "    Number of tasks            : $SLURM_NTASKS"
-echo "    Number of tasks per node   : $SLURM_TASKS_PER_NODE"
-echo "    Initiated tasks per node   : $SLURM_NTASKS_PER_NODE"
-echo "    Requested CPUs per task    : $SLURM_CPUS_PER_TASK"
-echo "    Requested CPUs on the node : $SLURM_CPUS_ON_NODE"
-echo "    Scheduling priority        : $SLURM_PRIO_PROCESS"
-echo "    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-echo "    Job output begins ..."
-echo "    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+log_detail "Hostname: $(hostname)"
+log_detail "Current directory: $(pwd)"
+log_detail "Config file: $CONFIG_FILE"
+log_detail "Job name: $SLURM_JOB_NAME"
+log_detail "Job ID: $SLURM_JOB_ID"
+log_detail "Job user: $SLURM_JOB_USER"
+log_detail "Job array index: $SLURM_ARRAY_TASK_ID"
+log_detail "Submit directory: $SLURM_SUBMIT_DIR"
+log_detail "Submit host: $SLURM_SUBMIT_HOST"
+log_detail "Queue/Partition name: $SLURM_JOB_PARTITION"
+log_detail "Node list: $SLURM_JOB_NODELIST"
+log_detail "Hostname of 1st node: $HOSTNAME"
+log_detail "Number of nodes allocated: $SLURM_JOB_NUM_NODES"
+log_detail "Number of tasks: $SLURM_NTASKS"
+log_detail "Number of tasks per node: $SLURM_TASKS_PER_NODE"
+log_detail "Initiated tasks per node: $SLURM_NTASKS_PER_NODE"
+log_detail "Requested CPUs per task: $SLURM_CPUS_PER_TASK"
+log_detail "Requested CPUs on the node: $SLURM_CPUS_ON_NODE"
+log_detail "Scheduling priority: $SLURM_PRIO_PROCESS"
+log_info "Job output begins ..."
 mpirun -np "$SLURM_NTASKS" "$ASPECT_EXEC" "$CONFIG_FILE"
 EXIT_CODE=$?
-echo "    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-echo "    Job output ends ..."
+log_info "Job output ends ..."
 date_end=$(date +%s)
 seconds=$((date_end - date_start))
 minutes=$((seconds / 60))
 seconds=$((seconds - 60 * minutes))
 hours=$((minutes / 60))
 minutes=$((minutes - 60 * hours))
-echo "    ========================================================="
-echo "    SLURM job: finished date = $(date)"
-echo "    Total run time : $hours Hours $minutes Minutes $seconds Seconds"
-echo "    ========================================================="
+log_info "SLURM job finished: $(date)"
+log_detail "Total run time: $hours Hours $minutes Minutes $seconds Seconds"
 
 if [ $EXIT_CODE -eq 0 ]; then
   RUN_FILE="${CONFIG_FILE%.prm}.run"
   touch "$RUN_FILE"
-  echo "    Run completed successfully. Created $RUN_FILE"
+  log_artifact "$RUN_FILE"
 else
-  echo "    ASPECT run failed with exit code $EXIT_CODE. No .run file created."
+  log_warn "ASPECT run failed with exit code $EXIT_CODE. No .run file created."
 fi

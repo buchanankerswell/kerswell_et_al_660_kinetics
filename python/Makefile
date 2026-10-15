@@ -51,7 +51,7 @@ compositions-cold:
 	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS_SIM_COLD)/meshes" "$(FIGS_SIM_COLD)/compositions" "0100" "b50" "$(ID_C4)" "$(ID_C5)" "$(ID_C6)")
 
 setup:
-	@$(CONDA_PYTHON) -u $(PYTHON)/simulation/misc/setup.py \
+	@PYTHONPATH=$(PYTHON) $(CONDA_PYTHON) -u $(PYTHON)/simulation/misc/setup.py \
 	  --out-fig-dir $(FIGS)/setup \
 	  --width $(MODEL_WIDTH) \
 	  --height $(MODEL_HEIGHT) \
@@ -75,7 +75,7 @@ setup:
 	  --a-plume $(A_PLUME)
 
 kubo:
-	@$(CONDA_PYTHON) -u $(PYTHON)/simulation/misc/kubo.py --out-fig-dir $(FIGS)/kubo
+	@PYTHONPATH=$(PYTHON) $(CONDA_PYTHON) -u $(PYTHON)/simulation/misc/kubo.py --out-fig-dir $(FIGS)/kubo
 
 meshes: meshes-warm meshes-cold
 
@@ -110,7 +110,7 @@ adiabat: $(PROFILES)
 
 $(PROFILES): $(SIMULATION)/data/olivine-wadsleyite-profile-Mg%.tsv:
 	@for model in $(PERPLEX_MODELS); do \
-	  cd $(PERPLEX)/$$model && $(CONDA_PYTHON) -u $(PYTHON)/adiabat/main.py $$model $* $(SIMULATION)/data $(FIGS)/adiabat; \
+	  cd $(PERPLEX)/$$model && PYTHONPATH=$(PYTHON) $(CONDA_PYTHON) -u $(PYTHON)/adiabat/main.py $$model $* $(SIMULATION)/data $(FIGS)/adiabat; \
 	done
 
 clean:

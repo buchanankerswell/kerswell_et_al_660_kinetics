@@ -21,7 +21,7 @@ main <- function() {
     upload_results_to_osf(data_dir)
     upload_results_to_osf(sim_dir)
   } else {
-    cat(" !! Error: unknown sync command '", sync_dir, "'. Use 'upload' or 'download'.\n", sep = "")
+    log_warn(paste0("Error: unknown sync command '", sync_dir, "'. Use 'upload' or 'download'."))
   }
 }
 

@@ -5,6 +5,7 @@ from pathlib import Path
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
+from log_utils import log_artifact
 from matplotlib.axes import Axes
 from matplotlib.collections import QuadMesh
 
@@ -223,7 +224,7 @@ def main():
     cbar.ax.tick_params(axis="x", colors="#4D4D4D", labelsize=13, length=0, pad=5)
 
     plt.savefig(out_path, bbox_inches="tight", pad_inches=0.05)
-    print(f" -> {out_path}")
+    log_artifact(out_path)
 
 if __name__ == "__main__":
     main()

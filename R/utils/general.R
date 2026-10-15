@@ -8,7 +8,7 @@ plot_exists <- function(out_path) {
     return(TRUE)
   }
   ensure_output_dir(out_path)
-  cat(" -> ", out_path, "\n", sep = "")
+  log_artifact(out_path)
   FALSE
 }
 

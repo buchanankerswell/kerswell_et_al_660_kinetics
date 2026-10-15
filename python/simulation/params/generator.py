@@ -59,7 +59,7 @@ def generate_prm(config: PrmGenerator) -> None:
             f.write(content)
 
     except Exception as e:
-        print(f" !! ERROR: Failed to generate {config.output_path}: {e}")
+        print(f" !! Error: Failed to generate {config.output_path}: {e}")
         sys.exit(1)
 
 def main() -> None:
@@ -75,7 +75,7 @@ def main() -> None:
             k, v = p.split("=", 1)
             param_map[k.strip()] = v.strip()
         else:
-            print(f" !! WARNING: Skipping malformed parameter argument: '{p}'")
+            print(f" !! Warning: Skipping malformed parameter argument: '{p}'")
 
     config = PrmGenerator(template_path=args.template, output_path=args.output, mapping=param_map)
 

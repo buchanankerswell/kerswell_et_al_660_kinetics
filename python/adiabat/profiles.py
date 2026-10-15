@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from burnman import Material, PerplexMaterial, constants
 from burnman.classes.perplex import create_perplex_table
+from log_utils import log_artifact
 from scipy.integrate import odeint
 from scipy.interpolate import interp1d
 from scipy.optimize import newton
@@ -345,7 +346,7 @@ class AdiabaticProfile:
             comments="",
         )
 
-        print(f" -> {self.out_profile}")
+        log_artifact(self.out_profile)
 
 @dataclass
 class DrivingForceProfile:
@@ -867,7 +868,7 @@ class DrivingForceProfile:
             comments="",
         )
 
-        print(f" -> {self.out_profile}")
+        log_artifact(self.out_profile)
 
     def visualize(
         self,
@@ -1017,7 +1018,7 @@ class DrivingForceProfile:
         if not out_path.parent.exists():
             out_path.parent.mkdir(parents=True, exist_ok=True)
 
-        print(f" -> {out_path}")
+        log_artifact(out_path)
 
         return False
 

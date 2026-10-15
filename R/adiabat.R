@@ -32,8 +32,8 @@ main <- function() {
   missing <- c(in_material_table, in_profiles)[!file.exists(c(in_material_table, in_profiles))]
 
   if (length(missing) > 0) {
-    cat(" !! Warning: the following input files do not exist:\n")
-    for (f in missing) cat(" -- ", f, "\n", sep = "")
+    log_warn("Warning: the following input files do not exist:")
+    for (f in missing) log_detail(f)
     return(invisible())
   }
 
@@ -44,7 +44,7 @@ main <- function() {
       visualize_thermodynamic_profile(in_profiles, out_thermodynamic_profiles)
     },
     error = function(e) {
-      cat(" !! Error: drawing issue: ", conditionMessage(e), "\n", sep = "")
+      log_warn(paste("Error: drawing issue:", conditionMessage(e)))
     }
   )
 }
