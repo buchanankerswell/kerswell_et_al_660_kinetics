@@ -44,7 +44,7 @@ main <- function() {
       visualize_thermodynamic_profile(in_profiles, out_thermodynamic_profiles)
     },
     error = function(e) {
-      log_warn(paste("Error: drawing issue:", conditionMessage(e)))
+      log_error(paste("Error: drawing issue:", conditionMessage(e)))
     }
   )
 }

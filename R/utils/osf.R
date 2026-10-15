@@ -1,9 +1,9 @@
 upload_results_to_osf <- function(up_dir, conflicts = "skip", verbose = TRUE) {
   if (Sys.getenv("OSF_PAT") == "") {
-    stop(" !! Access denied: only the OSF repository owner can upload data to this project.", call. = FALSE)
+    stop("XX Access denied: only the OSF repository owner can upload data to this project.", call. = FALSE)
   }
   if (!dir.exists(up_dir)) {
-    stop(paste0(" -- Error: Local directory '", up_dir, "' not found. Nothing to upload."), call. = FALSE)
+    stop(paste0("XX Local directory '", up_dir, "' not found. Nothing to upload."), call. = FALSE)
   }
 
   osf_retrieve_node("kur93") |>

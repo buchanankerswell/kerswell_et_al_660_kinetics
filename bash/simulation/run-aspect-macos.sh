@@ -41,5 +41,5 @@ if [ $EXIT_CODE -eq 0 ]; then
   touch "$RUN_FILE"
   log_artifact "$RUN_FILE"
 else
-  log_warn "ASPECT run failed with exit code $EXIT_CODE. No .run file created."
+  log_error "ASPECT run failed with exit code $EXIT_CODE. No .run file created."
 fi

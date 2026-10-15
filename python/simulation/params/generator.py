@@ -59,7 +59,7 @@ def generate_prm(config: PrmGenerator) -> None:
             f.write(content)
 
     except Exception as e:
-        print(f" !! Error: Failed to generate {config.output_path}: {e}")
+        print(f" XX Error: Failed to generate {config.output_path}: {e}")
         sys.exit(1)
 
 def main() -> None:

@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import pyvista as pv
 from config import MeshConfig
-from utils.logging import log_artifact, log_info, log_warn
+from utils.logging import log_artifact, log_error, log_info, log_warn
 from plotter import MeshPlotter
 from postprocess import MeshPostProcessor
 from preprocess import MeshPreProcessor
@@ -251,7 +251,7 @@ class PostProcessingPipeline(BasePipeline):
                         else:
                             seismic_profile_cache = loaded or {}
                     except Exception as e:
-                        log_warn(f"Error: could not load cache: {e}")
+                        log_error(f"Error: could not load cache: {e}")
 
         requested = set(self.pvtu_in_dirs)
         if (
@@ -445,7 +445,7 @@ class PostProcessingPipeline(BasePipeline):
             log_artifact(csv_path)
             return df
         except Exception as e:
-            log_warn(f"Error: failed to write csv: {e}")
+            log_error(f"Error: failed to write csv: {e}")
             return pd.DataFrame()
 
     def export_seismic_profiles(

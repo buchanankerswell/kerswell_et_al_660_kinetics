@@ -1,6 +1,6 @@
 # Shared gutter logging for R scripts (auto-sourced with the other utils).
 # Glyphs live in the 4-char gutter only; continuation lines indent 4 spaces.
-#   " .. " info step | " -- " detail | " -> " artifact | " !! " warning/error
+#   " .. " info step | " -- " detail | " -> " artifact | " !! " warning | " XX " error
 # Lines wrap at screen width (cli::console_width, else getOption("width")).
 
 .log_width <- function() {
@@ -23,3 +23,4 @@ log_info <- function(...) .log_emit("..", ...)
 log_detail <- function(...) .log_emit("--", ...)
 log_artifact <- function(...) .log_emit("->", ...)
 log_warn <- function(...) .log_emit("!!", ...)
+log_error <- function(...) .log_emit("XX", ...)

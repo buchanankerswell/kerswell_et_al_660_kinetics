@@ -31,9 +31,9 @@ def csv_to_rounded_markdown(in_path, out_path):
         print(f" -> Successfully created a rounded Markdown table at: {out_path.name}")
 
     except FileNotFoundError:
-        print(f" !! Error: the file '{in_path.name}' was not found!")
+        print(f" XX Error: the file '{in_path.name}' was not found!")
     except Exception as e:
-        print(f" !! Error: {e}")
+        print(f" XX Error: {e}")
 
 if __name__ == "__main__":
     in_path = Path("../simulation/data/centerline-profile-data.csv")

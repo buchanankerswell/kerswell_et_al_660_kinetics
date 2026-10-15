@@ -1,6 +1,6 @@
 write_simulation_results_summary_table <- function(csv_path, out_dir, quiet = TRUE) {
   if (!file.exists(csv_path)) {
-    if (!quiet) log_warn(paste("Error: Input CSV file not found:", csv_path))
+    if (!quiet) log_error(paste("Error: Input CSV file not found:", csv_path))
     return(invisible())
   }
 
