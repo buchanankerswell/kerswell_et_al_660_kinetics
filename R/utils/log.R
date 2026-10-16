@@ -2,7 +2,7 @@
 # Glyphs live in the 4-char gutter only; continuation lines indent 4 spaces.
 #   " .. " info step | " -- " detail | " -> " artifact | " !! " warning | " XX " error | " xx " deletion
 # Lines wrap at screen width (cli::console_width, else getOption("width")).
-# Colors (dim gutter, cyan steps, green artifacts, yellow warnings, red
+# Colors (muted gutter, cyan steps, green artifacts, yellow warnings, red
 # errors) rely on cli, which strips them when piped or NO_COLOR is set.
 # Lines wrap before styling, so widths stay exact either way.
 
@@ -27,7 +27,7 @@
   max(w, 40L)
 }
 
-.log_emit <- function(glyph, ..., .glyph_style = cli::style_dim, .msg_style = identity) {
+.log_emit <- function(glyph, ..., .glyph_style = cli::col_br_black, .msg_style = identity) {
   msg <- paste0(..., collapse = "")
   width <- max(.log_width() - 4L, 20L)
   lines <- unlist(lapply(strsplit(msg, "\n", fixed = TRUE)[[1]], strwrap, width = width))

@@ -5,7 +5,7 @@ Glyphs live in the 4-char gutter only; continuation lines indent 4 spaces.
 Lines wrap at screen width (shutil.get_terminal_size, fallback 80), except
 progress bars which are fixed at 80 columns.
 
-Colors (dim gutter, cyan steps, green artifacts, yellow warnings, red
+Colors (muted gutter, cyan steps, green artifacts, yellow warnings, red
 errors) emit only when stdout is a tty and NO_COLOR is unset. Messages
 are wrapped before color codes are added, so widths stay exact either way.
 """
@@ -15,7 +15,7 @@ import shutil
 import sys
 import textwrap
 
-_PALETTE = {"dim": "2", "cyan": "36", "green": "32", "yellow": "33", "red": "31"}
+_PALETTE = {"muted": "90", "cyan": "36", "green": "32", "yellow": "33", "red": "31"}
 _SPINNER_FRAMES = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
 
 
@@ -51,7 +51,7 @@ def _width() -> int:
         return 80
 
 
-def _emit(glyph: str, msg: str, glyph_color: str = "dim", msg_color: str = "") -> None:
+def _emit(glyph: str, msg: str, glyph_color: str = "muted", msg_color: str = "") -> None:
     width = max(_width() - 4, 20)
     out: list[str] = []
     for para in str(msg).split("\n"):
@@ -111,7 +111,7 @@ def gutter_tqdm(iterable, desc: str, unit: str = "model", ncols: int = 80):
 
     return _tqdm(
         iterable,
-        desc=_paint("dim", " ..") + " " + _paint("cyan", desc),
+        desc=_paint("muted", " ..") + " " + _paint("cyan", desc),
         unit=unit,
         ncols=ncols,
         disable=not _color_enabled(),
@@ -133,7 +133,7 @@ class Spinner:
         if not self.active:
             return
         frame = _SPINNER_FRAMES[self.i % len(_SPINNER_FRAMES)]
-        sys.stdout.write(f"\r{_paint('dim', ' ..')} {_paint('cyan', self.desc)} {frame} ")
+        sys.stdout.write(f"\r{_paint('muted', ' ..')} {_paint('cyan', self.desc)} {frame} ")
         sys.stdout.flush()
         self.i += 1
 

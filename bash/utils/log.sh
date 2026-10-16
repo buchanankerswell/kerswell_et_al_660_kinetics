@@ -3,7 +3,7 @@
 # Glyphs live in the 4-char gutter only; continuation lines indent 4 spaces.
 #   " .. " info step | " -- " detail | " -> " artifact | " !! " warning | " XX " error | " xx " deletion
 # Lines wrap at screen width ($COLUMNS, else tput cols, else 80).
-# Colors (dim gutter, cyan steps, green artifacts, yellow warnings, red
+# Colors (muted gutter, cyan steps, green artifacts, yellow warnings, red
 # errors) emit only on a tty without NO_COLOR. Lines wrap before color
 # codes are added, so widths stay exact either way.
 
@@ -73,18 +73,18 @@ _log_emit() {
   done <<<"$msg"
 }
 
-log_info() { _log_emit ".." "2" "36" "$*"; }
-log_detail() { _log_emit "--" "2" "" "$*"; }
+log_info() { _log_emit ".." "90" "36" "$*"; }
+log_detail() { _log_emit "--" "90" "" "$*"; }
 log_artifact() {
   local p="$*"
   if [[ -n "${PROJECT_ROOT:-}" && "$p" == "$PROJECT_ROOT"* ]]; then
     p="${p#$PROJECT_ROOT/}"
   fi
-  _log_emit "->" "2" "32" "$p"
+  _log_emit "->" "90" "32" "$p"
 }
 log_warn() { _log_emit "!!" "33" "33" "Warning: $*"; }
 log_error() { _log_emit "XX" "31" "31" "Error: $*"; }
-log_delete() { _log_emit "xx" "2" "" "$*"; }
+log_delete() { _log_emit "xx" "90" "" "$*"; }
 
 # Indent piped tool output as gutter-blank continuations.
 log_pipe() { sed 's/^/    /'; }
