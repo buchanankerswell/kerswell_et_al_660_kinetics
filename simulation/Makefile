@@ -79,7 +79,7 @@ clean:
 	@$(call SAFE_RM_LIST,$(CLEAN))
 	@find $(PROJECT_ROOT)/simulation -type l -path '*/plugins/aspect*' | while read -r item; do \
 	  if [[ "$$item" == $(PROJECT_ROOT)* ]]; then \
-	    echo " xx $$item"; \
+	    . "$(BASH)/utils/log.sh"; log_delete "$$item"; \
 	    rm "$$item"; \
 	  fi; \
 	done
@@ -88,13 +88,11 @@ deep-clean:
 	@$(call SAFE_RM_LIST,$(DEEP_CLEAN))
 
 help:
-	@echo "    --------------------------------------------------"
-	@echo "    Available targets:"
-	@echo "    --------------------------------------------------"
-	@echo "    all-models         Run all ASPECT models"
-	@echo "    plume-models-kn-warm    Run ASPECT plume models"
-	@echo "    slab-models-kn-warm     Run warm ASPECT slab models"
-	@echo "    slab-models-kn-cold Run cold ASPECT slab models"
-	@echo "    configs            Generate configs only"
-	@echo "    clean              Remove generated files (safe)"
-	@echo "    deep-clean         Remove results and data (use with caution!)"
+	$(call LOG_INFO,Available targets:)
+	$(call LOG_DETAIL,all-models         Run all ASPECT models)
+	$(call LOG_DETAIL,plume-models-kn-warm    Run ASPECT plume models)
+	$(call LOG_DETAIL,slab-models-kn-warm     Run warm ASPECT slab models)
+	$(call LOG_DETAIL,slab-models-kn-cold Run cold ASPECT slab models)
+	$(call LOG_DETAIL,configs            Generate configs only)
+	$(call LOG_DETAIL,clean              Remove generated files (safe))
+	$(call LOG_DETAIL,deep-clean         Remove results and data (use with caution!))

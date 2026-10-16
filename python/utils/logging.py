@@ -1,7 +1,7 @@
 """Shared gutter logging for python scripts.
 
 Glyphs live in the 4-char gutter only; continuation lines indent 4 spaces.
-  " .. " info step | " -- " detail | " -> " artifact | " !! " warning | " XX " error
+  " .. " info step | " -- " detail | " -> " artifact | " !! " warning | " XX " error | " xx " deletion
 Lines wrap at screen width (shutil.get_terminal_size, fallback 80), except
 progress bars which are fixed at 80 columns.
 
@@ -81,6 +81,10 @@ def log_warn(msg: object) -> None:
 
 def log_error(msg: object) -> None:
     _emit("XX", f"Error: {msg}", glyph_color="red", msg_color="red")
+
+
+def log_delete(path: object) -> None:
+    _emit("xx", str(path))
 
 
 def _relpath(path: object) -> str:

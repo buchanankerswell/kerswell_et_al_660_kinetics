@@ -5,9 +5,7 @@ include project.mk
 .PHONY: build models plume-models slab-models sync-barkla visualize manuscript download environments clean deep-clean help
 
 build: environments download visualize manuscript
-	@echo "    --------------------------------------------------"
-	@echo "    Study built successfully!"
-	@echo "    --------------------------------------------------"
+	$(call LOG_INFO,Study built successfully!)
 
 models:
 	@$(MAKE) --no-print-directory -C $(SIMULATION) all-models
@@ -52,15 +50,13 @@ deep-clean: clean
 	@$(MAKE) --no-print-directory -C $(DRAFT) deep-clean
 
 help:
-	@echo "    --------------------------------------------------"
-	@echo "    Available targets:"
-	@echo "    --------------------------------------------------"
-	@echo "    build         Fetch data and reproduce figures and manuscript"
-	@echo "    models        Run ASPECT models (needs aspect/dealii links)"
-	@echo "    plume-models  Run ASPECT plume models"
-	@echo "    slab-models   Run ASPECT slab models"
-	@echo "    sync-barkla   Sync data from barkla2"
-	@echo "    visualize     Visualize all results"
-	@echo "    environments  Create Conda environments"
-	@echo "    clean         Remove generated files (safe)"
-	@echo "    deep-clean    Remove results and data (use with caution!)"
+	$(call LOG_INFO,Available targets:)
+	$(call LOG_DETAIL,build         Fetch data and reproduce figures and manuscript)
+	$(call LOG_DETAIL,models        Run ASPECT models (needs aspect/dealii links))
+	$(call LOG_DETAIL,plume-models  Run ASPECT plume models)
+	$(call LOG_DETAIL,slab-models   Run ASPECT slab models)
+	$(call LOG_DETAIL,sync-barkla   Sync data from barkla2)
+	$(call LOG_DETAIL,visualize     Visualize all results)
+	$(call LOG_DETAIL,environments  Create Conda environments)
+	$(call LOG_DETAIL,clean         Remove generated files (safe))
+	$(call LOG_DETAIL,deep-clean    Remove results and data (use with caution!))

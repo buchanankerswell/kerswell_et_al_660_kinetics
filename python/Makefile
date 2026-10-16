@@ -29,12 +29,12 @@ compositions-warm:
 	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS_SIM_WARM)/meshes" "$(FIGS_SIM_WARM)/compositions" "0100" "b01" "$(ID_W1)" "$(ID_W2)" "$(ID_W3)")
 	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS_SIM_WARM)/meshes" "$(FIGS_SIM_WARM)/compositions" "0050" "b50" "$(ID_W4)" "$(ID_W5)" "$(ID_W6)")
 	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS_SIM_WARM)/meshes" "$(FIGS_SIM_WARM)/compositions" "0100" "b50" "$(ID_W4)" "$(ID_W5)" "$(ID_W6)")
-	@bash -c 'source $(BASH)/utils/log.sh; log_artifact "$(FIGS_SIM_WARM)/compositions"'
+	$(call LOG_ARTIFACT,$(FIGS_SIM_WARM)/compositions)
 
 compositions-cold:
 	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS_SIM_COLD)/meshes" "$(FIGS_SIM_COLD)/compositions" "0100" "b01" "$(ID_C1)" "$(ID_C2)" "$(ID_C3)")
 	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS_SIM_COLD)/meshes" "$(FIGS_SIM_COLD)/compositions" "0100" "b50" "$(ID_C4)" "$(ID_C5)" "$(ID_C6)")
-	@bash -c 'source $(BASH)/utils/log.sh; log_artifact "$(FIGS_SIM_COLD)/compositions"'
+	$(call LOG_ARTIFACT,$(FIGS_SIM_COLD)/compositions)
 
 setup:
 	@PYTHONPATH=$(PYTHON) $(CONDA_PYTHON) -u $(PYTHON)/simulation/misc/setup.py \
@@ -108,16 +108,14 @@ deep-clean:
 	@$(call SAFE_RM_LIST,$(DEEP_CLEAN))
 
 help:
-	@echo "    --------------------------------------------------"
-	@echo "    Available targets:"
-	@echo "    --------------------------------------------------"
-	@echo "    visualize    Visualize all results"
-	@echo "    sync-barkla  Fetch simulation results from barkla"
-	@echo "    setup        Visualize initial numerical setup"
-	@echo "    kubo         Visualize Kubo 2022 dataset regression"
-	@echo "    meshes       Visualize ASPECT models (warm + cold)"
-	@echo "    meshes-warm  Visualize sluggish-warm suite"
-	@echo "    meshes-cold  Visualize best-fit-cold suite"
-	@echo "    compositions-main  Compose montage figures (warm + cold)"
-	@echo "    clean        Remove generated files (safe)"
-	@echo "    deep-clean   Remove results and data (use with caution!)"
+	$(call LOG_INFO,Available targets:)
+	$(call LOG_DETAIL,visualize    Visualize all results)
+	$(call LOG_DETAIL,sync-barkla  Fetch simulation results from barkla)
+	$(call LOG_DETAIL,setup        Visualize initial numerical setup)
+	$(call LOG_DETAIL,kubo         Visualize Kubo 2022 dataset regression)
+	$(call LOG_DETAIL,meshes       Visualize ASPECT models (warm + cold))
+	$(call LOG_DETAIL,meshes-warm  Visualize sluggish-warm suite)
+	$(call LOG_DETAIL,meshes-cold  Visualize best-fit-cold suite)
+	$(call LOG_DETAIL,compositions-main  Compose montage figures (warm + cold))
+	$(call LOG_DETAIL,clean        Remove generated files (safe))
+	$(call LOG_DETAIL,deep-clean   Remove results and data (use with caution!))

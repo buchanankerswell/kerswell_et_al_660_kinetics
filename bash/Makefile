@@ -15,8 +15,6 @@ deep-clean:
 	@$(call SAFE_RM_LIST,$(DEEP_CLEAN))
 
 help:
-	@echo "    --------------------------------------------------"
-	@echo "    Available targets:"
-	@echo "    --------------------------------------------------"
-	@echo "    clean            Remove generated files (safe)"
-	@echo "    deep-clean       Remove results and data (use with caution!)"
+	$(call LOG_INFO,Available targets:)
+	$(call LOG_DETAIL,clean            Remove generated files (safe))
+	$(call LOG_DETAIL,deep-clean       Remove results and data (use with caution!))

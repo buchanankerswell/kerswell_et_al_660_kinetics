@@ -1,6 +1,6 @@
 # Shared gutter logging for R scripts (auto-sourced with the other utils).
 # Glyphs live in the 4-char gutter only; continuation lines indent 4 spaces.
-#   " .. " info step | " -- " detail | " -> " artifact | " !! " warning | " XX " error
+#   " .. " info step | " -- " detail | " -> " artifact | " !! " warning | " XX " error | " xx " deletion
 # Lines wrap at screen width (cli::console_width, else getOption("width")).
 # Colors (dim gutter, cyan steps, green artifacts, yellow warnings, red
 # errors) rely on cli, which strips them when piped or NO_COLOR is set.
@@ -51,3 +51,4 @@ log_detail <- function(...) .log_emit("--", ...)
 log_artifact <- function(...) .log_emit("->", .log_relpath(paste0(..., collapse = "")), .msg_style = cli::col_green)
 log_warn <- function(...) .log_emit("!!", "Warning: ", ..., .glyph_style = cli::col_yellow, .msg_style = cli::col_yellow)
 log_error <- function(...) .log_emit("XX", "Error: ", ..., .glyph_style = cli::col_red, .msg_style = cli::col_red)
+log_delete <- function(...) .log_emit("xx", ...)

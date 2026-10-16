@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Shared gutter logging for bash scripts.
 # Glyphs live in the 4-char gutter only; continuation lines indent 4 spaces.
-#   " .. " info step | " -- " detail | " -> " artifact | " !! " warning | " XX " error
+#   " .. " info step | " -- " detail | " -> " artifact | " !! " warning | " XX " error | " xx " deletion
 # Lines wrap at screen width ($COLUMNS, else tput cols, else 80).
 # Colors (dim gutter, cyan steps, green artifacts, yellow warnings, red
 # errors) emit only on a tty without NO_COLOR. Lines wrap before color
@@ -84,6 +84,7 @@ log_artifact() {
 }
 log_warn() { _log_emit "!!" "33" "33" "Warning: $*"; }
 log_error() { _log_emit "XX" "31" "31" "Error: $*"; }
+log_delete() { _log_emit "xx" "2" "" "$*"; }
 
 # Indent piped tool output as gutter-blank continuations.
 log_pipe() { sed 's/^/    /'; }

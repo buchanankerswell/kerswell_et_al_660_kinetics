@@ -219,7 +219,7 @@ endef
 define GENERATE_PRM
 	$(eval _MG := $(PARAM_mgnum_$(2)))
 	$(call COMPUTE_PHASES,$(_MG))
-	@echo " -> $(3)"
+	$(call LOG_ARTIFACT,$(3))
 	@mkdir -p $(dir $(3))
 	@$(CONDA_PYTHON) $(PYTHON)/simulation/params/generator.py $(1) $(3) \
 	  "end-time=$(END_TIME)" \
@@ -354,6 +354,14 @@ LOGGER          := 2>&1 | tee -a $(LOG_FILE)
 SUPPRESS_STDERR := 2>/dev/null
 SUPPRESS_STDOUT := > /dev/null
 
+# Gutter logging for recipes (dim gutter, cyan steps, green artifacts).
+LOG_SH := $(BASH)/utils/log.sh
+LOG_INFO = @bash -c 'source $(LOG_SH); log_info "$(1)"'
+LOG_DETAIL = @bash -c 'source $(LOG_SH); log_detail "$(1)"'
+LOG_ARTIFACT = @bash -c 'source $(LOG_SH); log_artifact "$(1)"'
+LOG_DELETE = @bash -c 'source $(LOG_SH); log_delete "$(1)"'
+LOG_ERROR = @bash -c 'source $(LOG_SH); log_error "$(1)"'
+
 $(LOG_FILE):
 	@touch $(LOG_FILE)
 
@@ -364,12 +372,12 @@ define SAFE_RM
 	if [ -e "$(1)" ]; then \
 	  ABS_PATH=$$(realpath "$(1)"); \
 	  if [[ "$$ABS_PATH" == $(PROJECT_ROOT)* ]]; then \
-	    echo " xx $$ABS_PATH"; \
+	    log_delete "$$ABS_PATH"; \
 	    rm -rf "$$ABS_PATH"; \
 	  fi; \
 	fi
 endef
 
 define SAFE_RM_LIST
-	for item in $(1); do $(call SAFE_RM,$$item); done
+	. "$(BASH)/utils/log.sh"; for item in $(1); do $(call SAFE_RM,$$item); done
 endef

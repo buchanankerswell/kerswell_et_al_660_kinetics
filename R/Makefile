@@ -74,15 +74,13 @@ deep-clean:
 	@$(call SAFE_RM_LIST,$(DEEP_CLEAN))
 
 help:
-	@echo "    --------------------------------------------------"
-	@echo "    Available targets:"
-	@echo "    --------------------------------------------------"
-	@echo "    visualize   Visualize all results"
-	@echo "    adiabat     Visualize adiabatic profiles"
-	@echo "    simulation  Visualize simulation results (warm + cold)"
-	@echo "    seismic     Visualize seismic profiles (warm + cold)"
-	@echo "    tables      Write result tables (warm + cold)"
-	@echo "    download    Download ASPECT results from OSF"
-	@echo "    upload      Upload ASPECT results to OSF"
-	@echo "    clean       Remove generated files (safe)"
-	@echo "    deep-clean  Remove results and data (use with caution!)"
+	$(call LOG_INFO,Available targets:)
+	$(call LOG_DETAIL,visualize   Visualize all results)
+	$(call LOG_DETAIL,adiabat     Visualize adiabatic profiles)
+	$(call LOG_DETAIL,simulation  Visualize simulation results (warm + cold))
+	$(call LOG_DETAIL,seismic     Visualize seismic profiles (warm + cold))
+	$(call LOG_DETAIL,tables      Write result tables (warm + cold))
+	$(call LOG_DETAIL,download    Download ASPECT results from OSF)
+	$(call LOG_DETAIL,upload      Upload ASPECT results to OSF)
+	$(call LOG_DETAIL,clean       Remove generated files (safe))
+	$(call LOG_DETAIL,deep-clean  Remove results and data (use with caution!))

@@ -20,20 +20,20 @@ diff: all $(DRAFT)/diff-manuscript.pdf $(DRAFT)/diff-supplementary-information.p
 UPDATE_DATE = $(if $(META),sed -i.bak -E "s/^date: \".*\"/date: \"$(shell date '+%d %B %Y')\"/" $(META) && rm -f $(META).bak)
 
 $(DRAFT)/%.docx $(DRAFT)/%.tex: $(DRAFT)/%.md
-	@echo " -> $@"
+	$(call LOG_ARTIFACT,$@)
 	@$(UPDATE_DATE)
 	@pandoc $< -o $@ $(PANDOC_FLAGS)
 
 $(DRAFT)/%.pdf: $(DRAFT)/%.tex
-	@echo " -> $@"
+	$(call LOG_ARTIFACT,$@)
 	@pandoc $(subst .tex,.md,$<) -o $@ $(PANDOC_FLAGS)
 
 $(DRAFT)/bak/%.tex: ;
 
 $(DRAFT)/diff-%.pdf: $(DRAFT)/bak/%-$(BACKUP_DATE).tex $(DRAFT)/%.tex
-	@echo " -> $@ [bak: $(BACKUP_DATE)]"
+	$(call LOG_ARTIFACT,$@ [bak: $(BACKUP_DATE)])
 	@if [ ! -f "$<" ]; then \
-	  echo "Error: Backup file $< not found!"; \
+	  . "$(BASH)/utils/log.sh"; log_error "Backup file $< not found!"; \
 	  exit 1; \
 	fi
 	@latexdiff $(DIFF_FLAGS) $< $(word 2,$^) > $(DRAFT)/diff-$*.tex
@@ -47,12 +47,9 @@ deep-clean:
 	@$(call SAFE_RM_LIST,$(DEEP_CLEAN))
 
 help:
-	@echo "    --------------------------------------------------"
-	@echo "    Available targets:"
-	@echo "    --------------------------------------------------"
-	@echo "    all                                Render manuscript and SI"
-	@echo "    diff-manuscript.pdf                Generate manuscript diff"
-	@echo "    diff-supplementary-information.pdf Generate SI diff"
-	@echo "    clean                              Cleanup unnecessary files"
-	@echo "    --------------------------------------------------"
-	@echo "    Note: Use BACKUP_DATE=DD-MMM-YYYY to change diff source."
+	$(call LOG_INFO,Available targets:)
+	$(call LOG_DETAIL,all                                Render manuscript and SI)
+	$(call LOG_DETAIL,diff-manuscript.pdf                Generate manuscript diff)
+	$(call LOG_DETAIL,diff-supplementary-information.pdf Generate SI diff)
+	$(call LOG_DETAIL,clean                              Cleanup unnecessary files)
+	$(call LOG_DETAIL,Note: Use BACKUP_DATE=DD-MMM-YYYY to change diff source.)
