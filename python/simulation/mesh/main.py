@@ -36,6 +36,7 @@ def parse_arguments() -> Namespace:
     parser.add_argument("--timesteps", nargs="+", type=int, required=True, help="Timesteps to process")
     parser.add_argument("--in-dirs", nargs="+", type=str, required=True, help="Simulation results directories")
     parser.add_argument("--visualize-ids", nargs="*", type=str, default=None, help="Subset to render and tile (default: all).")
+    parser.add_argument("--suppress-artifact", type=str2bool, default=False, help="Skip suite artifact log (parent logs once).")
 
     parser.add_argument("--depth-corr-ol-wd", type=float, default=0.0, help="Depth correction for the olivine -> wadsleyite transition [m].")
     parser.add_argument("--depth-corr-wd-ri", type=float, default=0.0, help="Depth correction for the wadsleyite -> ringwoodite transition [m].")
@@ -99,7 +100,10 @@ def main():
             ]
             if args.visualize_ids:
                 cmd += ["--visualize-ids", *args.visualize_ids]
+            cmd += ["--suppress-artifact=true"]
             subprocess.run(cmd, check=True)
+        if args.mode in ("postprocess", "full"):
+            log_artifact(Path(args.out_data_dir) / "structure-summary-local.csv")
         return
 
     model_height = args.model_height
@@ -161,6 +165,7 @@ def main():
 
     transition_summary = None
     seismic_profile_cache = None
+    emit_artifact = not args.suppress_artifact
     if mode == "postprocess":
         log_info(f"Postprocessing {len(pvtu_in_dirs)} models")
         pipeline = PostProcessingPipeline(plot_config, pvtu_in_dirs, tsteps, trans_data, verbosity)
@@ -169,7 +174,8 @@ def main():
         pipeline.export_transition_summary(csv_path, transition_summary)
 
         pipeline.export_seismic_profiles(out_seismic_profile_dir, fields_for_seismic_profiles, seismic_profile_cache)
-        log_artifact(csv_path)
+        if emit_artifact:
+            log_artifact(csv_path)
 
     elif mode == "visualize":
         if not transition_summary_path.exists() or force_reprocess:
@@ -186,7 +192,6 @@ def main():
     else:
         log_info(f"Postprocessing {len(pvtu_in_dirs)} models")
         pipeline = FullPipeline(plot_config, pvtu_in_dirs, tsteps, trans_data, verbosity)
-        log_info(f"Rendering {len(visualize_ids)} models")
         pipeline.run(
             fields_to_plot,
             fields_for_seismic_profiles,
@@ -198,7 +203,8 @@ def main():
             force_reprocess,
             visualize_ids,
         )
-        log_artifact(csv_path)
+        if emit_artifact:
+            log_artifact(csv_path)
 
     if mode in ["visualize", "full"]:
         tile_sets = {

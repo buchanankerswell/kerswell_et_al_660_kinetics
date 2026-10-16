@@ -53,7 +53,7 @@ download_results_from_osf <- function(data_dir, sim_dir, conflicts = "skip", ver
     osf_results_files <- osf_ls_files(results_dir_node)
 
     log_info("Syncing archived simulation results from OSF")
-    cli::cli_progress_bar(" .. Syncing", total = length(patterns), format = " .. Syncing [{pb_bar}] {pb_current}/{pb_total}")
+    bar_id <- cli::cli_progress_bar(" .. Syncing", total = length(patterns), format = " .. Syncing [{pb_bar}] {pb_current}/{pb_total}")
     for (pattern in patterns) {
       target_local_dir <- file.path(sim_dir, pattern)
 
@@ -68,9 +68,9 @@ download_results_from_osf <- function(data_dir, sim_dir, conflicts = "skip", ver
       } else {
         log_detail(paste("Found data:", target_local_dir))
       }
-      cli::cli_progress_update()
+      cli::cli_progress_update(id = bar_id)
     }
-    cli::cli_progress_done()
+    cli::cli_progress_done(id = bar_id)
   } else {
     log_warn("could not find a unique folder named 'results' in the OSF repository.")
   }

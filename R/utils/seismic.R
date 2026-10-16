@@ -23,12 +23,7 @@ visualize_seismic_profiles <- function(data_dir, out_path) {
     return(invisible())
   }
   log_info(paste("Reading", length(file_list), "seismic profiles"))
-  cli::cli_progress_bar(" .. Reading", total = length(file_list), format = " .. Reading [{pb_bar}] {pb_current}/{pb_total}")
-  data <- map_df(file_list, function(f) {
-    cli::cli_progress_update()
-    read_seismic_profile(f)
-  })
-  cli::cli_progress_done()
+  data <- map_df(file_list, read_seismic_profile)
   data_init <- data |> filter(tstep == 0)
   data <- data |> filter((str_detect(model_id, "plume") & tstep == 50) | (str_detect(model_id, "slab") & tstep == 100))
 

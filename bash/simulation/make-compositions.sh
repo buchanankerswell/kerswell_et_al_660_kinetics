@@ -33,8 +33,6 @@ compose_figures() {
     return
   fi
 
-  log_artifact "$OUT_PATH"
-
   if [[ "$MODE" == "triple" ]]; then
     local DIR1="${TYPE}_${ID1}"
     local DIR2="${TYPE}_${ID2}"

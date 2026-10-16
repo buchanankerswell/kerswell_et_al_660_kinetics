@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import pyvista as pv
 from config import MeshConfig
-from utils.logging import gutter_tqdm, log_error, log_warn
+from utils.logging import gutter_tqdm, log_error, log_info, log_warn
 from plotter import MeshPlotter
 from postprocess import MeshPostProcessor
 from preprocess import MeshPreProcessor
@@ -739,11 +739,9 @@ class PlottingPipeline(BasePipeline):
             fields_to_plot = list(self.config.file_map.keys())
 
         allowed = set(plot_ids) if plot_ids else None
-        model_items = self._get_ordered_pvtu_files().items()
+        model_items = [(m, v) for m, v in self._get_ordered_pvtu_files().items() if allowed is None or m in allowed]
         pbar = gutter_tqdm(model_items, desc="Rendering", unit="model")
         for model_id, (pvtu_files, timesteps) in pbar:
-            if allowed is not None and model_id not in allowed:
-                continue
             if not pvtu_files:
                 if self.verbosity >= 1:
                     log_warn(f"no result files for model: {model_id}")
@@ -872,4 +870,6 @@ class FullPipeline(BasePipeline):
 
         plotter = PlottingPipeline(self.config, self.pvtu_in_dirs, self.tsteps, self.trans_data, self.verbosity, transition_summary_cache)
         plotter._pvtu_file_cache = post_processor._pvtu_file_cache
+        n_plot = len(plot_ids) if plot_ids else len(self.pvtu_in_dirs)
+        log_info(f"Rendering {n_plot} models")
         plotter.run(fields_to_plot, plot_ids)

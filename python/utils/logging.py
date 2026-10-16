@@ -7,6 +7,7 @@ Lines wrap at screen width (shutil.get_terminal_size, fallback 80).
 
 import os
 import shutil
+import sys
 import textwrap
 
 
@@ -70,15 +71,19 @@ def log_error(msg: object) -> None:
     _emit("XX", f"Error: {msg}")
 
 
-def gutter_tqdm(iterable, desc: str, unit: str = "model"):
-    """tqdm with gutter prefix and full-screen width."""
+def gutter_tqdm(iterable, desc: str, unit: str = "model", ncols: int = 150):
+    """tqdm with gutter prefix at fixed width (other logs use full screen width).
+
+    Animation is disabled when stdout is piped (e.g. make | tee), where
+    carriage-return redraws would be captured literally as garbled lines.
+    """
     from tqdm import tqdm as _tqdm
 
     return _tqdm(
         iterable,
         desc=f" .. {desc}",
         unit=unit,
-        ncols=_width(),
-        ascii="=-",
+        ncols=ncols,
+        disable=not sys.stdout.isatty(),
         bar_format="{desc}: [{bar}] {n_fmt}/{total_fmt}",
     )
