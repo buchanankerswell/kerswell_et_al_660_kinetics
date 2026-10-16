@@ -29,12 +29,12 @@ compositions-warm:
 	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS_SIM_WARM)/meshes" "$(FIGS_SIM_WARM)/compositions" "0100" "b01" "$(ID_W1)" "$(ID_W2)" "$(ID_W3)")
 	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS_SIM_WARM)/meshes" "$(FIGS_SIM_WARM)/compositions" "0050" "b50" "$(ID_W4)" "$(ID_W5)" "$(ID_W6)")
 	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS_SIM_WARM)/meshes" "$(FIGS_SIM_WARM)/compositions" "0100" "b50" "$(ID_W4)" "$(ID_W5)" "$(ID_W6)")
-	@printf ' -> %s\n' "$(patsubst $(PROJECT_ROOT)/%,%,$(FIGS_SIM_WARM)/compositions)"
+	@bash -c 'source $(BASH)/utils/log.sh; log_artifact "$(FIGS_SIM_WARM)/compositions"'
 
 compositions-cold:
 	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS_SIM_COLD)/meshes" "$(FIGS_SIM_COLD)/compositions" "0100" "b01" "$(ID_C1)" "$(ID_C2)" "$(ID_C3)")
 	@(cd $(BASH)/simulation && ./make-compositions.sh "$(FIGS_SIM_COLD)/meshes" "$(FIGS_SIM_COLD)/compositions" "0100" "b50" "$(ID_C4)" "$(ID_C5)" "$(ID_C6)")
-	@printf ' -> %s\n' "$(patsubst $(PROJECT_ROOT)/%,%,$(FIGS_SIM_COLD)/compositions)"
+	@bash -c 'source $(BASH)/utils/log.sh; log_artifact "$(FIGS_SIM_COLD)/compositions"'
 
 setup:
 	@PYTHONPATH=$(PYTHON) $(CONDA_PYTHON) -u $(PYTHON)/simulation/misc/setup.py \
