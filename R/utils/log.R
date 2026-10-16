@@ -2,6 +2,9 @@
 # Glyphs live in the 4-char gutter only; continuation lines indent 4 spaces.
 #   " .. " info step | " -- " detail | " -> " artifact | " !! " warning | " XX " error
 # Lines wrap at screen width (cli::console_width, else getOption("width")).
+# Colors (dim gutter, cyan steps, green artifacts, yellow warnings, red
+# errors) rely on cli, which strips them when piped or NO_COLOR is set.
+# Lines wrap before styling, so widths stay exact either way.
 
 .log_width <- function() {
   cols <- suppressWarnings(as.integer(Sys.getenv("COLUMNS", unset = NA)))
@@ -24,18 +27,16 @@
   max(w, 40L)
 }
 
-.log_emit <- function(glyph, ...) {
+.log_emit <- function(glyph, ..., .glyph_style = cli::style_dim, .msg_style = identity) {
   msg <- paste0(..., collapse = "")
   width <- max(.log_width() - 4L, 20L)
   lines <- unlist(lapply(strsplit(msg, "\n", fixed = TRUE)[[1]], strwrap, width = width))
   if (!length(lines)) lines <- ""
-  first <- paste0(" ", glyph, " ", lines[1L])
+  first <- paste0(" ", .glyph_style(glyph), " ", .msg_style(lines[1L]))
   rest <- if (length(lines) > 1L) paste0("    ", lines[-1L]) else NULL
   cat(paste0(c(first, rest), collapse = "\n"), "\n", sep = "")
 }
 
-log_info <- function(...) .log_emit("..", ...)
-log_detail <- function(...) .log_emit("--", ...)
 .log_relpath <- function(path) {
   root <- Sys.getenv("PROJECT_ROOT", unset = "")
   if (nzchar(root) && startsWith(path, root)) {
@@ -45,6 +46,8 @@ log_detail <- function(...) .log_emit("--", ...)
   }
 }
 
-log_artifact <- function(...) .log_emit("->", .log_relpath(paste0(..., collapse = "")))
-log_warn <- function(...) .log_emit("!!", "Warning: ", ...)
-log_error <- function(...) .log_emit("XX", "Error: ", ...)
+log_info <- function(...) .log_emit("..", ..., .msg_style = cli::col_cyan)
+log_detail <- function(...) .log_emit("--", ...)
+log_artifact <- function(...) .log_emit("->", .log_relpath(paste0(..., collapse = "")), .msg_style = cli::col_green)
+log_warn <- function(...) .log_emit("!!", "Warning: ", ..., .glyph_style = cli::col_yellow, .msg_style = cli::col_yellow)
+log_error <- function(...) .log_emit("XX", "Error: ", ..., .glyph_style = cli::col_red, .msg_style = cli::col_red)

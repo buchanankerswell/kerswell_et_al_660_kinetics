@@ -53,7 +53,7 @@ download_results_from_osf <- function(data_dir, sim_dir, conflicts = "skip", ver
     osf_results_files <- osf_ls_files(results_dir_node)
 
     log_info("Syncing archived simulation results from OSF")
-    bar_id <- cli::cli_progress_bar(" .. Syncing", total = length(patterns), format = " .. Syncing [{pb_bar}] {pb_current}/{pb_total}")
+    bar_id <- cli::cli_progress_bar("t", total = length(patterns), format = "{.cyan .. Syncing} [{pb_bar}] {pb_current}/{pb_total}")
     for (pattern in patterns) {
       target_local_dir <- file.path(sim_dir, pattern)
 
@@ -61,7 +61,9 @@ download_results_from_osf <- function(data_dir, sim_dir, conflicts = "skip", ver
         matched_node <- osf_results_files[osf_results_files$name == pattern, ]
 
         if (nrow(matched_node) == 1) {
+          cli::cli_process_start("Downloading {.file {pattern}}")
           osf_download(matched_node, path = sim_dir, conflicts = conflicts, recurse = TRUE)
+          cli::cli_process_done()
         } else {
           log_warn(paste("target not found on OSF or ambiguous:", pattern))
         }
