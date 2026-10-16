@@ -36,6 +36,7 @@ def parse_arguments() -> Namespace:
     parser.add_argument("--timesteps", nargs="+", type=int, required=True, help="Timesteps to process")
     parser.add_argument("--in-dirs", nargs="+", type=str, required=True, help="Simulation results directories")
     parser.add_argument("--visualize-ids", nargs="*", type=str, default=None, help="Subset to render and tile (default: all).")
+    parser.add_argument("--chunk", type=str, default=None, help="Chunk label (i/N) set by the parent when splitting work.")
     parser.add_argument("--suppress-artifact", type=str2bool, default=False, help="Skip suite artifact log (parent logs once).")
 
     parser.add_argument("--depth-corr-ol-wd", type=float, default=0.0, help="Depth correction for the olivine -> wadsleyite transition [m].")
@@ -79,7 +80,6 @@ def main():
         for idx, start in enumerate(range(0, len(model_ids), args.chunk_size)):
             chunk_ids = model_ids[start : start + args.chunk_size]
             chunk_dirs = in_dirs[start : start + args.chunk_size]
-            log_info(f"Chunk {idx + 1}/{n_chunks}: {len(chunk_ids)} models")
             cmd = [
                 sys.executable,
                 __file__,
@@ -100,7 +100,7 @@ def main():
             ]
             if args.visualize_ids:
                 cmd += ["--visualize-ids", *args.visualize_ids]
-            cmd += ["--suppress-artifact=true"]
+            cmd += ["--suppress-artifact=true", f"--chunk={idx + 1}/{n_chunks}"]
             subprocess.run(cmd, check=True)
         if args.mode in ("postprocess", "full"):
             log_artifact(Path(args.out_data_dir) / "structure-summary-local.csv")
@@ -167,8 +167,9 @@ def main():
     transition_summary = None
     seismic_profile_cache = None
     emit_artifact = not args.suppress_artifact
+    chunk_tag = f"Chunk {args.chunk}: " if args.chunk else ""
     if mode == "postprocess":
-        log_info(f"Postprocessing {len(pvtu_in_dirs)} models")
+        log_info(f"{chunk_tag}Postprocessing {len(pvtu_in_dirs)} models")
         pipeline = PostProcessingPipeline(plot_config, pvtu_in_dirs, tsteps, trans_data, verbosity)
 
         transition_summary, seismic_profile_cache = pipeline.run(transition_summary_path, seismic_profile_cache_path, force_reprocess)
@@ -180,7 +181,7 @@ def main():
 
     elif mode == "visualize":
         if not transition_summary_path.exists() or force_reprocess:
-            log_info(f"Postprocessing {len(pvtu_in_dirs)} models")
+            log_info(f"{chunk_tag}Postprocessing {len(pvtu_in_dirs)} models")
             post_pipeline = PostProcessingPipeline(plot_config, pvtu_in_dirs, tsteps, trans_data, verbosity)
             transition_summary, seismic_profile_cache = post_pipeline.run(transition_summary_path, seismic_profile_cache_path, force_reprocess)
         else:
@@ -191,7 +192,7 @@ def main():
         plot_pipeline.run(fields_to_plot, chunk_vis_ids)
 
     else:
-        log_info(f"Postprocessing {len(pvtu_in_dirs)} models")
+        log_info(f"{chunk_tag}Postprocessing {len(pvtu_in_dirs)} models")
         pipeline = FullPipeline(plot_config, pvtu_in_dirs, tsteps, trans_data, verbosity)
         pipeline.run(
             fields_to_plot,
