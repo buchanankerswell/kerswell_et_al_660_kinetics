@@ -3,7 +3,7 @@
 Glyphs live in the 4-char gutter only; continuation lines indent 4 spaces.
   " .. " info step | " -- " detail | " -> " artifact | " !! " warning | " XX " error
 Lines wrap at screen width (shutil.get_terminal_size, fallback 80), except
-progress bars which are fixed at 150 columns.
+progress bars which are fixed at 80 columns.
 
 Colors (dim gutter, cyan steps, green artifacts, yellow warnings, red
 errors) emit only when stdout is a tty and NO_COLOR is unset. Messages
@@ -97,7 +97,7 @@ def _relpath(path: object) -> str:
     return str(path)
 
 
-def gutter_tqdm(iterable, desc: str, unit: str = "model", ncols: int = 150):
+def gutter_tqdm(iterable, desc: str, unit: str = "model", ncols: int = 80):
     """tqdm with gutter prefix at fixed width (other logs use full screen width).
 
     Animation is disabled when stdout is piped (e.g. make | tee), where
