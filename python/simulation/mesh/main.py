@@ -158,6 +158,7 @@ def main():
 
     pvtu_in_dirs = dict(zip(model_ids, in_dirs))
     visualize_ids = args.visualize_ids or list(pvtu_in_dirs.keys())
+    chunk_vis_ids = [m for m in visualize_ids if m in pvtu_in_dirs]
     transition_summary_path = out_data_dir / "structure-cache.pkl"
     seismic_profile_cache_path = out_data_dir / "seismic-profile-cache.pkl"
     csv_path = out_data_dir / "structure-summary-local.csv"
@@ -185,9 +186,9 @@ def main():
         else:
             transition_summary = PlottingPipeline.load_cache(transition_summary_path)
 
-        log_info(f"Rendering {len(visualize_ids)} models")
+        log_info(f"Rendering {len(chunk_vis_ids)} models")
         plot_pipeline = PlottingPipeline(plot_config, pvtu_in_dirs, tsteps, trans_data, verbosity, transition_summary)
-        plot_pipeline.run(fields_to_plot, visualize_ids)
+        plot_pipeline.run(fields_to_plot, chunk_vis_ids)
 
     else:
         log_info(f"Postprocessing {len(pvtu_in_dirs)} models")
@@ -214,8 +215,8 @@ def main():
             "set3": {"tags": None, "fields": ["nonadiabatic_temperature", "viscosity", "X_ps"]},
         }
 
-        log_info(f"Tiling {len(visualize_ids)} models")
-        for model_id in visualize_ids:
+        log_info(f"Tiling {len(chunk_vis_ids)} models")
+        for model_id in chunk_vis_ids:
             model_id_padded = re.sub(r"B(\d+)", lambda m: f"B{int(m.group(1)):0{2}d}", model_id)
 
             for config in tile_sets.values():

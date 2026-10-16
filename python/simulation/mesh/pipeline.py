@@ -870,6 +870,6 @@ class FullPipeline(BasePipeline):
 
         plotter = PlottingPipeline(self.config, self.pvtu_in_dirs, self.tsteps, self.trans_data, self.verbosity, transition_summary_cache)
         plotter._pvtu_file_cache = post_processor._pvtu_file_cache
-        n_plot = len(plot_ids) if plot_ids else len(self.pvtu_in_dirs)
-        log_info(f"Rendering {n_plot} models")
+        render_ids = [m for m in (plot_ids or self.pvtu_in_dirs) if m in self.pvtu_in_dirs]
+        log_info(f"Rendering {len(render_ids)} models")
         plotter.run(fields_to_plot, plot_ids)
