@@ -50,6 +50,14 @@ COMBINED_CSV_FILTERED_WARM := $(DATA_WARM)/structure-summary-combined-filtered.c
 COMBINED_CSV_RAW_COLD      := $(DATA_COLD)/structure-summary-combined.csv
 COMBINED_CSV_FILTERED_COLD := $(DATA_COLD)/structure-summary-combined-filtered.csv
 
+# Merged warm+cold outputs. FIGS_STRUCT_BOTH matches the figs/structure/ paths
+# referenced by draft/manuscript.md; the combined CSVs live in their own data
+# dir so per-suite tables stay untouched.
+DATA_BOTH                := $(SIMULATION)/data/combined
+FIGS_STRUCT_BOTH         := $(FIGS)/structure
+COMBINED_CSV_RAW_BOTH      := $(DATA_BOTH)/structure-summary-combined.csv
+COMBINED_CSV_FILTERED_BOTH := $(DATA_BOTH)/structure-summary-combined-filtered.csv
+
 # Composition reference models
 ID_W1 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-11_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
 ID_W2 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri1.90e-08_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
@@ -64,6 +72,13 @@ ID_C3 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e+03_EtaTherm5_EtaTrans1-1-1-1_MG1
 ID_C4 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e-03_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp10e+02
 ID_C5 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp10e+02
 ID_C6 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e+03_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp10e+02
+
+# Sluggish-410 tests (nominal Z at bottom of published 410 range, cold T,
+# penetrating corner only: EtaTherm5, b=1, Vel5e-02, Zri6.0e-01). These probe
+# whether a metastable olivine wedge reaches the 660 through the xi ordering
+# when 410 kinetics go dry/coarse while 660 kinetics stay mid-range.
+ID_T1 := KN_Dynp0_Zol3.0e0_Zwd3.0e0_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp10e+02
+ID_T2 := KN_Dynp0_Zol7.0e0_Zwd7.0e0_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp10e+02
 
 VIS_IDS_WARM    := $(ID_W1) $(ID_W2) $(ID_W3) $(ID_W4) $(ID_W5) $(ID_W6)
 VIS_IDS_COLD    := $(ID_C1) $(ID_C2) $(ID_C3) $(ID_C4) $(ID_C5) $(ID_C6)

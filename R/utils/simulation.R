@@ -26,7 +26,10 @@ read_kerswell_data <- function(filepath, scenario_offset = 0) {
 }
 
 read_local_data <- function(filepath) {
-  raw_df <- suppressWarnings(read_csv(filepath, show_col_types = FALSE))
+  # filepath may be a single path (per-suite figures) or a vector of paths
+  # (merged warm+cold figures); rows bind in order so warm scenarios keep
+  # indices 0-7 and cold scenarios offset to 8-15 below.
+  raw_df <- bind_rows(lapply(filepath, function(p) suppressWarnings(read_csv(p, show_col_types = FALSE))))
 
   extract_transition_data <- function(df, trans_label) {
     df |>
@@ -234,25 +237,35 @@ characteristic_length_scale_quasi_eq_660 <- 5
 rxn_rate_stagnation_410 <- 6.76e-2
 rxn_rate_quasi_eq_410 <- 2.14e0
 
-visualize_composition <- function(data_dir, out_path, csv_path_raw = NULL, csv_path_filtered = NULL, save_csv = FALSE, force_rewrite = TRUE) {
+visualize_composition <- function(data_dir, out_path, csv_path_raw = NULL, csv_path_filtered = NULL, save_csv = FALSE,
+                                  force_rewrite = TRUE, by_suite = FALSE) {
   if (plot_exists(out_path)) {
     return(invisible())
   }
 
-  in_local <- file.path(data_dir, "structure-summary-local.csv")
-  if (!file.exists(in_local)) {
-    log_error(paste("missing mesh output:", in_local, "(run meshes first)"))
+  # data_dir may be a single suite dir or c(warm_dir, cold_dir) for merged figures.
+  in_locals <- file.path(data_dir, "structure-summary-local.csv")
+  if (any(!file.exists(in_locals))) {
+    log_error(paste("missing mesh output:", paste(in_locals[!file.exists(in_locals)], collapse = ", "), "(run meshes first)"))
     return(invisible())
   }
 
   df_combined <- process_and_combine_data(
-    file.path(data_dir, "structure-summary-local.csv"),
-    file.path(data_dir, "structure-summary-kerswell-et-al-2026.csv"),
+    in_locals,
+    file.path(data_dir[1], "structure-summary-kerswell-et-al-2026.csv"),
     csv_path_raw,
     csv_path_filtered,
     save_csv,
     force_rewrite
   )
+
+  if (by_suite) {
+    df_combined <- df_combined |> mutate(suite = case_when(
+      str_detect(model_id, fixed("Temp10e+02")) ~ "cold (1000 K anomaly)",
+      str_detect(model_id, fixed("Temp5e+02")) ~ "warm (500 K anomaly)",
+      TRUE ~ "410 archive"
+    ))
+  }
 
   df_slab <- df_combined |> filter(str_detect(model_id, "slab"))
   df_plume <- df_combined |> filter(str_detect(model_id, "plume"))
@@ -264,23 +277,35 @@ visualize_composition <- function(data_dir, out_path, csv_path_raw = NULL, csv_p
   lim_r <- range(df_combined$max_reaction_rate, na.rm = TRUE)
 
   plume_breaks_rxn <- c(1e-1, 1e1, 1e3, 1e5)
+  # Shared across panels so patchwork guides="collect" sees identical guides.
+  rxn_labeller <- label_log()
+
+  suite_pal <- c("warm (500 K anomaly)" = "#E41A1C", "cold (1000 K anomaly)" = "#377EB8", "410 archive" = "grey60")
 
   p_scatter <- function(data, y_var, y_label, title = "", show_x = TRUE, show_y = TRUE, show_legend = FALSE) {
+    # Merged figures drop the alpha mapping (transition already reads through
+    # shape); per-suite figures keep the established mappings untouched.
+    point_aes <- if (by_suite) {
+      aes(shape = factor(transition), color = factor(suite), fill = max_reaction_rate)
+    } else {
+      aes(shape = factor(transition), alpha = factor(transition), color = factor(transition), fill = max_reaction_rate)
+    }
     p <- ggplot(data, aes(x = max_reaction_rate, y = !!sym(y_var))) +
       geom_point(
-        aes(shape = factor(transition), alpha = factor(transition), color = factor(transition), fill = max_reaction_rate),
-        size = 2.5, stroke = 0.5, show.legend = show_legend
+        point_aes,
+        size = 2.5, stroke = if (by_suite) 0.8 else 0.5, show.legend = show_legend
       ) +
       annotation_logticks(sides = "b", linewidth = 0.2) +
       scale_shape_manual(values = c("410" = 21, "660" = 24)) +
-      scale_color_manual(values = c("410" = "white", "660" = "black")) +
-      scale_alpha_manual(values = c("410" = 0.8, "660" = 1)) +
+      (if (by_suite) scale_color_manual(values = suite_pal, drop = FALSE) else scale_color_manual(values = c("410" = "white", "660" = "black"))) +
+      (if (by_suite) NULL else scale_alpha_manual(values = c("410" = 0.8, "660" = 1))) +
       scale_fill_viridis_c(
         name = bquote(dot(italic(X))["max"] * " (" * Ma^-1 * ")"),
-        trans = "log10", option = "plasma", breaks = plume_breaks_rxn, labels = label_log(), limits = lim_r
+        trans = "log10", option = "plasma", breaks = plume_breaks_rxn, labels = rxn_labeller, limits = lim_r
       ) +
       guides(shape = guide_legend(override.aes = list(stroke = 0.6, fill = viridis_pal(option = "plasma")(12)[1]))) +
-      labs(title = title, y = y_label, x = bquote("Max " * italic(dot(X)) * " (Ma"^-1 * ")"), shape = NULL, color = NULL, fill = NULL, alpha = NULL) +
+      labs(title = title, y = y_label, x = bquote("Max " * italic(dot(X)) * " (Ma"^-1 * ")"),
+        shape = if (by_suite) "Transition" else NULL, color = if (by_suite) "Suite" else NULL, fill = NULL, alpha = NULL) +
       theme_bw(base_size = 14) +
       theme_1()
 
@@ -289,38 +314,62 @@ visualize_composition <- function(data_dir, out_path, csv_path_raw = NULL, csv_p
     p
   }
 
+  # Per-suite figures keep legends inside the top-left panel. Merged figures draw
+  # legends once, on the slab-displacement panel only, stacked vertically below
+  # it (guide collection is unreliable for these layered scales in this
+  # environment, so every other panel hides its legends).
+  lg_tl <- TRUE
+  lg_tr <- FALSE
+  lg_bl <- FALSE
+  lg_br <- FALSE
+  if (by_suite) {
+    lg_tl <- FALSE
+    lg_tr <- FALSE
+    lg_bl <- FALSE
+    lg_br <- TRUE
+  }
+
   p0 <-
-    (p_scatter(df_plume, "width", "Width (km)", "Plumes", FALSE, TRUE, TRUE) +
-      scale_x_log10(labels = label_log(), limits = lim_r_plume) +
+    (p_scatter(df_plume, "width", "Width (km)", "Plumes", FALSE, TRUE, lg_tl) +
+      scale_x_log10(labels = rxn_labeller, limits = lim_r_plume) +
       scale_y_continuous(limits = lim_w)
     ) |
-      (p_scatter(df_slab, "width", NULL, "Slabs", FALSE, FALSE, FALSE) +
-        scale_x_log10(labels = label_log(), limits = lim_r_slab) +
+      (p_scatter(df_slab, "width", NULL, "Slabs", FALSE, FALSE, lg_tr) +
+        scale_x_log10(labels = rxn_labeller, limits = lim_r_slab) +
         scale_y_continuous(limits = lim_w)
       )
 
   p1 <-
-    (p_scatter(df_plume, "displacement", "Displacement (km)", "", TRUE, TRUE, FALSE) +
-      scale_x_log10(labels = label_log(), limits = lim_r_plume) +
+    (p_scatter(df_plume, "displacement", "Displacement (km)", "", TRUE, TRUE, lg_bl) +
+      scale_x_log10(labels = rxn_labeller, limits = lim_r_plume) +
       scale_y_reverse(limits = lim_d)
     ) |
-      (p_scatter(df_slab, "displacement", NULL, "", TRUE, FALSE, FALSE) +
-        scale_x_log10(labels = label_log(), limits = lim_r_slab) +
+      (p_scatter(df_slab, "displacement", NULL, "", TRUE, FALSE, lg_br) +
+        scale_x_log10(labels = rxn_labeller, limits = lim_r_slab) +
         scale_y_reverse(limits = lim_d)
       )
   p <- p0 / p1
 
-  ggsave(out_path, plot = p, width = 4.5, height = 4.5, dpi = 300, bg = "white", create.dir = TRUE)
+  if (by_suite) {
+    p <- p & theme(legend.position = "bottom", legend.justification = "left",
+      legend.box = "vertical", legend.direction = "vertical",
+      legend.margin = margin(0, 0, 0, 0), legend.box.margin = margin(0, 0, 0, 0),
+      legend.text = element_text(size = 10))
+  }
+
+  ggsave(out_path, plot = p, width = 4.5, height = if (by_suite) 5.5 else 4.5, dpi = 300, bg = "white", create.dir = TRUE)
   log_artifact(out_path)
 }
 
-visualize_tiles <- function(in_path, out_path) {
+visualize_tiles <- function(in_path, out_path, height = 5.0) {
   if (plot_exists(out_path)) {
     return(invisible())
   }
 
-  if (!file.exists(in_path)) {
-    log_error(paste("missing mesh output:", in_path, "(run meshes first)"))
+  # in_path may be a single local CSV or a vector (merged warm+cold tiles share
+  # one log-Z axis; the gap between suites shows as stretched edge tiles).
+  if (any(!file.exists(in_path))) {
+    log_error(paste("missing mesh output:", paste(in_path[!file.exists(in_path)], collapse = ", "), "(run meshes first)"))
     return(invisible())
   }
 
@@ -407,7 +456,7 @@ visualize_tiles <- function(in_path, out_path) {
     theme(axis.text = element_blank(), axis.title = element_blank())
 
   p <- (p0 | p3) / (p2 | p1)
-  suppressWarnings(ggsave(out_path, plot = p, width = 4.5, height = 5.0, dpi = 300, bg = "white"))
+  suppressWarnings(ggsave(out_path, plot = p, width = 4.5, height = height, dpi = 300, bg = "white"))
   log_artifact(out_path)
 }
 

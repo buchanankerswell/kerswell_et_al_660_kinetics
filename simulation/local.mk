@@ -35,6 +35,17 @@ $(foreach dt,$(TEMPERATURE_BC_COLD),\
 $(eval $(call REGISTER_UIDS,UIDS_KN_COLD,$(dynp),$(zol),$(zwd),$(zri),$(etatherm),$(etaol),$(etawd),$(etari),$(etaps),$(mgnum),$(vel),$(dt)))))))))))))))
 
 # --------------------------------------------------
+# Sluggish-410 tests (explicit, NOT part of the cartesian sweep)
+# Nominal Z_ol/Z_wd at the bottom of the published 410 range (3.0e0, 7.0e0)
+# paired with cold slab temperatures (Temp10e+02) in the penetrating corner
+# only (EtaTherm5, b=1, Vel5e-02, Zri6.0e-01). Must match ID_T1/ID_T2 in
+# project.mk exactly. Flows through all KN_COLD wiring (configs, runs,
+# sync, meshes-cold) without exploding the sweep.
+# --------------------------------------------------
+$(eval $(call REGISTER_UIDS,UIDS_KN_COLD,0,3.0e0,3.0e0,6.0e-01,5,1,1,1,1,100,5e-02,10e+02))
+$(eval $(call REGISTER_UIDS,UIDS_KN_COLD,0,7.0e0,7.0e0,6.0e-01,5,1,1,1,1,100,5e-02,10e+02))
+
+# --------------------------------------------------
 # Derived file lists
 # --------------------------------------------------
 ASPECT_DATA      := $(SIMULATION)/data
