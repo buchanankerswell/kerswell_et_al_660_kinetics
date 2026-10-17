@@ -33,7 +33,7 @@ read_local_data <- function(filepath) {
 
   extract_transition_data <- function(df, trans_label) {
     df |>
-      select(model_id, scenario, timestep, z_ol_wd, z_ri_ps, contains(trans_label)) |>
+      select(model_id, scenario, timestep, z_ol_wd, z_ri_ps, prescribed_velocity, eta_therm, eta_trans_ri_ps, contains(trans_label)) |>
       rename_with(~ str_remove(., paste0("_", trans_label)), contains(trans_label)) |>
       mutate(
         transition = trans_label,
@@ -48,9 +48,21 @@ read_local_data <- function(filepath) {
     extract_transition_data(raw_df, "410"),
     extract_transition_data(raw_df, "660")
   ) |>
-    # Cold slabs also compute scenarios 0-7; offset by +8 to keep regime
-    # assignment and tile axes unambiguous.
-    mutate(scenario = scenario + 8L * str_detect(model_id, fixed("Temp10e+02")))
+    # Scenario indices recomputed deterministically from kinematic/rheological
+    # parameters (pipeline parity: velocity and eta_therm ascending, eta_trans
+    # descending). Chunked mesh runs index scenarios per chunk, so the cached
+    # column drifts for homogeneous chunks; recomputing here keeps tile rows
+    # unambiguous. Cold slabs offset by +8 as before.
+    group_by(cold_suite = str_detect(model_id, fixed("Temp10e+02"))) |>
+    mutate(
+      vel_i = match(prescribed_velocity, sort(unique(prescribed_velocity))) - 1L,
+      therm_j = match(eta_therm, sort(unique(eta_therm))) - 1L,
+      trans_k = match(eta_trans_ri_ps, sort(unique(eta_trans_ri_ps), decreasing = TRUE)) - 1L,
+      scenario = trans_k * (n_distinct(prescribed_velocity) * n_distinct(eta_therm)) +
+        vel_i * n_distinct(eta_therm) + therm_j + 8L * cold_suite
+    ) |>
+    ungroup() |>
+    select(-cold_suite, -vel_i, -therm_j, -trans_k)
 }
 
 process_and_combine_data <- function(filepath_local,

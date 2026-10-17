@@ -80,6 +80,14 @@ ID_C6 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e+03_EtaTherm5_EtaTrans1-1-1-50_MG
 ID_T1 := KN_Dynp0_Zol3.0e0_Zwd3.0e0_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp10e+02
 ID_T2 := KN_Dynp0_Zol7.0e0_Zwd7.0e0_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp10e+02
 
+# Fast-descent twins of ID_T1/ID_T2 at Vel20e-02. Previous kinetic studies sank
+# slabs near 12 cm/yr vertically; our Vel5/10 inflows descend well below that
+# through the transitions, giving kinetics too much time. Doubling inflow past
+# Vel10 shortens residence in the transition zone and sharpens the
+# advection-reaction race toward the 1990s regime.
+ID_T3 := KN_Dynp0_Zol3.0e0_Zwd3.0e0_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel20e-02_Temp10e+02
+ID_T4 := KN_Dynp0_Zol7.0e0_Zwd7.0e0_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel20e-02_Temp10e+02
+
 VIS_IDS_WARM    := $(ID_W1) $(ID_W2) $(ID_W3) $(ID_W4) $(ID_W5) $(ID_W6)
 VIS_IDS_COLD    := $(ID_C1) $(ID_C2) $(ID_C3) $(ID_C4) $(ID_C5) $(ID_C6)
 VIS_MODELS_WARM := $(foreach id,$(VIS_IDS_WARM),plume_$(id) slab_$(id))

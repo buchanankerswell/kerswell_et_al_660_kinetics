@@ -45,6 +45,14 @@ $(eval $(call REGISTER_UIDS,UIDS_KN_COLD,$(dynp),$(zol),$(zwd),$(zri),$(etatherm
 $(eval $(call REGISTER_UIDS,UIDS_KN_COLD,0,3.0e0,3.0e0,6.0e-01,5,1,1,1,1,100,5e-02,10e+02))
 $(eval $(call REGISTER_UIDS,UIDS_KN_COLD,0,7.0e0,7.0e0,6.0e-01,5,1,1,1,1,100,5e-02,10e+02))
 
+# Fast-descent twins (ID_T3/ID_T4 in project.mk): same sluggish nominal 410
+# kinetics at Vel20e-02. NOTE: a third velocity level expands the cold scenario
+# space from 8 to 12 (b=1 rows shift), so existing cold scenario labels
+# renumber on the next full postprocess; the R side recomputes indices from
+# parameters and stays consistent.
+$(eval $(call REGISTER_UIDS,UIDS_KN_COLD,0,3.0e0,3.0e0,6.0e-01,5,1,1,1,1,100,20e-02,10e+02))
+$(eval $(call REGISTER_UIDS,UIDS_KN_COLD,0,7.0e0,7.0e0,6.0e-01,5,1,1,1,1,100,20e-02,10e+02))
+
 # --------------------------------------------------
 # Derived file lists
 # --------------------------------------------------
