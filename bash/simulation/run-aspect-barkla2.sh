@@ -1,7 +1,23 @@
 #!/usr/bin/bash -l
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/../utils/log.sh"
+
+if [[ ! -r "${LOG_SH:-}" ]]; then
+  for candidate in "${PROJECT_ROOT:-}/bash/utils/log.sh" "$SCRIPT_DIR/../utils/log.sh"; do
+    [[ -r "$candidate" ]] && { LOG_SH="$candidate"; break; }
+  done
+fi
+
+if [[ -r "${LOG_SH:-}" ]]; then
+  source "$LOG_SH"
+else
+  printf ' !! log helpers not found (LOG_SH=%s); using plain output\n' "${LOG_SH:-unset}" >&2
+  log_info() { printf ' .. %s\n' "$*"; }
+  log_detail() { printf ' -- %s\n' "$*"; }
+  log_artifact() { printf ' -> %s\n' "$*"; }
+  log_warn() { printf ' !! %s\n' "$*"; }
+  log_error() { printf ' XX %s\n' "$*"; }
+fi
 
 if [ $# -ne 2 ] && [ $# -ne 6 ]; then
   log_warn "Usage: $0 <ASPECT_EXEC> <CONFIG_FILE> [GCC] [OPENMPI] [OPENBLAS] [CMAKE]"
