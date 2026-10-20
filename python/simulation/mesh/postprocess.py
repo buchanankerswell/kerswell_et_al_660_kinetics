@@ -168,12 +168,20 @@ class MeshPostProcessor:
         """
         Measure the displacement and width of a phase transition from a depth profile.
 
-        Before crossing detection, the profile is repaired for monotonicity using isotonic regression (PAVA). Profiles where the total downward
-        variation exceeds the tolerance in _repair_monotonic are considered too corrupt to interpret and return (nan, nan, nan).
+        A phase fraction grows from zero to one across its own transition, but the next transition
+        overprints it: the wadsleyite fraction of a cold slab falls back to zero below the 520.
+        The transition is therefore bracketed from the profile itself, from the first sample above
+        one tenth to the first sample above nine tenths, and the monotonicity repair is confined to
+        that bracket. Repairing the whole depth column would pull the overprinting transition into
+        the repair and flatten the transition boundaries along with it.
 
-        Crossings at X=0.1 and X=0.9 are located by linear interpolation, with each crossing anchored to rxn_depth: when multiple crossings exist,
-        the one whose midpoint depth is closest to rxn_depth is selected. This prevents noise crossings far from the known transition depth from
-        being mistaken for the real transition boundary.
+        Within the bracket the profile is repaired for monotonicity using isotonic regression
+        (PAVA), which pools local decreases and leaves the rise itself untouched.
+
+        Crossings at X=0.1 and X=0.9 are located by linear interpolation, with each crossing
+        anchored to rxn_depth: when multiple crossings exist, the one whose midpoint depth is
+        closest to rxn_depth is selected. This prevents noise crossings far from the known
+        transition depth from being mistaken for the real transition boundary.
 
         When both crossings are found, the result is validated before use:
             - depth_90 must be greater than depth_10 (crossings must be in the correct order).
@@ -190,7 +198,7 @@ class MeshPostProcessor:
             depths:        Depth array (m), sorted ascending.
             values:        Phase fraction array aligned with depths, expected to be broadly 0 -> 1.
             rxn_depth:     Nominal reaction depth (m), used both to anchor crossing selection and to compute displacement.
-            search_window: Half-width (m) of the depth window around rxn_depth within which monotonicity is enforced. Default 80 km.
+            search_window: Half-width (m) of the depth window around rxn_depth within which the inferred transition must lie. Default 80 km.
 
         Returns:
             (trans_depth, displacement, width) in metres, or (nan, nan, nan) if the profile is too corrupt, no valid crossings are found,
@@ -205,37 +213,54 @@ class MeshPostProcessor:
             return np.nan, np.nan, np.nan
         dz_min = float(np.nanmin(dz_all))
 
-        # Monotonicity repair via isotonic regression (PAVA)
-        repaired_values = self._repair_monotonic(values, depths, rxn_depth, search_window)
-        if repaired_values is None:
-            # Profile was too corrupt to repair meaningfully
+        values = self._fill_gaps(np.asarray(values, dtype=float))
+        clean = np.nan_to_num(values, nan=-np.inf)
+
+        # The transition completes at the first sample above nine tenths. Everything below that
+        # belongs to the next transition, which overprints the profile (the 520 truncates the
+        # wadsleyite layer of a cold slab) and must stay out of the repair.
+        above_10 = np.where(clean >= 0.1)[0]
+        above_90 = np.where(clean >= 0.9)[0]
+        if above_10.size == 0 or above_90.size == 0:
+            return np.nan, np.nan, np.nan
+        i10 = int(above_10[0])
+        i90 = int(above_90[0])
+        if i90 <= i10:
             return np.nan, np.nan, np.nan
 
-        # Pre-compute the trusted index range once
+        # The search spans the depth window around rxn_depth, but stops at the completion of the
+        # transition, and reaches back to the onset in case the transition sits above the window.
         search_lo = int(np.searchsorted(depths, rxn_depth - search_window))
-        search_hi = int(np.searchsorted(depths, rxn_depth + search_window, side="right"))
-        search_depths = depths[search_lo:search_hi]
-        search_repaired = repaired_values[search_lo:search_hi]
+        lo = min(search_lo, max(0, i10 - 1))
+        hi = i90
+
+        # Monotonicity repair via isotonic regression (PAVA), confined to the transition.
+        repaired_values = values.copy()
+        repaired_values[lo : hi + 1] = self._repair_monotonic(
+            values[lo : hi + 1], depths[lo : hi + 1], rxn_depth, search_window, bounds=(0, hi - lo)
+        )
+
+        bracket_depths = depths[lo : hi + 1]
+        bracket_values = repaired_values[lo : hi + 1]
 
         # Crossing detection
         def find_crossing(target: float) -> int:
-            """Return global index of the crossing closest to rxn_depth, within the trusted window."""
-            if search_depths.size < 2:
+            """Return bracket index of the crossing closest to rxn_depth."""
+            if bracket_depths.size < 2:
                 return -1
-            signs = np.sign(search_repaired - target)
+            signs = np.sign(bracket_values - target)
             signs[signs == 0] = 1
             local_crossings = np.where(np.diff(signs) != 0)[0]
             if not local_crossings.size:
                 return -1
-            crossing_depths = 0.5 * (search_depths[local_crossings] + search_depths[local_crossings + 1])
-            best_local = int(local_crossings[np.argmin(np.abs(crossing_depths - rxn_depth))])
-            return search_lo + best_local  # convert back to global index
+            crossing_depths = 0.5 * (bracket_depths[local_crossings] + bracket_depths[local_crossings + 1])
+            return int(local_crossings[np.argmin(np.abs(crossing_depths - rxn_depth))])
 
         def interp_depth(target: float, idx: int) -> float:
-            if idx < 0 or idx >= len(repaired_values) - 1:
+            if idx < 0 or idx >= len(bracket_values) - 1:
                 return np.nan
-            x0, x1 = repaired_values[idx], repaired_values[idx + 1]
-            z0, z1 = depths[idx], depths[idx + 1]
+            x0, x1 = bracket_values[idx], bracket_values[idx + 1]
+            z0, z1 = bracket_depths[idx], bracket_depths[idx + 1]
             if x1 == x0:
                 return float((z0 + z1) / 2.0)
             return float(z0 + (target - x0) / (x1 - x0) * (z1 - z0))
@@ -263,14 +288,37 @@ class MeshPostProcessor:
             if valid_idx == -1:
                 return np.nan, np.nan, np.nan
 
-            dz_local = depths[valid_idx + 1] - depths[valid_idx] if valid_idx < len(depths) - 1 else dz_min
+            dz_local = depths[lo + valid_idx + 1] - depths[lo + valid_idx] if lo + valid_idx < len(depths) - 1 else dz_min
             width = float(abs(dz_local)) if dz_local > 0 else dz_min
             trans_depth = valid_depth
 
         displacement = trans_depth - rxn_depth
         return trans_depth, displacement, width
 
-    def _repair_monotonic(self, values: np.ndarray, depths: np.ndarray, rxn_depth: float, search_window: float = 100e3) -> np.ndarray:
+    @staticmethod
+    def _fill_gaps(values: np.ndarray) -> np.ndarray:
+        """
+        Replace missing samples by carrying the nearest valid value.
+
+        Slices without mesh nodes leave gaps in the depth profile; carrying the previous value
+        keeps the profile monotone through them instead of breaking the crossing search.
+        """
+        filled = values.copy()
+        valid = np.isfinite(filled)
+        if not valid.any():
+            return filled
+        indices = np.arange(filled.size)
+        filled[~valid] = np.interp(indices[~valid], indices[valid], filled[valid])
+        return filled
+
+    def _repair_monotonic(
+        self,
+        values: np.ndarray,
+        depths: np.ndarray,
+        rxn_depth: float,
+        search_window: float = 100e3,
+        bounds: tuple[int, int] | None = None,
+    ) -> np.ndarray:
         """
         Repair monotonicity violations in a phase fraction profile near a known reaction depth.
 
@@ -278,24 +326,29 @@ class MeshPostProcessor:
         Non-monotonic artefacts outside this window are ignored entirely, preventing unrelated mesh noise elsewhere in the depth column from
         triggering rejection or corrupting the repair.
 
-        Within the window, PAVA pools adjacent violating points into blocks and replaces each block with its mean.
+        Within the window, PAVA pools adjacent violating points into blocks and replaces each block with its mean. Pools are formed where the
+        profile decreases, so a rising phase fraction passes through untouched and only local dips are smoothed.
 
         Args:
             values:        Phase fraction array (expected to be broadly 0 -> 1).
             depths:        Depth array (m), sorted ascending, aligned with values.
             rxn_depth:     Nominal reaction depth (m) used to centre the search window.
             search_window: Half-width (m) of the depth window around rxn_depth within which monotonicity is enforced. Default 80 km.
+            bounds:        Optional (lo, hi) index range to repair, overriding the search window.
 
         Returns:
             Array with monotonicity enforced within the search window.
         """
         repaired = values.astype(float).copy()
 
-        window_mask = np.where((depths >= rxn_depth - search_window) & (depths <= rxn_depth + search_window))[0]
-        if window_mask.size == 0:
-            return repaired
+        if bounds is None:
+            window_mask = np.where((depths >= rxn_depth - search_window) & (depths <= rxn_depth + search_window))[0]
+            if window_mask.size == 0:
+                return repaired
+            lo, hi = int(window_mask[0]), int(window_mask[-1])
+        else:
+            lo, hi = int(bounds[0]), int(bounds[1])
 
-        lo, hi = int(window_mask[0]), int(window_mask[-1])
         n_local = hi - lo + 1
 
         # Both lists use local indices (0..n_local-1) throughout
