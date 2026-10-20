@@ -10,7 +10,7 @@ MODELS_COLD    := $(notdir $(RESULTS_KN_COLD_SLAB))
 
 # Cleanup: clean removes regenerable products; deep-clean adds fetched content
 CLEAN      := $(PYTHON)/**/__pycache__ $(PYTHON)/simulation/**/__pycache__
-CLEAN      += $(FIGS)/adiabat $(FIGS_SIM_WARM) $(FIGS_SIM_COLD) $(DATA_WARM) $(DATA_COLD)
+CLEAN      += $(FIGS)/adiabat $(FIGS_SIM_WARM) $(FIGS_SIM_COLD) $(FIGS)/setup $(DATA_WARM) $(DATA_COLD) $(DATA_BOTH)
 DEEP_CLEAN :=
 
 # Targets
