@@ -336,10 +336,10 @@ class PostProcessingPipeline(BasePipeline):
                 y_max = mesh.bounds[3]
                 y_slicing_grid = y_max - requested_depths
                 reverse_direction = True if "plume" in model_id else False
-                x_jump_threshold = 100e3 if "plume" in model_id else 150e3
+                x_step_limit = 100e3 if "plume" in model_id else 150e3
 
                 representative_trace = self._extract_representative_trace(
-                    mesh, y_slicing_grid, requested_depths, x_jump_threshold=x_jump_threshold, reverse_direction=reverse_direction
+                    mesh, y_slicing_grid, requested_depths, x_step_limit=x_step_limit, reverse_direction=reverse_direction
                 )
 
                 trace_depths = representative_trace["trace_x"]["depths"]
@@ -600,23 +600,33 @@ class PostProcessingPipeline(BasePipeline):
         target_field: str = "nonadiabatic_temperature",
         anomaly_threshold: float = 250,
         x_buffer: float = 50e3,
-        x_jump_threshold: float = 100e3,
+        x_step_limit: float = 150e3,
         reverse_direction: bool = False,
     ) -> dict:
         """
-        Extracts trace with thermal threshold and jump-suppression.
+        Extract the representative vertical trace by following one coherent thermal feature.
+
+        The trace follows the extreme of the dominant thermal anomaly: the coldest material for a
+        slab, the hottest for a plume. At each slice the search is confined to a neighbourhood of
+        the previous position, so the trace slides laterally with the feature (by at most
+        ``x_step_limit`` per slice) instead of hopping onto an unrelated one.
+
         reverse_direction=False: Processes top-to-bottom (standard y_grid order).
         reverse_direction=True: Processes bottom-to-top.
         """
 
-        anomaly_full = np.abs(mesh.point_data[target_field])
-        idx_sig = np.where(anomaly_full > anomaly_threshold)[0]
+        anomaly_full = mesh.point_data[target_field]
+        idx_sig = np.where(np.abs(anomaly_full) > anomaly_threshold)[0]
 
         if idx_sig.size > 0:
             x_min, x_max = np.min(mesh.points[idx_sig, 0]) - x_buffer, np.max(mesh.points[idx_sig, 0]) + x_buffer
             roi_mesh = mesh.clip_box([x_min, x_max, mesh.bounds[2], mesh.bounds[3], -1, 1], invert=False)
         else:
             roi_mesh = mesh
+
+        # A slab is defined by cold material and a plume by hot material; follow whichever extreme
+        # dominates the model so the trace never locks onto the opposite-signed feature.
+        score_sign = -1.0 if np.abs(np.nanmin(anomaly_full)) > np.abs(np.nanmax(anomaly_full)) else 1.0
 
         all_fields = list(roi_mesh.point_data.keys())
         representative_trace = {f: {"depths": depth_grid.copy(), "values": np.full(depth_grid.shape, np.nan)} for f in all_fields + ["trace_x"]}
@@ -634,30 +644,25 @@ class PostProcessingPipeline(BasePipeline):
             if slice_poly.n_points == 0:
                 continue
 
-            slice_anomalies = np.abs(slice_poly.point_data[target_field])
-            current_max_val = np.max(slice_anomalies)
-            current_max_idx = np.argmax(slice_anomalies)
-            current_max_x = slice_poly.points[current_max_idx][0]
+            slice_x = slice_poly.points[:, 0]
+            slice_anomaly = slice_poly.point_data[target_field]
+            slice_score = score_sign * slice_anomaly
 
-            use_current_max = False
-
-            if current_max_val >= anomaly_threshold:
-                if last_valid_x is None:
-                    use_current_max = True
-                else:
-                    jump_distance = abs(current_max_x - last_valid_x)
-                    if jump_distance <= x_jump_threshold:
-                        use_current_max = True
-
-            if use_current_max:
-                active_idx = current_max_idx
-                last_valid_x = current_max_x
-            elif last_valid_x is not None:
-                active_idx = slice_poly.find_closest_point((last_valid_x, y_val, 0))
+            if last_valid_x is None:
+                active_idx = int(np.argmax(slice_score))
             else:
-                active_idx = current_max_idx
+                near = np.abs(slice_x - last_valid_x) <= x_step_limit
+                if near.any():
+                    active_idx = int(np.argmax(np.where(near, slice_score, -np.inf)))
+                else:
+                    active_idx = int(np.argmin(np.abs(slice_x - last_valid_x)))
 
-            representative_trace["trace_x"]["values"][idx] = slice_poly.points[active_idx][0]
+            # Only advance the anchor while the trace still sits on a strong anomaly, so it keeps
+            # its place through regions where the feature has faded out.
+            if np.abs(slice_anomaly[active_idx]) >= anomaly_threshold:
+                last_valid_x = slice_x[active_idx]
+
+            representative_trace["trace_x"]["values"][idx] = slice_x[active_idx]
 
             for f in all_fields:
                 val = slice_poly.point_data[f][active_idx]
