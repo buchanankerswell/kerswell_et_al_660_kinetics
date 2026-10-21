@@ -1,4 +1,5 @@
 import gc
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import ClassVar
@@ -9,12 +10,18 @@ import numpy as np
 import pyvista as pv
 import vtk
 from config import MeshConfig
-from utils.logging import log_warn
+from utils.logging import install_stderr_filter, log_warn
 from PIL import Image
 from pyvista import Color
 from vtkmodules.vtkCommonCore import vtkLogger
 
 vtkLogger.SetStderrVerbosity(vtkLogger.VERBOSITY_ERROR)
+
+# Each figure builds and tears down an off-screen render window, which makes
+# macOS report a benign "Context leak detected" notice straight to stderr and
+# into the middle of the progress bar. Drop it at the descriptor level.
+if sys.platform == "darwin":
+    install_stderr_filter()
 
 @dataclass
 class MeshPlotter:

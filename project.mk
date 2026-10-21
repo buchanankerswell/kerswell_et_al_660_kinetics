@@ -88,10 +88,18 @@ ID_T2 := KN_Dynp0_Zol7.0e0_Zwd7.0e0_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_V
 ID_T3 := KN_Dynp0_Zol3.0e0_Zwd3.0e0_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel20e-02_Temp10e+02
 ID_T4 := KN_Dynp0_Zol7.0e0_Zwd7.0e0_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel20e-02_Temp10e+02
 
+# Visualization scope (can edit)
+VIS_ALL      := false
+VIS_ALL_WARM := $(VIS_ALL)
+VIS_ALL_COLD := $(VIS_ALL)
+
+VIS_ON := true yes 1
+
 VIS_IDS_WARM    := $(ID_W1) $(ID_W2) $(ID_W3) $(ID_W4) $(ID_W5) $(ID_W6)
 VIS_IDS_COLD    := $(ID_C1) $(ID_C2) $(ID_C3) $(ID_C4) $(ID_C5) $(ID_C6)
-VIS_MODELS_WARM := $(foreach id,$(VIS_IDS_WARM),plume_$(id) slab_$(id))
-VIS_MODELS_COLD := $(foreach id,$(VIS_IDS_COLD),slab_$(id))
+
+VIS_MODELS_WARM = $(if $(filter $(VIS_ON),$(VIS_ALL_WARM)),$(notdir $(RESULTS_KN_WARM)),$(foreach id,$(VIS_IDS_WARM),plume_$(id) slab_$(id)))
+VIS_MODELS_COLD = $(if $(filter $(VIS_ON),$(VIS_ALL_COLD)),$(notdir $(RESULTS_KN_COLD_SLAB)),$(foreach id,$(VIS_IDS_COLD),slab_$(id)))
 
 # --------------------------------------------------
 # Model parameters (can edit)

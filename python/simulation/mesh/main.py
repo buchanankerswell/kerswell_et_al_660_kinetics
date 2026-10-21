@@ -169,7 +169,7 @@ def main():
     emit_artifact = not args.suppress_artifact
     chunk_tag = f"Chunk {args.chunk}: " if args.chunk else ""
     if mode == "postprocess":
-        log_info(f"{chunk_tag}Postprocessing {len(pvtu_in_dirs)} models")
+        log_info(f"{chunk_tag}{len(pvtu_in_dirs)} models")
         pipeline = PostProcessingPipeline(plot_config, pvtu_in_dirs, tsteps, trans_data, verbosity)
 
         transition_summary, seismic_profile_cache = pipeline.run(transition_summary_path, seismic_profile_cache_path, force_reprocess)
@@ -181,18 +181,17 @@ def main():
 
     elif mode == "visualize":
         if not transition_summary_path.exists() or force_reprocess:
-            log_info(f"{chunk_tag}Postprocessing {len(pvtu_in_dirs)} models")
+            log_info(f"{chunk_tag}{len(pvtu_in_dirs)} models")
             post_pipeline = PostProcessingPipeline(plot_config, pvtu_in_dirs, tsteps, trans_data, verbosity)
             transition_summary, seismic_profile_cache = post_pipeline.run(transition_summary_path, seismic_profile_cache_path, force_reprocess)
         else:
             transition_summary = PlottingPipeline.load_cache(transition_summary_path)
 
-        log_info(f"Rendering {len(chunk_vis_ids)} models")
         plot_pipeline = PlottingPipeline(plot_config, pvtu_in_dirs, tsteps, trans_data, verbosity, transition_summary)
         plot_pipeline.run(fields_to_plot, chunk_vis_ids)
 
     else:
-        log_info(f"{chunk_tag}Postprocessing {len(pvtu_in_dirs)} models")
+        log_info(f"{chunk_tag}{len(pvtu_in_dirs)} models")
         pipeline = FullPipeline(plot_config, pvtu_in_dirs, tsteps, trans_data, verbosity)
         pipeline.run(
             fields_to_plot,

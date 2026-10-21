@@ -119,3 +119,4 @@ help:
 	$(call LOG_DETAIL,compositions-main  Compose montage figures (warm + cold))
 	$(call LOG_DETAIL,clean        Remove generated files (safe))
 	$(call LOG_DETAIL,deep-clean   Remove results and data (use with caution!))
+	$(call LOG_DETAIL,note         Set VIS_ALL=true (project.mk) to render every model)
