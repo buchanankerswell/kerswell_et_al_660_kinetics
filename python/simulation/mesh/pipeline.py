@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import pyvista as pv
 from config import MeshConfig
-from utils.logging import gutter_tqdm, log_error, log_info, log_warn
+from utils.logging import gutter_tqdm, log_error, log_warn
 from plotter import MeshPlotter
 from postprocess import MeshPostProcessor
 from preprocess import MeshPreProcessor
@@ -875,6 +875,4 @@ class FullPipeline(BasePipeline):
 
         plotter = PlottingPipeline(self.config, self.pvtu_in_dirs, self.tsteps, self.trans_data, self.verbosity, transition_summary_cache)
         plotter._pvtu_file_cache = post_processor._pvtu_file_cache
-        render_ids = [m for m in (plot_ids or self.pvtu_in_dirs) if m in self.pvtu_in_dirs]
-        log_info(f"Rendering {len(render_ids)} models")
         plotter.run(fields_to_plot, plot_ids)

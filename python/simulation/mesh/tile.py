@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from config import MeshConfig
-from utils.logging import Spinner, log_warn
+from utils.logging import log_warn
 from PIL import Image, ImageDraw, ImageFont
 
 @dataclass
@@ -199,9 +199,6 @@ class ImageTiler:
         """
         tags = self._parse_tags()
 
-        spin = Spinner(f"Tiling {self.out_fig_dir.name}")
         for i, (img1, img2) in enumerate(zip(self.images_field1, self.images_field2)):
             img3 = self.images_field3[i] if self.field3 and i < len(self.images_field3) else None
             self._tile_single(img1, img2, img3, tags)
-            spin.tick()
-        spin.done()

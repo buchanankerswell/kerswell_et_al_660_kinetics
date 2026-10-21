@@ -215,7 +215,6 @@ def main():
             "set3": {"tags": None, "fields": ["nonadiabatic_temperature", "viscosity", "X_ps"]},
         }
 
-        log_info(f"Tiling {len(chunk_vis_ids)} models")
         for model_id in chunk_vis_ids:
             model_id_padded = re.sub(r"B(\d+)", lambda m: f"B{int(m.group(1)):0{2}d}", model_id)
 
