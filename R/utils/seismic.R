@@ -89,6 +89,70 @@ visualize_seismic_profiles <- function(data_dir, out_path) {
   log_artifact(out_path)
 }
 
+# Nominal equilibrium depths (m -> km): transition depth from the Mg100
+# Perple_X profile plus the ASPECT depth correction used at runtime.
+NOMINAL_410_KM <- 359.2 + 5.0
+NOMINAL_520_KM <- 506.2 + 5.0
+NOMINAL_660_KM <- 599.7 + 15.0
+
+read_matched_profiles <- function(data_dir, suite_label) {
+  files <- list.files(data_dir, pattern = "slab_.*_t100_representative\\.csv", full.names = TRUE)
+  matched <- files[str_detect(basename(files), fixed("EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02"))]
+  if (!length(matched)) {
+    log_error(paste("no matched-forcing slab profiles in:", data_dir))
+    return(NULL)
+  }
+  map_df(matched, read_seismic_profile) |>
+    mutate(suite = suite_label)
+}
+
+visualize_seismic_comparison <- function(data_dir_warm, data_dir_cold, out_path) {
+  if (plot_exists(out_path)) {
+    return(invisible())
+  }
+  df <- bind_rows(
+    read_matched_profiles(data_dir_warm, "Warm Sluggish Kinetics"),
+    read_matched_profiles(data_dir_cold, "Cold Nominal Kinetics")
+  )
+  if (is.null(df) || !nrow(df)) {
+    return(invisible())
+  }
+  df <- df |> mutate(suite = factor(suite,
+    levels = c("Warm Sluggish Kinetics", "Cold Nominal Kinetics")))
+
+  lim_vp <- range(df$seismic_Vp, na.rm = TRUE)
+
+  p_panel <- function(suite_label) {
+    d <- df |> filter(suite == suite_label)
+    ggplot(d, aes(x = seismic_Vp, y = depth, group = model_id)) +
+      geom_path(aes(color = z_ri), linewidth = 1.1, alpha = 0.85) +
+      geom_hline(yintercept = NOMINAL_410_KM, linetype = "dotted", linewidth = 0.8) +
+      geom_hline(yintercept = NOMINAL_520_KM, linetype = "dotted", linewidth = 0.8) +
+      geom_hline(yintercept = NOMINAL_660_KM, linetype = "dotted", linewidth = 0.8) +
+      annotate("label", x = 11.1, y = NOMINAL_410_KM - 25, label = "Nominal 410",
+        size = 4, fill = "white") +
+      annotate("label", x = 11.1, y = NOMINAL_520_KM - 25, label = "Nominal 520",
+        size = 4, fill = "white") +
+      annotate("label", x = 11.1, y = NOMINAL_660_KM - 25, label = "Nominal 660",
+        size = 4, fill = "white") +
+      scale_y_reverse() +
+      scale_x_continuous(limits = lim_vp, breaks = c(8, 9, 10, 11)) +
+      scale_color_continuous_sequential(
+        palette = "YlOrRd", rev = FALSE, trans = "log10",
+        breaks = c(1e-8, 1e-4, 1e0, 1e4), labels = label_log()) +
+      labs(title = suite_label, x = expression(V[p] ~ (km / s)), y = "Depth (km)",
+        color = expression(Z[ri])) +
+      theme_bw(base_size = 14) +
+      theme_profile()
+  }
+
+  p <- p_panel("Warm Sluggish Kinetics") |
+    (p_panel("Cold Nominal Kinetics") +
+      theme(axis.text.y = element_blank(), axis.title.y = element_blank()))
+  ggsave(out_path, plot = p, width = 12, height = 6, dpi = 300, bg = "white", create.dir = TRUE)
+  log_artifact(out_path)
+}
+
 theme_profile <- function() {
   theme(
     panel.grid.major = element_blank(),

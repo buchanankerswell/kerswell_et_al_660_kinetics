@@ -57,6 +57,9 @@ DATA_BOTH                := $(SIMULATION)/data/combined
 FIGS_STRUCT_BOTH         := $(FIGS)/structure
 COMBINED_CSV_RAW_BOTH      := $(DATA_BOTH)/structure-summary-combined.csv
 COMBINED_CSV_FILTERED_BOTH := $(DATA_BOTH)/structure-summary-combined-filtered.csv
+SPLIT_CSV_BOTH           := $(DATA_BOTH)/thermal-kinetic-split.csv
+FIGS_SIM_BOTH            := $(FIGS)/simulation
+FIGS_SEISMIC_BOTH        := $(FIGS)/seismic
 
 # Composition reference models
 ID_W1 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-11_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02

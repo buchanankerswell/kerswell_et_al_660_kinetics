@@ -5,8 +5,9 @@ IFS=$'\n\t'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../utils/log.sh"
 
-if [ $# -ne 7 ]; then
+if [ $# -ne 7 ] && [ $# -ne 8 ]; then
   log_warn "Usage: $0 <FIG_DIR> <OUT_DIR> <TIMESTEP> <BATCH_NAME> <ID1> <ID2> <ID3>"
+  log_warn "   or: $0 <FIG_DIR_A> <OUT_DIR> <TIMESTEP> <BATCH> <ID_A> PAIR <ID_B> <FIG_DIR_B>"
   exit 1
 fi
 
@@ -65,6 +66,34 @@ COMP_SETS=(
   "set1:temperature-nonadiabatic-density-nonadiabatic-velocity-vertical"
   "set2:temperature-nonadiabatic-viscosity-X-ps"
 )
+
+# Optional pair mode: $6 == PAIR composes a vertical W1-vs-C1 style montage
+# from two slab models living in different mesh dirs ($1 and $8).
+# Usage: make-compositions.sh <FIG_DIR_A> <OUT_DIR> <TIMESTEP> <BATCH> <ID_A> PAIR <ID_B> <FIG_DIR_B>
+if [ "${6:-}" == "PAIR" ]; then
+  PAIR_A="$5"
+  PAIR_B="$7"
+  PAIR_DIR_B="$8"
+  for ITEM in "${COMP_SETS[@]}"; do
+    SET_NAME="${ITEM%%:*}"
+    SUFFIX="${ITEM#*:}"
+
+    FILE_A="slab-${PAIR_A//_/-}"
+    FILE_B="slab-${PAIR_B//_/-}"
+
+    for f in \
+      "${FIG_DIR}/slab_${PAIR_A}/tiles/${FILE_A}-${SUFFIX}-${TIMESTEP}.png" \
+      "${PAIR_DIR_B}/slab_${PAIR_B}/tiles/${FILE_B}-${SUFFIX}-${TIMESTEP}.png"; do
+      [[ -f "$f" ]] || continue 2
+    done
+
+    magick \
+      \( "${FIG_DIR}/slab_${PAIR_A}/tiles/${FILE_A}-${SUFFIX}-${TIMESTEP}.png" -gravity south -chop "0x${Y_CROP}%" \) \
+      \( "${PAIR_DIR_B}/slab_${PAIR_B}/tiles/${FILE_B}-${SUFFIX}-${TIMESTEP}.png" -gravity south -chop "0x${Y_CROP}%" \) \
+      -append "${OUT_DIR}/slab-pair-${SET_NAME}-composition-${BATCH}-${TIMESTEP}.png" || true
+  done
+  exit 0
+fi
 
 for TYPE in "slab" "plume"; do
   for ITEM in "${COMP_SETS[@]}"; do

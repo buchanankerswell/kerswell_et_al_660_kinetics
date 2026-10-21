@@ -7,11 +7,11 @@ PERPLEX_MODELS    := $(shell find $(PERPLEX) -type f -name '*.dat' -exec basenam
 
 # Cleanup: clean removes regenerable products (figures); suite data dirs are
 # owned by the python mesh pipeline. deep-clean has nothing to add here.
-CLEAN      := $(FIGS)/kubo $(FIGS_STRUCT_WARM) $(FIGS_STRUCT_COLD) $(FIGS_STRUCT_BOTH) $(FIGS_SEISMIC_WARM) $(FIGS_SEISMIC_COLD)
+CLEAN      := $(FIGS)/kubo $(FIGS_STRUCT_WARM) $(FIGS_STRUCT_COLD) $(FIGS_STRUCT_BOTH) $(FIGS_SEISMIC_WARM) $(FIGS_SEISMIC_COLD) $(FIGS_SEISMIC_BOTH)
 DEEP_CLEAN :=
 
 # Targets
-.PHONY: all visualize tables tables-warm tables-cold adiabat simulation simulation-warm simulation-cold simulation-both seismic seismic-warm seismic-cold download upload clean deep-clean help
+.PHONY: all visualize tables tables-warm tables-cold adiabat simulation simulation-warm simulation-cold simulation-both seismic seismic-warm seismic-cold seismic-both download upload clean deep-clean help
 
 all: visualize
 visualize: adiabat simulation seismic
@@ -26,7 +26,7 @@ tables-warm tables-cold:
 adiabat:
 	@for model in $(PERPLEX_MODELS); do Rscript $(R)/adiabat.R $(R)/utils $$model $(SIMULATION)/data $(FIGS)/adiabat; done
 
-seismic: seismic-warm seismic-cold
+seismic: seismic-warm seismic-cold seismic-both
 
 # Mesh outputs owned by the python pipeline; building them on demand
 # fixes `make clean && make visualize` (R previously ran before meshes).
@@ -44,6 +44,10 @@ seismic-cold: $(MESH_CSV_COLD)
 seismic-warm seismic-cold:
 	@Rscript $(R)/seismic.R $(R)/utils $(DATA_$(SUITE))/seismic_profiles $(FIGS_SEISMIC_$(SUITE))
 
+seismic-both: $(MESH_CSV_WARM) $(MESH_CSV_COLD)
+seismic-both:
+	@Rscript $(R)/seismic-combined.R $(R)/utils $(DATA_WARM)/seismic_profiles $(DATA_COLD)/seismic_profiles $(FIGS_SEISMIC_BOTH)
+
 simulation: simulation-warm simulation-cold simulation-both
 
 LINK_WARM := $(DATA_WARM)/structure-summary-kerswell-et-al-2026.csv
@@ -60,10 +64,12 @@ simulation-warm simulation-cold:
 
 # Merged warm+cold figures (single composition + 16-scenario tiles on a shared
 # log-Z axis). Reuses the warm kerswell link; per-suite outputs stay untouched.
-simulation-both: $(KERSWELL_410_DATA) $(LINK_WARM) $(MESH_CSV_WARM) $(MESH_CSV_COLD)
+$(SPLIT_CSV_BOTH):
+	@$(MAKE) --no-print-directory -C $(PYTHON) split
+simulation-both: $(KERSWELL_410_DATA) $(LINK_WARM) $(MESH_CSV_WARM) $(MESH_CSV_COLD) $(SPLIT_CSV_BOTH)
 simulation-both:
 	@mkdir -p $(DATA_BOTH)
-	@Rscript $(R)/simulation-combined.R $(R)/utils $(DATA_WARM) $(DATA_COLD) $(FIGS_STRUCT_BOTH) $(COMBINED_CSV_RAW_BOTH) $(COMBINED_CSV_FILTERED_BOTH) $(SAVE_CSV) $(FORCE_REWRITE)
+	@Rscript $(R)/simulation-combined.R $(R)/utils $(DATA_WARM) $(DATA_COLD) $(FIGS_STRUCT_BOTH) $(COMBINED_CSV_RAW_BOTH) $(COMBINED_CSV_FILTERED_BOTH) $(SAVE_CSV) $(FORCE_REWRITE) $(SPLIT_CSV_BOTH)
 
 download:
 	@Rscript $(R)/osf.R $(R)/utils $(ASPECT_RESULTS) $(SIMULATION)/data "download"
