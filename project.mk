@@ -30,20 +30,26 @@ FORCE_REPROCESS              := false
 FORCE_REWRITE                := true
 RESULTS_KN_WARM_SLUGGISH     = $(foreach type,$(MODEL_TYPES), $(addprefix $(ASPECT_RESULTS)/$(type)_, $(UIDS_KN_WARM_SLUGGISH)))
 RESULTS_KN_COLD_NOMINAL_SLAB = $(addprefix $(ASPECT_RESULTS)/slab_, $(UIDS_KN_COLD_NOMINAL))
+RESULTS_KN_ANCHOR_410_SLAB   = $(addprefix $(ASPECT_RESULTS)/slab_, $(UIDS_KN_ANCHOR_410))
 TIMESTEPS_SYNC_PLUME         := 050
 TIMESTEPS_SYNC_SLAB          := 100
 FORCE_SYNC                   := 0
 TIMESTEPS_MESH_WARM_SLUGGISH := 000 050 100
 TIMESTEPS_MESH_COLD_NOMINAL  := 100
+TIMESTEPS_MESH_ANCHOR_410    := 100
 CHUNK_SIZE                   := 32
 DATA_WARM_SLUGGISH           := $(SIMULATION)/data/warm_sluggish
 DATA_COLD_NOMINAL            := $(SIMULATION)/data/cold_nominal
+DATA_ANCHOR_410              := $(SIMULATION)/data/anchor_410
 FIGS_SIM_WARM_SLUGGISH       := $(FIGS)/simulation_warm_sluggish
 FIGS_SIM_COLD_NOMINAL        := $(FIGS)/simulation_cold_nominal
+FIGS_SIM_ANCHOR_410          := $(FIGS)/simulation_anchor_410
 FIGS_STRUCT_WARM_SLUGGISH    := $(FIGS)/structure_warm_sluggish
 FIGS_STRUCT_COLD_NOMINAL     := $(FIGS)/structure_cold_nominal
+FIGS_STRUCT_ANCHOR_410       := $(FIGS)/structure_anchor_410
 FIGS_SEISMIC_WARM_SLUGGISH   := $(FIGS)/seismic_warm_sluggish
 FIGS_SEISMIC_COLD_NOMINAL    := $(FIGS)/seismic_cold_nominal
+FIGS_SEISMIC_ANCHOR_410      := $(FIGS)/seismic_anchor_410
 
 COMBINED_CSV_RAW_WARM_SLUGGISH      := $(DATA_WARM_SLUGGISH)/structure-summary-combined.csv
 COMBINED_CSV_FILTERED_WARM_SLUGGISH := $(DATA_WARM_SLUGGISH)/structure-summary-combined-filtered.csv
@@ -85,26 +91,42 @@ ID_C5 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-50_MG
 ID_C6 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e+03_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp10e+02
 
 # Sluggish-410 tests (nominal Z_ol/Z_wd 3.0e0, 7.0e0, cold-nominal corner only:
-# EtaTherm5, b=1, Vel5e-02, Zri6.0e-01). Must match ID_T1/ID_T2 in project.mk.
-ID_T1 := KN_Dynp0_Zol3.0e0_Zwd3.0e0_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp10e+02
-ID_T2 := KN_Dynp0_Zol7.0e0_Zwd7.0e0_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp10e+02
+# EtaTherm5, b=1, Vel5e-02, Zri6.0e-01). Now named AC1/AC2 and registered
+# with the 410-anchor suite below.
+ID_AC1 := KN_Dynp0_Zol3.0e0_Zwd3.0e0_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp10e+02
+ID_AC2 := KN_Dynp0_Zol7.0e0_Zwd7.0e0_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp10e+02
 
-# Fast-descent twins of ID_T1/ID_T2 at Vel20e-02.
+# Fast-descent twins of ID_AC1/ID_AC2 at Vel20e-02.
 ID_T3 := KN_Dynp0_Zol3.0e0_Zwd3.0e0_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel20e-02_Temp10e+02
 ID_T4 := KN_Dynp0_Zol7.0e0_Zwd7.0e0_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel20e-02_Temp10e+02
+
+# 410 anchors: 410-rate sweep at fixed 660 kinetics (Z_ri 6.0e-01),
+# matched EtaTherm5/Vel5e-02 forcing, b=1 plus b=50 twin. Warm set (AW1-4,
+# Temp5e+02, sluggish Z_ol/Z_wd 3.0e0/7.0e0) reproduces the bottom end of the
+# previous 410 sweep. Cold set (AC1-4, Temp10e+02, same Z_ol/Z_wd) pairs the
+# b=1 tests with b=50 twins (AC3/AC4).
+ID_AW1 := KN_Dynp0_Zol3.0e0_Zwd3.0e0_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
+ID_AW2 := KN_Dynp0_Zol7.0e0_Zwd7.0e0_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
+ID_AW3 := KN_Dynp0_Zol3.0e0_Zwd3.0e0_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02
+ID_AW4 := KN_Dynp0_Zol7.0e0_Zwd7.0e0_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02
+ID_AC3 := KN_Dynp0_Zol3.0e0_Zwd3.0e0_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp10e+02
+ID_AC4 := KN_Dynp0_Zol7.0e0_Zwd7.0e0_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp10e+02
 
 # Visualization scope (can edit)
 VIS_ALL               := false
 VIS_ALL_WARM_SLUGGISH := $(VIS_ALL)
 VIS_ALL_COLD_NOMINAL  := $(VIS_ALL)
+VIS_ALL_ANCHOR_410    := $(VIS_ALL)
 
 VIS_ON := true yes 1
 
 VIS_IDS_WARM_SLUGGISH := $(ID_W1) $(ID_W2) $(ID_W3) $(ID_W4) $(ID_W5) $(ID_W6)
 VIS_IDS_COLD_NOMINAL  := $(ID_C1) $(ID_C2) $(ID_C3) $(ID_C4) $(ID_C5) $(ID_C6)
+VIS_IDS_ANCHOR_410    := $(ID_AW1) $(ID_AW2) $(ID_AW3) $(ID_AW4) $(ID_AC1) $(ID_AC2) $(ID_AC3) $(ID_AC4)
 
 VIS_MODELS_WARM_SLUGGISH = $(if $(filter $(VIS_ON),$(VIS_ALL_WARM_SLUGGISH)),$(notdir $(RESULTS_KN_WARM_SLUGGISH)),$(foreach id,$(VIS_IDS_WARM_SLUGGISH),plume_$(id) slab_$(id)))
 VIS_MODELS_COLD_NOMINAL  = $(if $(filter $(VIS_ON),$(VIS_ALL_COLD_NOMINAL)),$(notdir $(RESULTS_KN_COLD_NOMINAL_SLAB)),$(foreach id,$(VIS_IDS_COLD_NOMINAL),slab_$(id)))
+VIS_MODELS_ANCHOR_410    = $(if $(filter $(VIS_ON),$(VIS_ALL_ANCHOR_410)),$(notdir $(RESULTS_KN_ANCHOR_410_SLAB)),$(foreach id,$(VIS_IDS_ANCHOR_410),slab_$(id)))
 
 # --------------------------------------------------
 # Model parameters (can edit)

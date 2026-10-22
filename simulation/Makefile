@@ -3,36 +3,41 @@ include $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/../project.mk)
 include local.mk
 
 # All simulation runs
-ALL_RUNS := $(PRMS_PLUME_KN_WARM_SLUGGISH:.prm=.run) $(PRMS_SLAB_KN_WARM_SLUGGISH:.prm=.run) $(PRMS_SLAB_KN_COLD_NOMINAL:.prm=.run)
+ALL_RUNS := $(PRMS_PLUME_KN_WARM_SLUGGISH:.prm=.run) $(PRMS_SLAB_KN_WARM_SLUGGISH:.prm=.run) $(PRMS_SLAB_KN_COLD_NOMINAL:.prm=.run) $(PRMS_SLAB_KN_ANCHOR_410:.prm=.run)
 
 # Core components for each type of model
 CORE_KN_WARM_SLUGGISH := $(PRMS_GLOBALS_KN_WARM_SLUGGISH) $(PRMS_SOLVER_KN_WARM_SLUGGISH) $(PRMS_GEOMETRY_KN_WARM_SLUGGISH) $(PRMS_MATERIAL_KN_WARM_SLUGGISH) $(PRMS_COMPOSITION_KN_WARM_SLUGGISH) $(PRMS_POSTPROCESS_KN_WARM_SLUGGISH)
 CORE_KN_COLD_NOMINAL  := $(PRMS_GLOBALS_KN_COLD_NOMINAL) $(PRMS_SOLVER_KN_COLD_NOMINAL) $(PRMS_GEOMETRY_KN_COLD_NOMINAL) $(PRMS_MATERIAL_KN_COLD_NOMINAL) $(PRMS_COMPOSITION_KN_COLD_NOMINAL) $(PRMS_POSTPROCESS_KN_COLD_NOMINAL)
+CORE_KN_ANCHOR_410  := $(PRMS_GLOBALS_KN_ANCHOR_410) $(PRMS_SOLVER_KN_ANCHOR_410) $(PRMS_GEOMETRY_KN_ANCHOR_410) $(PRMS_MATERIAL_KN_ANCHOR_410) $(PRMS_COMPOSITION_KN_ANCHOR_410) $(PRMS_POSTPROCESS_KN_ANCHOR_410)
 
 # Cleanup
 CLEAN      := $(ASPECT_PLUGIN) $(ASPECT_CONFIGS)
 DEEP_CLEAN := $(ASPECT_RESULTS) $(ASPECT_DATA)
 
 # Targets
-.PHONY: all all-models plume-models-kn-warm-sluggish slab-models-kn-warm-sluggish slab-models-kn-cold-nominal configs configs-kn-warm-sluggish configs-kn-cold-nominal clean deep-clean help
+.PHONY: all all-models plume-models-kn-warm-sluggish slab-models-kn-warm-sluggish slab-models-kn-cold-nominal slab-models-kn-anchor-410 configs configs-kn-warm-sluggish configs-kn-cold-nominal configs-kn-anchor-410 clean deep-clean help
 .PRECIOUS: $(ASPECT_CONFIGS)
 
 all: all-models
 all-models: $(ALL_RUNS)
-configs: configs-kn-warm-sluggish configs-kn-cold-nominal
+configs: configs-kn-warm-sluggish configs-kn-cold-nominal configs-kn-anchor-410
 configs-kn-warm-sluggish: $(PRMS_PLUME_KN_WARM_SLUGGISH) $(PRMS_SLAB_KN_WARM_SLUGGISH)
 configs-kn-cold-nominal: $(PRMS_SLAB_KN_COLD_NOMINAL)
+configs-kn-anchor-410: $(PRMS_SLAB_KN_ANCHOR_410)
 plume-models-kn-warm-sluggish: $(ASPECT_EXE) $(DEALII_ENABLE) $(ASPECT_PROFILES) $(PRMS_PLUME_KN_WARM_SLUGGISH:.prm=.run)
 slab-models-kn-warm-sluggish: $(ASPECT_EXE) $(DEALII_ENABLE) $(ASPECT_PROFILES) $(PRMS_SLAB_KN_WARM_SLUGGISH:.prm=.run)
 slab-models-kn-cold-nominal: $(ASPECT_EXE) $(DEALII_ENABLE) $(ASPECT_PROFILES) $(PRMS_SLAB_KN_COLD_NOMINAL:.prm=.run)
+slab-models-kn-anchor-410: $(ASPECT_EXE) $(DEALII_ENABLE) $(ASPECT_PROFILES) $(PRMS_SLAB_KN_ANCHOR_410:.prm=.run)
 
 $(PRMS_PLUME_KN_WARM_SLUGGISH:.prm=.run): $(ASPECT_PLUGIN)
 $(PRMS_SLAB_KN_WARM_SLUGGISH:.prm=.run): $(ASPECT_PLUGIN)
 $(PRMS_SLAB_KN_COLD_NOMINAL:.prm=.run): $(ASPECT_PLUGIN)
+$(PRMS_SLAB_KN_ANCHOR_410:.prm=.run): $(ASPECT_PLUGIN)
 
 $(PRMS_SLAB_KN_WARM_SLUGGISH): $(CORE_KN_WARM_SLUGGISH) $(PRMS_VELOCITY_SLAB_KN_WARM_SLUGGISH) $(PRMS_TEMPERATURE_SLAB_KN_WARM_SLUGGISH)
 $(PRMS_PLUME_KN_WARM_SLUGGISH): $(CORE_KN_WARM_SLUGGISH) $(PRMS_VELOCITY_PLUME_KN_WARM_SLUGGISH) $(PRMS_TEMPERATURE_PLUME_KN_WARM_SLUGGISH)
 $(PRMS_SLAB_KN_COLD_NOMINAL): $(CORE_KN_COLD_NOMINAL) $(PRMS_VELOCITY_SLAB_KN_COLD_NOMINAL) $(PRMS_TEMPERATURE_SLAB_KN_COLD_NOMINAL)
+$(PRMS_SLAB_KN_ANCHOR_410): $(CORE_KN_ANCHOR_410) $(PRMS_VELOCITY_SLAB_KN_ANCHOR_410) $(PRMS_TEMPERATURE_SLAB_KN_ANCHOR_410)
 
 $(ASPECT_CONFIGS)/%.prm: $(ASPECT_PROFILES)
 
@@ -94,6 +99,7 @@ help:
 	$(call LOG_DETAIL,plume-models-kn-warm-sluggish  Run ASPECT plume models)
 	$(call LOG_DETAIL,slab-models-kn-warm-sluggish   Run warm-sluggish ASPECT slab models)
 	$(call LOG_DETAIL,slab-models-kn-cold-nominal    Run cold-nominal ASPECT slab models)
+	$(call LOG_DETAIL,slab-models-kn-anchor-410    Run 410-anchor ASPECT slabs)
 	$(call LOG_DETAIL,configs                        Generate configs only)
 	$(call LOG_DETAIL,clean                          Remove generated files (safe))
 	$(call LOG_DETAIL,deep-clean                     Remove results and data (use with caution!))
