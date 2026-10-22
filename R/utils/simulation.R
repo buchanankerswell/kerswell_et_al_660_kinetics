@@ -1,5 +1,5 @@
 read_kerswell_data <- function(filepath, scenario_offset = 0) {
-  # Archived 410 runs effectively used Z' = Z / 3.15e7 (see erratum); rescale
+  # Archived 410 runs ran at sluggish Z = nominal Z / 3.15e7 (see erratum); rescale
   # on the fly since the OSF archive is read-only.
   sec_per_year <- 3.15e7
 
@@ -27,8 +27,8 @@ read_kerswell_data <- function(filepath, scenario_offset = 0) {
 
 read_local_data <- function(filepath) {
   # filepath may be a single path (per-suite figures) or a vector of paths
-  # (merged warm+cold figures); rows bind in order so warm scenarios keep
-  # indices 0-7 and cold scenarios offset to 8-15 below.
+  # (merged suite figures); rows bind in order so warm-sluggish scenarios keep
+  # indices 0-7 and cold-nominal scenarios offset to 8-15 below.
   raw_df <- bind_rows(lapply(filepath, function(p) suppressWarnings(read_csv(p, show_col_types = FALSE))))
 
   extract_transition_data <- function(df, trans_label) {
@@ -52,17 +52,17 @@ read_local_data <- function(filepath) {
     # parameters (pipeline parity: velocity and eta_therm ascending, eta_trans
     # descending). Chunked mesh runs index scenarios per chunk, so the cached
     # column drifts for homogeneous chunks; recomputing here keeps tile rows
-    # unambiguous. Cold slabs offset by +8 as before.
-    group_by(cold_suite = str_detect(model_id, fixed("Temp10e+02"))) |>
+    # unambiguous. Cold-nominal slabs offset by +8 as before.
+    group_by(cold_nominal_suite = str_detect(model_id, fixed("Temp10e+02"))) |>
     mutate(
       vel_i = match(prescribed_velocity, sort(unique(prescribed_velocity))) - 1L,
       therm_j = match(eta_therm, sort(unique(eta_therm))) - 1L,
       trans_k = match(eta_trans_ri_ps, sort(unique(eta_trans_ri_ps), decreasing = TRUE)) - 1L,
       scenario = trans_k * (n_distinct(prescribed_velocity) * n_distinct(eta_therm)) +
-        vel_i * n_distinct(eta_therm) + therm_j + 8L * cold_suite
+        vel_i * n_distinct(eta_therm) + therm_j + 8L * cold_nominal_suite
     ) |>
     ungroup() |>
-    select(-cold_suite, -vel_i, -therm_j, -trans_k)
+    select(-cold_nominal_suite, -vel_i, -therm_j, -trans_k)
 }
 
 process_and_combine_data <- function(filepath_local,
@@ -255,7 +255,7 @@ visualize_composition <- function(data_dir, out_path, csv_path_raw = NULL, csv_p
     return(invisible())
   }
 
-  # data_dir may be a single suite dir or c(warm_dir, cold_dir) for merged figures.
+  # data_dir may be a single suite dir or c(warm-sluggish dir, cold-nominal dir) for merged figures.
   in_locals <- file.path(data_dir, "structure-summary-local.csv")
   if (any(!file.exists(in_locals))) {
     log_error(paste("missing mesh output:", paste(in_locals[!file.exists(in_locals)], collapse = ", "), "(run meshes first)"))
@@ -273,8 +273,8 @@ visualize_composition <- function(data_dir, out_path, csv_path_raw = NULL, csv_p
 
   if (by_suite) {
     df_combined <- df_combined |> mutate(suite = case_when(
-      str_detect(model_id, fixed("Temp10e+02")) ~ "cold (1000 K anomaly)",
-      str_detect(model_id, fixed("Temp5e+02")) ~ "warm (500 K anomaly)",
+      str_detect(model_id, fixed("Temp10e+02")) ~ "cold-nominal (1000 K anomaly)",
+      str_detect(model_id, fixed("Temp5e+02")) ~ "warm-sluggish (500 K anomaly)",
       TRUE ~ "410 archive"
     ))
   }
@@ -292,7 +292,7 @@ visualize_composition <- function(data_dir, out_path, csv_path_raw = NULL, csv_p
   # Shared across panels so patchwork guides="collect" sees identical guides.
   rxn_labeller <- label_log()
 
-  suite_pal <- c("warm (500 K anomaly)" = "#E41A1C", "cold (1000 K anomaly)" = "#377EB8", "410 archive" = "grey60")
+  suite_pal <- c("warm-sluggish (500 K anomaly)" = "#E41A1C", "cold-nominal (1000 K anomaly)" = "#377EB8", "410 archive" = "grey60")
 
   p_scatter <- function(data, y_var, y_label, title = "", show_x = TRUE, show_y = TRUE, show_legend = FALSE) {
     # Merged figures drop the alpha mapping (transition already reads through
@@ -373,8 +373,8 @@ visualize_composition <- function(data_dir, out_path, csv_path_raw = NULL, csv_p
   log_artifact(out_path)
 }
 
-SUITE_LAB_WARM <- "Warm Sluggish Kinetics"
-SUITE_LAB_COLD <- "Cold Nominal Kinetics"
+SUITE_LAB_WARM_SLUGGISH <- "Warm Sluggish Kinetics"
+SUITE_LAB_COLD_NOMINAL <- "Cold Nominal Kinetics"
 SUITE_PAL_SPLIT <- c("Warm Sluggish Kinetics" = "#E41A1C", "Cold Nominal Kinetics" = "#377EB8", "T1-T4" = "black")
 SUITE_SHAPES_SPLIT <- c("Warm Sluggish Kinetics" = 16, "Cold Nominal Kinetics" = 16, "T1-T4" = 1)
 RATE_BREAKS_SPLIT <- c(1e-1, 1e1, 1e3, 1e5, 1e7, 1e9)
@@ -397,9 +397,9 @@ read_split_data <- function(in_locals, split_csv) {
     left_join(df_split, by = "model_id_key") |>
     mutate(suite = factor(case_when(
       is_T ~ "T1-T4",
-      str_detect(model_id, fixed("Temp10e+02")) ~ SUITE_LAB_COLD,
-      TRUE ~ SUITE_LAB_WARM
-    ), levels = c(SUITE_LAB_WARM, SUITE_LAB_COLD, "T1-T4")))
+      str_detect(model_id, fixed("Temp10e+02")) ~ SUITE_LAB_COLD_NOMINAL,
+      TRUE ~ SUITE_LAB_WARM_SLUGGISH
+    ), levels = c(SUITE_LAB_WARM_SLUGGISH, SUITE_LAB_COLD_NOMINAL, "T1-T4")))
 }
 
 contrib_point <- function(data, y_var, y_label, show_x = TRUE, show_legend = FALSE) {
@@ -471,9 +471,9 @@ visualize_tiles_rate <- function(in_locals, split_csv, out_path) {
     theme(axis.text.x = element_blank(), axis.title.x = element_blank(),
       axis.text.y = element_blank(), axis.title.y = element_blank())
   p2 <- tile_rate_panel(df, "vmax660", "Descent Rate (cm/yr)", "cividis", c(0, 2, 4, 6)) +
-    annotate("label", x = 2.2e-2, y = 1.0, label = SUITE_LAB_WARM, hjust = 0, size = 3,
+    annotate("label", x = 2.2e-2, y = 1.0, label = SUITE_LAB_WARM_SLUGGISH, hjust = 0, size = 3,
       fill = "white") +
-    annotate("label", x = 2.2e-2, y = 17.0, label = SUITE_LAB_COLD, hjust = 0, size = 3,
+    annotate("label", x = 2.2e-2, y = 17.0, label = SUITE_LAB_COLD_NOMINAL, hjust = 0, size = 3,
       fill = "white")
   p3 <- tile_rate_panel(df, "L_km", "L (km)", "inferno", c(1e-4, 1e-1, 1e2), trans = "log10") +
     theme(axis.text.y = element_blank(), axis.title.y = element_blank())
@@ -538,7 +538,7 @@ visualize_tiles <- function(in_path, out_path, height = 5.0) {
     return(invisible())
   }
 
-  # in_path may be a single local CSV or a vector (merged warm+cold tiles share
+  # in_path may be a single local CSV or a vector (merged suite tiles share
   # one log-Z axis; the gap between suites shows as stretched edge tiles).
   if (any(!file.exists(in_path))) {
     log_error(paste("missing mesh output:", paste(in_path[!file.exists(in_path)], collapse = ", "), "(run meshes first)"))

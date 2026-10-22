@@ -48,8 +48,8 @@ deep-clean:
 
 help:
 	$(call LOG_INFO,Available targets:)
-	$(call LOG_DETAIL,all                                Render manuscript and SI)
-	$(call LOG_DETAIL,diff-manuscript.pdf                Generate manuscript diff)
-	$(call LOG_DETAIL,diff-supplementary-information.pdf Generate SI diff)
-	$(call LOG_DETAIL,clean                              Cleanup unnecessary files)
+	$(call LOG_DETAIL,all                                 Render manuscript and SI)
+	$(call LOG_DETAIL,diff-manuscript.pdf                 Generate manuscript diff)
+	$(call LOG_DETAIL,diff-supplementary-information.pdf  Generate SI diff)
+	$(call LOG_DETAIL,clean                               Cleanup unnecessary files)
 	$(call LOG_DETAIL,Note: Use BACKUP_DATE=DD-MMM-YYYY to change diff source.)

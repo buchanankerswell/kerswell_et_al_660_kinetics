@@ -1,13 +1,9 @@
-"""Export per-slab thermal-kinetic split for the combined warm+cold analysis.
+"""Export per-slab thermal-kinetic split for the combined suite analysis.
 
 Reads each suite's structure-summary-local.csv and seismic-profile-cache.pkl,
 interpolates core nonadiabatic temperature at the measured 410/660 transition
 depths, and splits measured displacement into thermal offset
 (gamma*hat_T/(rho*g)) and kinetic contribution (measured minus thermal).
-
-Scenario indices replicate R/utils/simulation.R grouped logic: ranks computed
-within each suite (velocity ascending, eta_therm ascending, eta_trans
-descending), cold slabs offset by +8.
 """
 
 import argparse
@@ -29,8 +25,8 @@ GRAV = 9.81
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Export thermal-kinetic split.")
-    parser.add_argument("--warm-data", required=True, help="Warm suite data dir")
-    parser.add_argument("--cold-data", required=True, help="Cold suite data dir")
+    parser.add_argument("--warm-sluggish-data", required=True, help="Warm-sluggish suite data dir")
+    parser.add_argument("--cold-nominal-data", required=True, help="Cold-nominal suite data dir")
     parser.add_argument("--out-csv", required=True, help="Output CSV path")
     parser.add_argument("--profile-ol-wd", required=True)
     parser.add_argument("--profile-wd-ri", required=True)
@@ -81,7 +77,7 @@ def main():
           f"nominal 660={rxn660 / 1e3:.1f} km gamma={gamma660:.3e}")
 
     rows = []
-    for suite, data_dir in (("warm", args.warm_data), ("cold", args.cold_data)):
+    for suite, data_dir in (("warm-sluggish", args.warm_sluggish_data), ("cold-nominal", args.cold_nominal_data)):
         data_dir = Path(data_dir)
         loc = pd.read_csv(data_dir / "structure-summary-local.csv")
         with open(data_dir / "seismic-profile-cache.pkl", "rb") as f:
@@ -124,13 +120,12 @@ def main():
                 "width410_km": abs(float(r["width_410"])) / 1e3,
                 "kin410_km": (disp410 - therm410) / 1e3,
                 "therm410_km": therm410 / 1e3,
-                "is_T": bool(suite == "cold" and float(r["z_ol_wd"]) < 100),
+                "is_T": bool(suite == "cold-nominal" and float(r["z_ol_wd"]) < 100),
             })
 
     df = pd.DataFrame(rows)
-    # Scenario indices mirror R grouped logic (ranks within each suite).
     scenarios = []
-    for suite, cold in (("warm", 0), ("cold", 1)):
+    for suite, offset in (("warm-sluggish", 0), ("cold-nominal", 1)):
         d = df[df["suite"] == suite]
         vels = sorted(d["prescribed_velocity"].unique())
         therms = sorted(d["eta_therm"].unique())
@@ -140,7 +135,7 @@ def main():
             therm_j = therms.index(r["eta_therm"])
             trans_k = trans.index(r["eta_trans_ri_ps"])
             scenarios.append(
-                trans_k * (len(vels) * len(therms)) + vel_i * len(therms) + therm_j + 8 * cold
+                trans_k * (len(vels) * len(therms)) + vel_i * len(therms) + therm_j + 8 * offset
             )
     df["scenario"] = scenarios
 

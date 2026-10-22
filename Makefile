@@ -11,11 +11,11 @@ models:
 	@$(MAKE) --no-print-directory -C $(SIMULATION) all-models
 
 plume-models:
-	@$(MAKE) --no-print-directory -C $(SIMULATION) plume-models-kn-warm
+	@$(MAKE) --no-print-directory -C $(SIMULATION) plume-models-kn-warm-sluggish
 
 slab-models:
-	@$(MAKE) --no-print-directory -C $(SIMULATION) slab-models-kn-warm
-	@$(MAKE) --no-print-directory -C $(SIMULATION) slab-models-kn-cold
+	@$(MAKE) --no-print-directory -C $(SIMULATION) slab-models-kn-warm-sluggish
+	@$(MAKE) --no-print-directory -C $(SIMULATION) slab-models-kn-cold-nominal
 
 sync-barkla:
 	@$(MAKE) --no-print-directory -C $(PYTHON) sync-barkla
@@ -43,9 +43,6 @@ clean:
 	@find . -name ".DS_Store" -type f -delete
 
 deep-clean: clean
-	@$(MAKE) --no-print-directory -C $(BASH) deep-clean
-	@$(MAKE) --no-print-directory -C $(PYTHON) deep-clean
-	@$(MAKE) --no-print-directory -C $(R) deep-clean
 	@$(MAKE) --no-print-directory -C $(SIMULATION) deep-clean
 	@$(MAKE) --no-print-directory -C $(DRAFT) deep-clean
 

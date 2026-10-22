@@ -21,45 +21,53 @@ BARKLA2_SIMULATION := $(BARKLA2_ROOT)/simulation
 # --------------------------------------------------
 # Suites and outputs (can edit)
 # --------------------------------------------------
-MODEL_TYPES           := plume slab
-ASPECT_RESULTS        := $(SIMULATION)/results
-POSTPROCESS_MODE      := full
-POSTPROCESS_VERBOSITY := 0
-SAVE_CSV              := true
-FORCE_REPROCESS       := false
-FORCE_REWRITE         := true
-RESULTS_KN_WARM       = $(foreach type,$(MODEL_TYPES), $(addprefix $(ASPECT_RESULTS)/$(type)_, $(UIDS_KN_WARM)))
-RESULTS_KN_COLD_SLAB  = $(addprefix $(ASPECT_RESULTS)/slab_, $(UIDS_KN_COLD))
-TIMESTEPS_SYNC_PLUME  := 050
-TIMESTEPS_SYNC_SLAB   := 100
-FORCE_SYNC            := 0
-TIMESTEPS_MESH_WARM   := 000 050 100
-TIMESTEPS_MESH_COLD   := 100
-CHUNK_SIZE            := 32
-DATA_WARM             := $(SIMULATION)/data/warm
-DATA_COLD             := $(SIMULATION)/data/cold
-FIGS_SIM_WARM         := $(FIGS)/simulation_warm
-FIGS_SIM_COLD         := $(FIGS)/simulation_cold
-FIGS_STRUCT_WARM      := $(FIGS)/structure_warm
-FIGS_STRUCT_COLD      := $(FIGS)/structure_cold
-FIGS_SEISMIC_WARM     := $(FIGS)/seismic_warm
-FIGS_SEISMIC_COLD     := $(FIGS)/seismic_cold
+MODEL_TYPES                  := plume slab
+ASPECT_RESULTS               := $(SIMULATION)/results
+POSTPROCESS_MODE             := full
+POSTPROCESS_VERBOSITY        := 0
+SAVE_CSV                     := true
+FORCE_REPROCESS              := false
+FORCE_REWRITE                := true
+RESULTS_KN_WARM_SLUGGISH     = $(foreach type,$(MODEL_TYPES), $(addprefix $(ASPECT_RESULTS)/$(type)_, $(UIDS_KN_WARM_SLUGGISH)))
+RESULTS_KN_COLD_NOMINAL_SLAB = $(addprefix $(ASPECT_RESULTS)/slab_, $(UIDS_KN_COLD_NOMINAL))
+TIMESTEPS_SYNC_PLUME         := 050
+TIMESTEPS_SYNC_SLAB          := 100
+FORCE_SYNC                   := 0
+TIMESTEPS_MESH_WARM_SLUGGISH := 000 050 100
+TIMESTEPS_MESH_COLD_NOMINAL  := 100
+CHUNK_SIZE                   := 32
+DATA_WARM_SLUGGISH           := $(SIMULATION)/data/warm_sluggish
+DATA_COLD_NOMINAL            := $(SIMULATION)/data/cold_nominal
+FIGS_SIM_WARM_SLUGGISH       := $(FIGS)/simulation_warm_sluggish
+FIGS_SIM_COLD_NOMINAL        := $(FIGS)/simulation_cold_nominal
+FIGS_STRUCT_WARM_SLUGGISH    := $(FIGS)/structure_warm_sluggish
+FIGS_STRUCT_COLD_NOMINAL     := $(FIGS)/structure_cold_nominal
+FIGS_SEISMIC_WARM_SLUGGISH   := $(FIGS)/seismic_warm_sluggish
+FIGS_SEISMIC_COLD_NOMINAL    := $(FIGS)/seismic_cold_nominal
 
-COMBINED_CSV_RAW_WARM      := $(DATA_WARM)/structure-summary-combined.csv
-COMBINED_CSV_FILTERED_WARM := $(DATA_WARM)/structure-summary-combined-filtered.csv
-COMBINED_CSV_RAW_COLD      := $(DATA_COLD)/structure-summary-combined.csv
-COMBINED_CSV_FILTERED_COLD := $(DATA_COLD)/structure-summary-combined-filtered.csv
+COMBINED_CSV_RAW_WARM_SLUGGISH      := $(DATA_WARM_SLUGGISH)/structure-summary-combined.csv
+COMBINED_CSV_FILTERED_WARM_SLUGGISH := $(DATA_WARM_SLUGGISH)/structure-summary-combined-filtered.csv
+COMBINED_CSV_RAW_COLD_NOMINAL       := $(DATA_COLD_NOMINAL)/structure-summary-combined.csv
+COMBINED_CSV_FILTERED_COLD_NOMINAL  := $(DATA_COLD_NOMINAL)/structure-summary-combined-filtered.csv
 
-# Merged warm+cold outputs. FIGS_STRUCT_BOTH matches the figs/structure/ paths
+# Merged warm-sluggish+cold-nominal outputs. FIGS_STRUCT_BOTH matches the figs/structure/ paths
 # referenced by draft/manuscript.md; the combined CSVs live in their own data
 # dir so per-suite tables stay untouched.
-DATA_BOTH                := $(SIMULATION)/data/combined
-FIGS_STRUCT_BOTH         := $(FIGS)/structure
+DATA_BOTH                  := $(SIMULATION)/data/combined
+FIGS_STRUCT_BOTH           := $(FIGS)/structure
 COMBINED_CSV_RAW_BOTH      := $(DATA_BOTH)/structure-summary-combined.csv
 COMBINED_CSV_FILTERED_BOTH := $(DATA_BOTH)/structure-summary-combined-filtered.csv
-SPLIT_CSV_BOTH           := $(DATA_BOTH)/thermal-kinetic-split.csv
-FIGS_SIM_BOTH            := $(FIGS)/simulation
-FIGS_SEISMIC_BOTH        := $(FIGS)/seismic
+SPLIT_CSV_BOTH             := $(DATA_BOTH)/thermal-kinetic-split.csv
+FIGS_SIM_BOTH              := $(FIGS)/simulation
+FIGS_SEISMIC_BOTH          := $(FIGS)/seismic
+
+# Shared pipeline inputs (single source of truth)
+PERPLEX_MODELS         := $(shell find $(PERPLEX) -type f -name '*.dat' -exec basename {} .dat \;)
+KERSWELL_410_DATA      := $(SIMULATION)/data/structure-summary-kerswell-et-al-2026.csv
+MESH_CSV_WARM_SLUGGISH := $(DATA_WARM_SLUGGISH)/structure-summary-local.csv
+MESH_CSV_COLD_NOMINAL  := $(DATA_COLD_NOMINAL)/structure-summary-local.csv
+LINK_WARM_SLUGGISH     := $(DATA_WARM_SLUGGISH)/structure-summary-kerswell-et-al-2026.csv
+LINK_COLD_NOMINAL      := $(DATA_COLD_NOMINAL)/structure-summary-kerswell-et-al-2026.csv
 
 # Composition reference models
 ID_W1 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-11_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
@@ -76,33 +84,27 @@ ID_C4 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e-03_EtaTherm5_EtaTrans1-1-1-50_MG
 ID_C5 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp10e+02
 ID_C6 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e+03_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp10e+02
 
-# Sluggish-410 tests (nominal Z at bottom of published 410 range, cold T,
-# penetrating corner only: EtaTherm5, b=1, Vel5e-02, Zri6.0e-01). These probe
-# whether a metastable olivine wedge reaches the 660 through the xi ordering
-# when 410 kinetics go dry/coarse while 660 kinetics stay mid-range.
+# Sluggish-410 tests (nominal Z_ol/Z_wd 3.0e0, 7.0e0, cold-nominal corner only:
+# EtaTherm5, b=1, Vel5e-02, Zri6.0e-01). Must match ID_T1/ID_T2 in project.mk.
 ID_T1 := KN_Dynp0_Zol3.0e0_Zwd3.0e0_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp10e+02
 ID_T2 := KN_Dynp0_Zol7.0e0_Zwd7.0e0_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp10e+02
 
-# Fast-descent twins of ID_T1/ID_T2 at Vel20e-02. Previous kinetic studies sank
-# slabs near 12 cm/yr vertically; our Vel5/10 inflows descend well below that
-# through the transitions, giving kinetics too much time. Doubling inflow past
-# Vel10 shortens residence in the transition zone and sharpens the
-# advection-reaction race toward the 1990s regime.
+# Fast-descent twins of ID_T1/ID_T2 at Vel20e-02.
 ID_T3 := KN_Dynp0_Zol3.0e0_Zwd3.0e0_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel20e-02_Temp10e+02
 ID_T4 := KN_Dynp0_Zol7.0e0_Zwd7.0e0_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel20e-02_Temp10e+02
 
 # Visualization scope (can edit)
-VIS_ALL      := false
-VIS_ALL_WARM := $(VIS_ALL)
-VIS_ALL_COLD := $(VIS_ALL)
+VIS_ALL               := false
+VIS_ALL_WARM_SLUGGISH := $(VIS_ALL)
+VIS_ALL_COLD_NOMINAL  := $(VIS_ALL)
 
 VIS_ON := true yes 1
 
-VIS_IDS_WARM    := $(ID_W1) $(ID_W2) $(ID_W3) $(ID_W4) $(ID_W5) $(ID_W6)
-VIS_IDS_COLD    := $(ID_C1) $(ID_C2) $(ID_C3) $(ID_C4) $(ID_C5) $(ID_C6)
+VIS_IDS_WARM_SLUGGISH := $(ID_W1) $(ID_W2) $(ID_W3) $(ID_W4) $(ID_W5) $(ID_W6)
+VIS_IDS_COLD_NOMINAL  := $(ID_C1) $(ID_C2) $(ID_C3) $(ID_C4) $(ID_C5) $(ID_C6)
 
-VIS_MODELS_WARM = $(if $(filter $(VIS_ON),$(VIS_ALL_WARM)),$(notdir $(RESULTS_KN_WARM)),$(foreach id,$(VIS_IDS_WARM),plume_$(id) slab_$(id)))
-VIS_MODELS_COLD = $(if $(filter $(VIS_ON),$(VIS_ALL_COLD)),$(notdir $(RESULTS_KN_COLD_SLAB)),$(foreach id,$(VIS_IDS_COLD),slab_$(id)))
+VIS_MODELS_WARM_SLUGGISH = $(if $(filter $(VIS_ON),$(VIS_ALL_WARM_SLUGGISH)),$(notdir $(RESULTS_KN_WARM_SLUGGISH)),$(foreach id,$(VIS_IDS_WARM_SLUGGISH),plume_$(id) slab_$(id)))
+VIS_MODELS_COLD_NOMINAL  = $(if $(filter $(VIS_ON),$(VIS_ALL_COLD_NOMINAL)),$(notdir $(RESULTS_KN_COLD_NOMINAL_SLAB)),$(foreach id,$(VIS_IDS_COLD_NOMINAL),slab_$(id)))
 
 # --------------------------------------------------
 # Model parameters (can edit)
@@ -130,15 +132,15 @@ ETA_PREF_WD := 1
 ETA_PREF_RI := 1
 ETA_PREF_PS := 1 50
 
-# Warm kinetics (effective Z, Temp5e+02)
-Z_OL_WARM := 4.44e-04
-Z_WD_WARM := 4.44e-04
-Z_RI_WARM := 5.08e-11 3.81e-10 2.63e-09 1.90e-08 1.37e-07 9.84e-07 6.98e-06 5.08e-05
+# Warm-sluggish kinetics (sluggish Z, Temp5e+02)
+Z_OL_WARM_SLUGGISH := 4.44e-04
+Z_WD_WARM_SLUGGISH := 4.44e-04
+Z_RI_WARM_SLUGGISH := 5.08e-11 3.81e-10 2.63e-09 1.90e-08 1.37e-07 9.84e-07 6.98e-06 5.08e-05
 
-# Cold kinetics (nominal Z, Temp10e+02 slabs)
-Z_OL_COLD := 1.4e+04
-Z_WD_COLD := 1.4e+04
-Z_RI_COLD := 1.6e-03 1.2e-02 8.3e-02 6.0e-01 4.3e+00 3.1e+01 2.2e+02 1.6e+03
+# Cold-nominal kinetics (nominal Z, Temp10e+02 slabs)
+Z_OL_COLD_NOMINAL := 1.4e+04
+Z_WD_COLD_NOMINAL := 1.4e+04
+Z_RI_COLD_NOMINAL := 1.6e-03 1.2e-02 8.3e-02 6.0e-01 4.3e+00 3.1e+01 2.2e+02 1.6e+03
 
 V_OL := 3.3e-06
 V_WD := 3.3e-06
@@ -150,9 +152,9 @@ DEPTH_CORRECTION_OL_WD := 5e+03
 DEPTH_CORRECTION_WD_RI := 5e+03
 DEPTH_CORRECTION_RI_PS := 15e+03
 
-VELOCITY_BC          := 5e-02 10e-02
-TEMPERATURE_BC_WARM  := 5e+02
-TEMPERATURE_BC_COLD  := 10e+02
+VELOCITY_BC                  := 5e-02 10e-02
+TEMPERATURE_BC_WARM_SLUGGISH := 5e+02
+TEMPERATURE_BC_COLD_NOMINAL  := 10e+02
 
 MODEL_WIDTH        := 1500e+03
 MODEL_HEIGHT       := 1000e+03
@@ -208,25 +210,25 @@ A_PLUME  := $(PLUME_A)
 # Macros (no edits)
 # --------------------------------------------------
 define COMPUTE_PHASES
-  $(eval _OL_WD  := $(SIMULATION)/data/olivine-wadsleyite-profile-Mg$(1).tsv)
-  $(eval _WD_RI  := $(SIMULATION)/data/wadsleyite-ringwoodite-profile-Mg$(1).tsv)
-  $(eval _RI_PS  := $(SIMULATION)/data/ringwoodite-postspinel-profile-Mg$(1).tsv)
-  $(eval _PH_OUT := $(shell $(CONDA_PYTHON) -u $(PYTHON)/simulation/params/transitions.py $(_OL_WD) $(_WD_RI) $(_RI_PS) $(MODEL_HEIGHT) $(SURFACE_PRESSURE)))
-  $(eval TRANS_OL_WD_Y_$(1)      := $(word 1,$(_PH_OUT)))
-  $(eval TRANS_OL_WD_DEPTH_$(1)  := $(word 2,$(_PH_OUT)))
-  $(eval TRANS_OL_WD_T_$(1)      := $(word 3,$(_PH_OUT)))
-  $(eval TRANS_OL_WD_CLAP_$(1)   := $(word 4,$(_PH_OUT)))
-  $(eval TRANS_OL_WD_DRHO_$(1)   := $(word 5,$(_PH_OUT)))
-  $(eval TRANS_WD_RI_Y_$(1)      := $(word 6,$(_PH_OUT)))
-  $(eval TRANS_WD_RI_DEPTH_$(1)  := $(word 7,$(_PH_OUT)))
-  $(eval TRANS_WD_RI_T_$(1)      := $(word 8,$(_PH_OUT)))
-  $(eval TRANS_WD_RI_CLAP_$(1)   := $(word 9,$(_PH_OUT)))
-  $(eval TRANS_WD_RI_DRHO_$(1)   := $(word 10,$(_PH_OUT)))
-  $(eval TRANS_RI_PS_Y_$(1)      := $(word 11,$(_PH_OUT)))
-  $(eval TRANS_RI_PS_DEPTH_$(1)  := $(word 12,$(_PH_OUT)))
-  $(eval TRANS_RI_PS_T_$(1)      := $(word 13,$(_PH_OUT)))
-  $(eval TRANS_RI_PS_CLAP_$(1)   := $(word 14,$(_PH_OUT)))
-  $(eval TRANS_RI_PS_DRHO_$(1)   := $(word 15,$(_PH_OUT)))
+  $(eval _OL_WD                 := $(SIMULATION)/data/olivine-wadsleyite-profile-Mg$(1).tsv)
+  $(eval _WD_RI                 := $(SIMULATION)/data/wadsleyite-ringwoodite-profile-Mg$(1).tsv)
+  $(eval _RI_PS                 := $(SIMULATION)/data/ringwoodite-postspinel-profile-Mg$(1).tsv)
+  $(eval _PH_OUT                := $(shell $(CONDA_PYTHON) -u $(PYTHON)/simulation/params/transitions.py $(_OL_WD) $(_WD_RI) $(_RI_PS) $(MODEL_HEIGHT) $(SURFACE_PRESSURE)))
+  $(eval TRANS_OL_WD_Y_$(1)     := $(word 1,$(_PH_OUT)))
+  $(eval TRANS_OL_WD_DEPTH_$(1) := $(word 2,$(_PH_OUT)))
+  $(eval TRANS_OL_WD_T_$(1)     := $(word 3,$(_PH_OUT)))
+  $(eval TRANS_OL_WD_CLAP_$(1)  := $(word 4,$(_PH_OUT)))
+  $(eval TRANS_OL_WD_DRHO_$(1)  := $(word 5,$(_PH_OUT)))
+  $(eval TRANS_WD_RI_Y_$(1)     := $(word 6,$(_PH_OUT)))
+  $(eval TRANS_WD_RI_DEPTH_$(1) := $(word 7,$(_PH_OUT)))
+  $(eval TRANS_WD_RI_T_$(1)     := $(word 8,$(_PH_OUT)))
+  $(eval TRANS_WD_RI_CLAP_$(1)  := $(word 9,$(_PH_OUT)))
+  $(eval TRANS_WD_RI_DRHO_$(1)  := $(word 10,$(_PH_OUT)))
+  $(eval TRANS_RI_PS_Y_$(1)     := $(word 11,$(_PH_OUT)))
+  $(eval TRANS_RI_PS_DEPTH_$(1) := $(word 12,$(_PH_OUT)))
+  $(eval TRANS_RI_PS_T_$(1)     := $(word 13,$(_PH_OUT)))
+  $(eval TRANS_RI_PS_CLAP_$(1)  := $(word 14,$(_PH_OUT)))
+  $(eval TRANS_RI_PS_DRHO_$(1)  := $(word 15,$(_PH_OUT)))
 endef
 
 define MAKE_KN_UID
@@ -382,22 +384,11 @@ endif
 # --------------------------------------------------
 # Logging (no edits)
 # --------------------------------------------------
-DATE            := $(shell date +"%d-%m-%Y")
-LOG_FILE        := $(PROJECT_ROOT)/log-$(DATE).out
-LOGGER          := 2>&1 | tee -a $(LOG_FILE)
-SUPPRESS_STDERR := 2>/dev/null
-SUPPRESS_STDOUT := > /dev/null
-
 # Gutter logging for recipes (dim gutter, cyan steps, green artifacts).
-LOG_SH := $(BASH)/utils/log.sh
-LOG_INFO = @bash -c 'source $(LOG_SH); log_info "$(1)"'
-LOG_DETAIL = @bash -c 'source $(LOG_SH); log_detail "$(1)"'
+LOG_SH       := $(BASH)/utils/log.sh
+LOG_INFO     = @bash -c 'source $(LOG_SH); log_info "$(1)"'
+LOG_DETAIL   = @bash -c 'source $(LOG_SH); log_detail "$(1)"'
 LOG_ARTIFACT = @bash -c 'source $(LOG_SH); log_artifact "$(1)"'
-LOG_DELETE = @bash -c 'source $(LOG_SH); log_delete "$(1)"'
-LOG_ERROR = @bash -c 'source $(LOG_SH); log_error "$(1)"'
-
-$(LOG_FILE):
-	@touch $(LOG_FILE)
 
 # --------------------------------------------------
 # Safe removal (no edits)

@@ -9,7 +9,7 @@ import matplotlib
 _FIELD_DEFAULTS: dict[str, tuple] = {
     # fmt: off
     "T":                        ("temperature-full",         "magma",    "auto",      "$T$ (K)",                           "%.0f", 1,        False, False, False, ),
-    "nonadiabatic_temperature": ("temperature-nonadiabatic", "seismic",  "auto",      "$\\hat{T}$ (K)",                    "%.0f", 1,        True,  True,  True,  ),
+    "nonadiabatic_temperature": ("temperature-nonadiabatic", "seismic",  (-1e3, 1e3), "$\\hat{T}$ (K)",                    "%.0f", 1,        True,  True,  True,  ),
     "p":                        ("pressure-full",            "Oranges",  "auto",      "$P$ (GPa)",                         "%.0f", 1e-9,     False, False, False, ),
     "nonadiabatic_pressure":    ("pressure-nonadiabatic",    "PuOr_r",   "auto",      "$\\hat{P}$ (MPa)",                  "%.0f", 1e-6,     False, False, False, ),
     "density":                  ("density-full",             "Purples",  "auto",      "$\\rho$ (g/cm$^3$)",                "%.1f", 1e-3,     False, False, False, ),

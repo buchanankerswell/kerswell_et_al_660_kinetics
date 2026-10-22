@@ -4,7 +4,7 @@ main <- function() {
   args <- commandArgs(trailingOnly = TRUE)
 
   if (length(args) < 6) {
-    cat(" !! Warning: Usage: simulation-combined.R [util_dir] [data_dir_warm] [data_dir_cold] [out_dir] [csv_raw] [csv_filtered] [save_csv] [force_rewrite] [split_csv]\n")
+    cat(" !! Warning: Usage: simulation-combined.R [util_dir] [data_dir_warm_sluggish] [data_dir_cold_nominal] [out_dir] [csv_raw] [csv_filtered] [save_csv] [force_rewrite] [split_csv]\n")
     return(invisible())
   }
 
@@ -27,12 +27,12 @@ main <- function() {
   out_path_tiles_rate <- file.path(out_dir, "tiles-rate.png")
   out_path_regime_joint <- file.path(out_dir, "regime-joint.png")
 
-  log_info("Visualizing structure: warm+cold combined")
+  log_info("Visualizing structure: combined suites")
   visualize_composition(data_dirs, out_path_composition, csv_path_raw, csv_path_filtered, save_csv, force_rewrite, by_suite = TRUE)
   visualize_tiles(in_data, out_path_tiles, height = 9.0)
 
   if (nzchar(split_csv)) {
-    log_info("Visualizing contributions: warm+cold split")
+    log_info("Visualizing contributions: suite split")
     visualize_contributions(in_data, split_csv, out_path_contributions)
     visualize_tiles_rate(in_data, split_csv, out_path_tiles_rate)
     visualize_regime_joint(in_data, split_csv, out_path_regime_joint)

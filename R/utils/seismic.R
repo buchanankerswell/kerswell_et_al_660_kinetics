@@ -106,13 +106,13 @@ read_matched_profiles <- function(data_dir, suite_label) {
     mutate(suite = suite_label)
 }
 
-visualize_seismic_comparison <- function(data_dir_warm, data_dir_cold, out_path) {
+visualize_seismic_comparison <- function(data_dir_warm_sluggish, data_dir_cold_nominal, out_path) {
   if (plot_exists(out_path)) {
     return(invisible())
   }
   df <- bind_rows(
-    read_matched_profiles(data_dir_warm, "Warm Sluggish Kinetics"),
-    read_matched_profiles(data_dir_cold, "Cold Nominal Kinetics")
+    read_matched_profiles(data_dir_warm_sluggish, "Warm Sluggish Kinetics"),
+    read_matched_profiles(data_dir_cold_nominal, "Cold Nominal Kinetics")
   )
   if (is.null(df) || !nrow(df)) {
     return(invisible())

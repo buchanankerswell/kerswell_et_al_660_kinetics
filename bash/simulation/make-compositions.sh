@@ -67,7 +67,7 @@ COMP_SETS=(
   "set2:temperature-nonadiabatic-viscosity-X-ps"
 )
 
-# Optional pair mode: $6 == PAIR composes a vertical W1-vs-C1 style montage
+# Optional pair mode: $6 == PAIR composes a vertical matched-pair montage
 # from two slab models living in different mesh dirs ($1 and $8).
 # Usage: make-compositions.sh <FIG_DIR_A> <OUT_DIR> <TIMESTEP> <BATCH> <ID_A> PAIR <ID_B> <FIG_DIR_B>
 if [ "${6:-}" == "PAIR" ]; then
