@@ -139,7 +139,7 @@ visualize_seismic_comparison <- function(data_dir_warm_sluggish, data_dir_cold_n
       ) +
       labs(title = suite_label, x = expression(V[p] ~ (km / s)), y = "Depth (km)", color = expression(Z[ri])) +
       theme_bw(base_size = 22) +
-      theme_profile()
+      theme_profile_comparison()
 
     if (labels) {
       panel + list(
@@ -158,7 +158,9 @@ visualize_seismic_comparison <- function(data_dir_warm_sluggish, data_dir_cold_n
   log_artifact(out_path)
 }
 
-theme_profile <- function() {
+# Tuned variant for the revisions comparison figure. The submission figure
+# (visualize_seismic_profiles) keeps the original theme_profile below.
+theme_profile_comparison <- function() {
   theme(
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
@@ -181,6 +183,34 @@ theme_profile <- function() {
     legend.ticks = element_line(color = "black", linewidth = 0.4),
     legend.ticks.length = unit(0.2, "lines"),
     legend.frame = element_rect(color = "black", linewidth = 0.4),
+    legend.spacing.y = unit(1.0, "lines")
+  )
+}
+
+# Original submission styling for visualize_seismic_profiles, as submitted.
+theme_profile <- function() {
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_rect(fill = "grey90"),
+    panel.spacing.x = unit(1.5, "cm"),
+    plot.margin = margin(5, 25, 5, 25),
+    plot.title = element_text(hjust = 0.5, size = 32, margin = margin(0, 0, 10, 0)),
+    axis.ticks = element_blank(),
+    legend.justification = "left",
+    legend.position = "inside",
+    legend.position.inside = c(0.02, 0.85),
+    legend.direction = "horizontal",
+    legend.key.height = unit(0.65, "cm"),
+    legend.key.width = unit(1, "cm"),
+    legend.box.margin = margin(2, 2, 2, 2),
+    legend.margin = margin(),
+    legend.title = element_text(vjust = 1, size = 32),
+    legend.background = element_blank(),
+    legend.ticks = element_line(color = "black", linewidth = 1.0),
+    legend.ticks.length = unit(0.2, "lines"),
+    legend.frame = element_rect(color = "black", linewidth = 1.0),
+    legend.text = element_text(size = 28, margin = margin(5, 0, 0, 0)),
     legend.spacing.y = unit(1.0, "lines")
   )
 }
