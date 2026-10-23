@@ -1,3 +1,6 @@
+# Set the default goal before includes
+.DEFAULT_GOAL := help
+
 # Include definitions
 include $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/../project.mk)
 include local.mk
@@ -52,4 +55,3 @@ help:
 	$(call LOG_DETAIL,diff-manuscript.pdf                 Generate manuscript diff)
 	$(call LOG_DETAIL,diff-supplementary-information.pdf  Generate SI diff)
 	$(call LOG_DETAIL,clean                               Cleanup unnecessary files)
-	$(call LOG_DETAIL,Note: Use BACKUP_DATE=DD-MMM-YYYY to change diff source.)

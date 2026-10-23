@@ -1,3 +1,6 @@
+# Set the default goal before includes
+.DEFAULT_GOAL := help
+
 # Include definitions
 include project.mk
 

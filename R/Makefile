@@ -1,3 +1,7 @@
+# Set the default goal before includes
+.DEFAULT_GOAL := help
+
+# Include definitions
 include $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/../project.mk)
 
 CLEAN := $(FIGS)/kubo $(FIGS_STRUCT_WARM_SLUGGISH) $(FIGS_STRUCT_COLD_NOMINAL) $(FIGS_STRUCT_BOTH) $(FIGS_SEISMIC_WARM_SLUGGISH) $(FIGS_SEISMIC_COLD_NOMINAL) $(FIGS_SEISMIC_BOTH)

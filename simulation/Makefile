@@ -1,3 +1,6 @@
+# Set the default goal before includes
+.DEFAULT_GOAL := help
+
 # Include definitions
 include $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/../project.mk)
 include local.mk
@@ -99,7 +102,7 @@ help:
 	$(call LOG_DETAIL,plume-models-kn-warm-sluggish  Run ASPECT plume models)
 	$(call LOG_DETAIL,slab-models-kn-warm-sluggish   Run warm-sluggish ASPECT slab models)
 	$(call LOG_DETAIL,slab-models-kn-cold-nominal    Run cold-nominal ASPECT slab models)
-	$(call LOG_DETAIL,slab-models-kn-anchor-410    Run 410-anchor ASPECT slabs)
+	$(call LOG_DETAIL,slab-models-kn-anchor-410      Run 410-anchor ASPECT slabs)
 	$(call LOG_DETAIL,configs                        Generate configs only)
 	$(call LOG_DETAIL,clean                          Remove generated files (safe))
 	$(call LOG_DETAIL,deep-clean                     Remove results and data (use with caution!))

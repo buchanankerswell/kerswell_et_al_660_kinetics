@@ -1,3 +1,7 @@
+# Set the default goal before includes
+.DEFAULT_GOAL := help
+
+# Include definitions
 include $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/../project.mk)
 include $(SIMULATION)/local.mk
 
@@ -126,11 +130,11 @@ clean:
 
 help:
 	$(call LOG_INFO,Available targets:)
-	$(call LOG_DETAIL,visualize    Visualize all results)
-	$(call LOG_DETAIL,sync-barkla  Fetch simulation results from barkla)
-	$(call LOG_DETAIL,setup        Visualize initial numerical setup)
-	$(call LOG_DETAIL,kubo         Visualize Kubo 2022 dataset regression)
-	$(call LOG_DETAIL,meshes       Visualize ASPECT models (warm-sluggish + cold-nominal))
-	$(call LOG_DETAIL,meshes-anchor-410 Visualize 410-anchor meshes)
-	$(call LOG_DETAIL,split        Export thermal-kinetic split)
-	$(call LOG_DETAIL,clean        Remove generated files (safe))
+	$(call LOG_DETAIL,visualize          Visualize all results)
+	$(call LOG_DETAIL,sync-barkla        Fetch simulation results from barkla)
+	$(call LOG_DETAIL,setup              Visualize initial numerical setup)
+	$(call LOG_DETAIL,kubo               Visualize Kubo 2022 dataset regression)
+	$(call LOG_DETAIL,meshes             Visualize ASPECT models (warm-sluggish + cold-nominal))
+	$(call LOG_DETAIL,meshes-anchor-410  Visualize 410-anchor meshes)
+	$(call LOG_DETAIL,split              Export thermal-kinetic split)
+	$(call LOG_DETAIL,clean              Remove generated files (safe))
