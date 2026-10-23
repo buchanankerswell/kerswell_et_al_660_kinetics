@@ -6,7 +6,7 @@ include $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/../project.mk)
 include local.mk
 
 # Cleanup
-EXTS       := aux bbl blg log toc out tex pdf
+EXTS       := aux bbl blg log toc out tex pdf docx
 CLEAN      := $(foreach doc,$(DOCS) $(addprefix diff-,$(DOCS)),$(addprefix $(DRAFT)/$(doc).,$(EXTS))) $(addprefix $(DRAFT)/response.,$(EXTS))
 DEEP_CLEAN :=
 
