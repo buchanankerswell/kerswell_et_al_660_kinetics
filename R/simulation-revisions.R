@@ -4,7 +4,7 @@ main <- function() {
   args <- commandArgs(trailingOnly = TRUE)
 
   if (length(args) < 6) {
-    cat(" !! Warning: Usage: simulation-combined.R [util_dir] [data_dir_warm_sluggish] [data_dir_cold_nominal] [out_dir] [csv_raw] [csv_filtered] [save_csv] [force_rewrite] [split_csv]\n")
+    cat(" !! Warning: Usage: simulation-revisions.R [util_dir] [data_dir_warm_sluggish] [data_dir_cold_nominal] [out_dir] [csv_raw] [csv_filtered] [save_csv] [force_rewrite] [split_csv]\n")
     return(invisible())
   }
 

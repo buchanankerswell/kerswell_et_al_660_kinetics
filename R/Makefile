@@ -4,9 +4,9 @@
 # Include definitions
 include $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/../project.mk)
 
-CLEAN := $(FIGS)/kubo $(FIGS_STRUCT_WARM_SLUGGISH) $(FIGS_STRUCT_COLD_NOMINAL) $(FIGS_STRUCT_BOTH) $(FIGS_STRUCT_SUBMISSION) $(FIGS_SEISMIC_WARM_SLUGGISH) $(FIGS_SEISMIC_COLD_NOMINAL) $(FIGS_SEISMIC_BOTH)
+CLEAN := $(FIGS)/kubo $(FIGS_STRUCT_WARM_SLUGGISH) $(FIGS_STRUCT_COLD_NOMINAL) $(FIGS_STRUCT_REVISIONS) $(FIGS_STRUCT_SUBMISSION) $(FIGS_SEISMIC_WARM_SLUGGISH) $(FIGS_SEISMIC_COLD_NOMINAL) $(FIGS_SEISMIC_REVISIONS)
 
-.PHONY: all visualize visualize-submission tables tables-warm-sluggish tables-cold-nominal adiabat simulation simulation-warm-sluggish simulation-cold-nominal simulation-both simulation-submission seismic seismic-warm-sluggish seismic-cold-nominal seismic-both seismic-submission download upload clean help
+.PHONY: all visualize visualize-submission tables tables-warm-sluggish tables-cold-nominal adiabat simulation simulation-warm-sluggish simulation-cold-nominal simulation-revisions simulation-submission seismic seismic-warm-sluggish seismic-cold-nominal seismic-revisions seismic-submission download upload clean help
 
 all: visualize
 visualize: adiabat simulation seismic
@@ -22,7 +22,7 @@ tables-warm-sluggish tables-cold-nominal:
 adiabat:
 	@for model in $(PERPLEX_MODELS); do Rscript $(R)/adiabat.R $(R)/utils $$model $(SIMULATION)/data $(FIGS)/adiabat; done
 
-seismic: seismic-warm-sluggish seismic-cold-nominal seismic-both
+seismic: seismic-warm-sluggish seismic-cold-nominal seismic-revisions
 
 $(MESH_CSV_WARM_SLUGGISH):
 	@$(MAKE) --no-print-directory -C $(PYTHON) meshes-warm-sluggish
@@ -36,14 +36,14 @@ seismic-cold-nominal: $(MESH_CSV_COLD_NOMINAL)
 seismic-warm-sluggish seismic-cold-nominal:
 	@Rscript $(R)/seismic.R $(R)/utils $(DATA_$(SUITE))/seismic_profiles $(FIGS_SEISMIC_$(SUITE))
 
-seismic-both: $(MESH_CSV_WARM_SLUGGISH) $(MESH_CSV_COLD_NOMINAL)
-seismic-both:
-	@Rscript $(R)/seismic-combined.R $(R)/utils $(DATA_WARM_SLUGGISH)/seismic_profiles $(DATA_COLD_NOMINAL)/seismic_profiles $(FIGS_SEISMIC_BOTH)
+seismic-revisions: $(MESH_CSV_WARM_SLUGGISH) $(MESH_CSV_COLD_NOMINAL)
+seismic-revisions:
+	@Rscript $(R)/seismic-revisions.R $(R)/utils $(DATA_WARM_SLUGGISH)/seismic_profiles $(DATA_COLD_NOMINAL)/seismic_profiles $(FIGS_SEISMIC_REVISIONS)
 
 # Submission seismic is the warm-sluggish per-suite figure (original path).
 seismic-submission: seismic-warm-sluggish
 
-simulation: simulation-warm-sluggish simulation-cold-nominal simulation-both
+simulation: simulation-warm-sluggish simulation-cold-nominal simulation-revisions
 
 $(LINK_WARM_SLUGGISH) $(LINK_COLD_NOMINAL): $(KERSWELL_410_DATA)
 	@mkdir -p $(dir $@) && ln -sf ../$(notdir $(KERSWELL_410_DATA)) $@
@@ -59,12 +59,12 @@ simulation-warm-sluggish simulation-cold-nominal:
 simulation-submission: $(KERSWELL_410_DATA) $(LINK_WARM_SLUGGISH) $(MESH_CSV_WARM_SLUGGISH)
 	@Rscript $(R)/simulation.R $(R)/utils $(DATA_WARM_SLUGGISH) $(FIGS_STRUCT_SUBMISSION) $(COMBINED_CSV_RAW_WARM_SLUGGISH) $(COMBINED_CSV_FILTERED_WARM_SLUGGISH) $(SAVE_CSV) $(FORCE_REWRITE)
 
-$(SPLIT_CSV_BOTH):
-	@$(MAKE) --no-print-directory -C $(PYTHON) split
-simulation-both: $(KERSWELL_410_DATA) $(LINK_WARM_SLUGGISH) $(MESH_CSV_WARM_SLUGGISH) $(MESH_CSV_COLD_NOMINAL) $(SPLIT_CSV_BOTH)
-simulation-both:
-	@mkdir -p $(DATA_BOTH)
-	@Rscript $(R)/simulation-combined.R $(R)/utils $(DATA_WARM_SLUGGISH) $(DATA_COLD_NOMINAL) $(FIGS_STRUCT_BOTH) $(COMBINED_CSV_RAW_BOTH) $(COMBINED_CSV_FILTERED_BOTH) $(SAVE_CSV) $(FORCE_REWRITE) $(SPLIT_CSV_BOTH)
+$(SPLIT_CSV_REVISIONS):
+	@$(MAKE) --no-print-directory -C $(PYTHON) split-revisions
+simulation-revisions: $(KERSWELL_410_DATA) $(LINK_WARM_SLUGGISH) $(MESH_CSV_WARM_SLUGGISH) $(MESH_CSV_COLD_NOMINAL) $(SPLIT_CSV_REVISIONS)
+simulation-revisions:
+	@mkdir -p $(DATA_REVISIONS)
+	@Rscript $(R)/simulation-revisions.R $(R)/utils $(DATA_WARM_SLUGGISH) $(DATA_COLD_NOMINAL) $(FIGS_STRUCT_REVISIONS) $(COMBINED_CSV_RAW_REVISIONS) $(COMBINED_CSV_FILTERED_REVISIONS) $(SAVE_CSV) $(FORCE_REWRITE) $(SPLIT_CSV_REVISIONS)
 
 download:
 	@Rscript $(R)/osf.R $(R)/utils $(ASPECT_RESULTS) $(SIMULATION)/data "download"
@@ -83,7 +83,7 @@ help:
 	$(call LOG_DETAIL,visualize   Visualize all results)
 	$(call LOG_DETAIL,visualize-submission Visualize submission figures (warm-sluggish only))
 	$(call LOG_DETAIL,adiabat     Visualize adiabatic profiles)
-	$(call LOG_DETAIL,simulation  Visualize simulation results (warm-sluggish + cold-nominal + combined))
+	$(call LOG_DETAIL,simulation  Visualize simulation results (warm-sluggish + cold-nominal + revisions))
 	$(call LOG_DETAIL,simulation-submission Visualize submission structure figures)
 	$(call LOG_DETAIL,seismic     Visualize seismic profiles (warm-sluggish + cold-nominal))
 	$(call LOG_DETAIL,seismic-submission Identical to seismic-warm-sluggish)

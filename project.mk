@@ -56,19 +56,20 @@ COMBINED_CSV_FILTERED_WARM_SLUGGISH := $(DATA_WARM_SLUGGISH)/structure-summary-c
 COMBINED_CSV_RAW_COLD_NOMINAL       := $(DATA_COLD_NOMINAL)/structure-summary-combined.csv
 COMBINED_CSV_FILTERED_COLD_NOMINAL  := $(DATA_COLD_NOMINAL)/structure-summary-combined-filtered.csv
 
-# Merged warm-sluggish+cold-nominal+anchor outputs. Combined figures live under
-# figs/combined/ so the submission pipeline (warm-sluggish only) owns the
-# original figs/structure/, figs/simulation/, and per-suite seismic paths
-# referenced by draft/manuscript.md. The combined CSVs live in their own data
-# dir so per-suite tables stay untouched.
-DATA_BOTH                  := $(SIMULATION)/data/combined
-FIGS_COMBINED              := $(FIGS)/combined
-FIGS_STRUCT_BOTH           := $(FIGS_COMBINED)/structure
-COMBINED_CSV_RAW_BOTH      := $(DATA_BOTH)/structure-summary-combined.csv
-COMBINED_CSV_FILTERED_BOTH := $(DATA_BOTH)/structure-summary-combined-filtered.csv
-SPLIT_CSV_BOTH             := $(DATA_BOTH)/thermal-kinetic-split.csv
-FIGS_SIM_BOTH              := $(FIGS_COMBINED)/simulation
-FIGS_SEISMIC_BOTH          := $(FIGS_COMBINED)/seismic
+# Revision outputs (full pipeline: warm-sluggish + cold-nominal + anchor + test
+# suites). Revision figures live under figs/revisions/ so the submission
+# pipeline (warm-sluggish only) owns the original figs/structure/,
+# figs/simulation/, and per-suite seismic paths referenced by
+# draft/manuscript.md. The revision CSVs (combined 410+660 tables) live in
+# their own data dir so per-suite tables stay untouched.
+DATA_REVISIONS                  := $(SIMULATION)/data/revisions
+FIGS_REVISIONS                  := $(FIGS)/revisions
+FIGS_STRUCT_REVISIONS           := $(FIGS_REVISIONS)/structure
+COMBINED_CSV_RAW_REVISIONS      := $(DATA_REVISIONS)/structure-summary-combined.csv
+COMBINED_CSV_FILTERED_REVISIONS := $(DATA_REVISIONS)/structure-summary-combined-filtered.csv
+SPLIT_CSV_REVISIONS             := $(DATA_REVISIONS)/thermal-kinetic-split.csv
+FIGS_SIM_REVISIONS              := $(FIGS_REVISIONS)/simulation
+FIGS_SEISMIC_REVISIONS          := $(FIGS_REVISIONS)/seismic
 
 # Submission (warm-sluggish only) figure paths, matching the original
 # submission layout referenced by draft/manuscript.md.

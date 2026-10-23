@@ -4,7 +4,7 @@ main <- function() {
   args <- commandArgs(trailingOnly = TRUE)
 
   if (length(args) < 4) {
-    cat(" !! Warning: Usage: seismic-combined.R [util_dir] [data_dir_warm_sluggish] [data_dir_cold_nominal] [out_dir]\n")
+    cat(" !! Warning: Usage: seismic-revisions.R [util_dir] [data_dir_warm_sluggish] [data_dir_cold_nominal] [out_dir]\n")
     return(invisible())
   }
 

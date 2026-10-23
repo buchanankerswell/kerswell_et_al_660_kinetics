@@ -11,9 +11,9 @@ MODELS_COLD_NOMINAL  := $(notdir $(RESULTS_KN_COLD_NOMINAL_SLAB))
 MODELS_ANCHOR_410  := $(notdir $(RESULTS_KN_ANCHOR_410_SLAB))
 
 CLEAN := $(PYTHON)/**/__pycache__ $(PYTHON)/simulation/**/__pycache__
-CLEAN += $(FIGS)/adiabat $(FIGS_SIM_WARM_SLUGGISH) $(FIGS_SIM_COLD_NOMINAL) $(FIGS_SIM_ANCHOR_410) $(FIGS_SIM_BOTH) $(FIGS_SIM_SUBMISSION) $(FIGS)/setup $(DATA_WARM_SLUGGISH) $(DATA_COLD_NOMINAL) $(DATA_ANCHOR_410) $(DATA_BOTH)
+CLEAN += $(FIGS)/adiabat $(FIGS_SIM_WARM_SLUGGISH) $(FIGS_SIM_COLD_NOMINAL) $(FIGS_SIM_ANCHOR_410) $(FIGS_SIM_REVISIONS) $(FIGS_SIM_SUBMISSION) $(FIGS)/setup $(DATA_WARM_SLUGGISH) $(DATA_COLD_NOMINAL) $(DATA_ANCHOR_410) $(DATA_REVISIONS)
 
-.PHONY: all visualize visualize-submission sync-barkla sync-barkla-anchor-410 split compositions-main compositions-submission compositions-warm-sluggish compositions-cold-nominal compositions-pair setup kubo meshes meshes-warm-sluggish meshes-cold-nominal meshes-anchor-410 clean help
+.PHONY: all visualize visualize-submission sync-barkla sync-barkla-anchor-410 split-revisions compositions-main compositions-submission compositions-warm-sluggish compositions-cold-nominal compositions-pair setup kubo meshes meshes-warm-sluggish meshes-cold-nominal meshes-anchor-410 clean help
 
 all: visualize
 visualize: setup kubo meshes compositions-main
@@ -48,12 +48,12 @@ compositions-cold-nominal:
 	$(call LOG_ARTIFACT,$(FIGS_SIM_COLD_NOMINAL)/compositions)
 
 compositions-pair:
-	@$(BASH)/simulation/make-compositions.sh "$(FIGS_SIM_WARM_SLUGGISH)/meshes" "$(FIGS_SIM_BOTH)/compositions" "0100" "W1-C1" "$(ID_W1)" PAIR "$(ID_C1)" "$(FIGS_SIM_COLD_NOMINAL)/meshes"
-	$(call LOG_ARTIFACT,$(FIGS_SIM_BOTH)/compositions)
+	@$(BASH)/simulation/make-compositions.sh "$(FIGS_SIM_WARM_SLUGGISH)/meshes" "$(FIGS_SIM_REVISIONS)/compositions" "0100" "W1-C1" "$(ID_W1)" PAIR "$(ID_C1)" "$(FIGS_SIM_COLD_NOMINAL)/meshes"
+	$(call LOG_ARTIFACT,$(FIGS_SIM_REVISIONS)/compositions)
 
-split: meshes-warm-sluggish meshes-cold-nominal $(SPLIT_CSV_BOTH)
+split-revisions: meshes-warm-sluggish meshes-cold-nominal $(SPLIT_CSV_REVISIONS)
 
-$(SPLIT_CSV_BOTH):
+$(SPLIT_CSV_REVISIONS):
 	@mkdir -p $(dir $@)
 	@PYTHONPATH=$(PYTHON) $(CONDA_PYTHON) -u $(PYTHON)/simulation/mesh/thermal-split.py \
 	  --warm-sluggish-data $(DATA_WARM_SLUGGISH) \
@@ -147,5 +147,5 @@ help:
 	$(call LOG_DETAIL,kubo               Visualize Kubo 2022 dataset regression)
 	$(call LOG_DETAIL,meshes             Visualize ASPECT models (warm-sluggish + cold-nominal))
 	$(call LOG_DETAIL,meshes-anchor-410  Visualize 410-anchor meshes)
-	$(call LOG_DETAIL,split              Export thermal-kinetic split)
+	$(call LOG_DETAIL,split-revisions  Export revisions thermal-kinetic split)
 	$(call LOG_DETAIL,clean              Remove generated files (safe))

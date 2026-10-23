@@ -385,9 +385,9 @@ RATE_BREAKS_SPLIT <- c(1e-1, 1e1, 1e3, 1e5, 1e7, 1e9)
 
 read_split_data <- function(in_locals, split_csv) {
   # Slab 660 traces at the analysis timestep joined to the Python
-  # thermal-kinetic split (simulation/data/combined/thermal-kinetic-split.csv).
+  # thermal-kinetic split (simulation/data/revisions/thermal-kinetic-split.csv).
   if (!file.exists(split_csv)) {
-    log_error(paste("missing split output:", split_csv, "(run `make -C python split` first)"))
+    log_error(paste("missing split output:", split_csv, "(run `make -C python split-revisions` first)"))
     return(invisible())
   }
   df_local <- read_local_data(in_locals) |>
