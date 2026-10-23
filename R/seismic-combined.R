@@ -19,7 +19,6 @@ main <- function() {
 
   out_path <- file.path(out_dir, "seismic-warm-sluggish-cold-nominal.png")
 
-  log_info("Visualizing seismic: matched-forcing suite comparison")
   visualize_seismic_comparison(data_dir_warm_sluggish, data_dir_cold_nominal, out_path)
 }
 

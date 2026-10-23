@@ -170,8 +170,8 @@ def main():
             "legend.fontsize": "small",
             "figure.autolayout": True,
             "axes.labelsize": 18,
-            "xtick.labelsize": 15,
-            "ytick.labelsize": 15,
+            "xtick.labelsize": 14,
+            "ytick.labelsize": 14,
             "xtick.color": "#4D4D4D",
             "ytick.color": "#4D4D4D",
         }
@@ -221,7 +221,7 @@ def main():
     cbar = fig.colorbar(cs, cax=cax, ticks=ticks, orientation="horizontal")
     cbar.set_label("Thermal Anomaly (K)")
     plt.setp(cbar.outline, visible=True, linewidth=1.2, edgecolor="#4D4D4D")
-    cbar.ax.tick_params(axis="x", colors="#4D4D4D", labelsize=13, length=0, pad=5)
+    cbar.ax.tick_params(axis="x", colors="#4D4D4D", labelsize=14, length=0, pad=5)
 
     plt.savefig(out_path, bbox_inches="tight", pad_inches=0.05)
     log_artifact(out_path)

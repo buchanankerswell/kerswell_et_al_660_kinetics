@@ -18,7 +18,6 @@ main <- function() {
 
   out_path_profiles <- file.path(out_dir, "seismic-composition.png")
 
-  log_info(paste("Visualizing seismic:", basename(dirname(data_dir))))
   visualize_seismic_profiles(data_dir, out_path_profiles)
 }
 

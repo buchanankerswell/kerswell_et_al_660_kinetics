@@ -316,8 +316,10 @@ visualize_composition <- function(data_dir, out_path, csv_path_raw = NULL, csv_p
         trans = "log10", option = "plasma", breaks = plume_breaks_rxn, labels = rxn_labeller, limits = lim_r
       ) +
       guides(shape = guide_legend(override.aes = list(stroke = 0.6, fill = viridis_pal(option = "plasma")(12)[1]))) +
-      labs(title = title, y = y_label, x = bquote("Max " * italic(dot(X)) * " (Ma"^-1 * ")"),
-        shape = if (by_suite) "Transition" else NULL, color = if (by_suite) "Suite" else NULL, fill = NULL, alpha = NULL) +
+      labs(
+        title = title, y = y_label, x = bquote("Max " * italic(dot(X)) * " (Ma"^-1 * ")"),
+        shape = if (by_suite) "Transition" else NULL, color = if (by_suite) "Suite" else NULL, fill = NULL, alpha = NULL
+      ) +
       theme_bw(base_size = 14) +
       theme_1()
 
@@ -363,20 +365,22 @@ visualize_composition <- function(data_dir, out_path, csv_path_raw = NULL, csv_p
   p <- p0 / p1
 
   if (by_suite) {
-    p <- p & theme(legend.position = "bottom", legend.justification = "left",
+    p <- p & theme(
+      legend.position = "bottom", legend.justification = "left",
       legend.box = "vertical", legend.direction = "vertical",
       legend.margin = margin(0, 0, 0, 0), legend.box.margin = margin(0, 0, 0, 0),
-      legend.text = element_text(size = 10))
+      legend.text = element_text(size = 10)
+    )
   }
 
   ggsave(out_path, plot = p, width = 4.5, height = if (by_suite) 5.5 else 4.5, dpi = 300, bg = "white", create.dir = TRUE)
   log_artifact(out_path)
 }
 
-SUITE_LAB_WARM_SLUGGISH <- "Warm Sluggish Kinetics"
-SUITE_LAB_COLD_NOMINAL <- "Cold Nominal Kinetics"
-SUITE_PAL_SPLIT <- c("Warm Sluggish Kinetics" = "#E41A1C", "Cold Nominal Kinetics" = "#377EB8", "T1-T4" = "black")
-SUITE_SHAPES_SPLIT <- c("Warm Sluggish Kinetics" = 16, "Cold Nominal Kinetics" = 16, "T1-T4" = 1)
+SUITE_LAB_WARM_SLUGGISH <- "Warm Slab Sluggish Kinetics"
+SUITE_LAB_COLD_NOMINAL <- "Cold Slab Nominal Kinetics"
+SUITE_PAL_SPLIT <- c("Warm Slab Sluggish Kinetics" = "#E41A1C", "Cold Slab Nominal Kinetics" = "#377EB8", "T1-T4" = "darkgreen")
+SUITE_SHAPES_SPLIT <- c("Warm Slab Sluggish Kinetics" = 21, "Cold Slab Nominal Kinetics" = 21, "T1-T4" = 21)
 RATE_BREAKS_SPLIT <- c(1e-1, 1e1, 1e3, 1e5, 1e7, 1e9)
 
 read_split_data <- function(in_locals, split_csv) {
@@ -404,20 +408,18 @@ read_split_data <- function(in_locals, split_csv) {
 
 contrib_point <- function(data, y_var, y_label, show_x = TRUE, show_legend = FALSE) {
   ggplot(data, aes(x = rate660, y = !!sym(y_var))) +
-    geom_point(aes(color = suite, shape = suite, size = width660_km),
-      alpha = 0.8, stroke = 0.6, show.legend = show_legend) +
+    geom_point(aes(fill = suite, shape = suite, size = width660_km), alpha = 0.8, stroke = 0.5, show.legend = show_legend) +
     annotation_logticks(sides = "b", linewidth = 0.2) +
     scale_shape_manual(values = SUITE_SHAPES_SPLIT, drop = FALSE) +
-    scale_color_manual(values = SUITE_PAL_SPLIT, drop = FALSE) +
-    scale_size_continuous(range = c(1, 6)) +
+    scale_fill_manual(values = SUITE_PAL_SPLIT, drop = FALSE) +
+    scale_size_continuous(range = c(0.2, 6)) +
     guides(size = "none") +
     scale_x_log10(labels = label_log(), limits = c(2e-2, 5e9), breaks = RATE_BREAKS_SPLIT) +
     scale_y_continuous(limits = c(0, 70), breaks = c(0, 20, 40, 60)) +
-    labs(y = y_label, x = expression("Max Reaction Rate (" * Ma^-1 * ")"),
-      color = NULL, shape = NULL, size = NULL) +
-    theme_bw(base_size = 14) +
+    labs(y = y_label, x = expression("Max Reaction Rate (" * Ma^-1 * ")"), fill = NULL, shape = NULL, size = NULL) +
+    theme_bw(base_size = 16) +
     theme_1() +
-    theme(legend.frame = element_blank(), legend.background = element_blank())
+    theme(legend.direction = "vertical", legend.position.inside = c(0.05, 0.82))
 }
 
 visualize_contributions <- function(in_locals, split_csv, out_path) {
@@ -425,60 +427,49 @@ visualize_contributions <- function(in_locals, split_csv, out_path) {
     return(invisible())
   }
   df <- read_split_data(in_locals, split_csv)
-  p_left <- contrib_point(df, "kin660_km", "Kinetic Contribution (km)", show_legend = TRUE)
-  p_right <- contrib_point(df, "therm660_km", "Thermal Contribution (km)") +
-    theme(legend.position = "none")
+  p_left <- contrib_point(df, "kin660_km", "Kinetic Contribution (km)")
+  p_right <- contrib_point(df, "therm660_km", "Thermal Contribution (km)", show_legend = TRUE)
   p <- p_left | p_right
-  p <- p & theme(legend.position = "bottom", legend.justification = "left",
-    legend.box = "vertical", legend.direction = "vertical",
-    legend.margin = margin(0, 0, 0, 0), legend.box.margin = margin(0, 0, 0, 0),
-    legend.text = element_text(size = 10))
-  ggsave(out_path, plot = p, width = 7.0, height = 3.2, dpi = 300, bg = "white", create.dir = TRUE)
+  ggsave(out_path, plot = p, width = 6.5, height = 3.2, dpi = 300, bg = "white", create.dir = TRUE)
   log_artifact(out_path)
 }
 
-tile_rate_panel <- function(data, fill_var, fill_lab, palette, breaks, trans = "identity") {
+tile_rate_panel <- function(data, fill_var, fill_lab, palette, breaks, trans = "identity", direction = 1) {
   p <- ggplot(data, aes(x = rate660, y = scen_plot)) +
-    geom_point(aes(fill = !!sym(fill_var)), shape = 22, size = 3.8,
-      color = "white", stroke = 0.4) +
-    geom_hline(yintercept = 7.5, linetype = "dashed", linewidth = 0.5, color = "black") +
+    geom_point(aes(fill = !!sym(fill_var)), shape = 22, size = 4.5, color = "black", stroke = 0.5) +
+    geom_hline(yintercept = 7.5, linetype = "dashed", linewidth = 0.8, color = "black") +
     annotation_logticks(sides = "b", linewidth = 0.2) +
     scale_x_log10(labels = label_log(), limits = c(2e-2, 5e9), breaks = RATE_BREAKS_SPLIT) +
-    scale_y_continuous(breaks = seq(0, 18, 2), limits = c(-0.7, 19.7)) +
+    scale_y_continuous(breaks = seq(0, 18, 2), limits = c(-0.7, 18.7)) +
     labs(x = expression("Max Reaction Rate (" * Ma^-1 * ")"), y = "Scenario", fill = fill_lab) +
-    theme_bw(base_size = 14) +
+    theme_bw(base_size = 16) +
     theme_2()
   if (trans == "log10") {
-    p <- p + scale_fill_viridis_c(trans = "log10", option = palette,
-      breaks = breaks, labels = label_log())
+    p <- p + scale_fill_viridis_c(trans = "log10", option = palette, breaks = breaks, labels = label_log(), direction = direction)
   } else {
-    p <- p + scale_fill_viridis_c(option = palette, breaks = breaks)
+    p <- p + scale_fill_viridis_c(option = palette, breaks = breaks, direction = direction)
   }
-  p + guides(fill = guide_colorbar(direction = "horizontal", title.position = "top",
-    barwidth = unit(5.5, "lines"), barheight = unit(0.5, "lines"))) +
-    theme(legend.position = "top", legend.direction = "horizontal")
+  p + guides(fill = guide_colorbar(direction = "horizontal", title.position = "top", barwidth = unit(6.5, "lines"), barheight = unit(0.6, "lines"))) +
+    theme(legend.position = "inside", legend.justification = "right", legend.position.inside = c(0.92, 0.24), legend.direction = "horizontal")
 }
 
 visualize_tiles_rate <- function(in_locals, split_csv, out_path) {
   if (plot_exists(out_path)) {
     return(invisible())
   }
-  df <- read_split_data(in_locals, split_csv) |>
-    mutate(scen_plot = scenario)
-  p0 <- tile_rate_panel(df, "disp660_km", "Displacement (km)", "plasma", c(20, 40, 60, 80)) +
+  df <- read_split_data(in_locals, split_csv) |> mutate(scen_plot = scenario)
+  p0 <- tile_rate_panel(df, "disp660_km", "Displacement (km)", "magma", c(30, 45, 60, 75), direction = -1) +
     theme(axis.text.x = element_blank(), axis.title.x = element_blank())
-  p1 <- tile_rate_panel(df, "width660_km", "Width (km)", "viridis", c(10, 20, 30)) +
-    theme(axis.text.x = element_blank(), axis.title.x = element_blank(),
-      axis.text.y = element_blank(), axis.title.y = element_blank())
-  p2 <- tile_rate_panel(df, "vmax660", "Descent Rate (cm/yr)", "cividis", c(0, 2, 4, 6)) +
-    annotate("label", x = 2.2e-2, y = 1.0, label = SUITE_LAB_WARM_SLUGGISH, hjust = 0, size = 3,
-      fill = "white") +
-    annotate("label", x = 2.2e-2, y = 17.0, label = SUITE_LAB_COLD_NOMINAL, hjust = 0, size = 3,
-      fill = "white")
-  p3 <- tile_rate_panel(df, "L_km", "L (km)", "inferno", c(1e-4, 1e-1, 1e2), trans = "log10") +
+  p1 <- tile_rate_panel(df, "width660_km", "Width (km)", "mako", c(10, 20, 30), direction = -1) +
+    theme(
+      axis.text.x = element_blank(), axis.title.x = element_blank(),
+      axis.text.y = element_blank(), axis.title.y = element_blank()
+    )
+  p2 <- tile_rate_panel(df, "vmax660", "Descent (cm/yr)", "cividis", c(1, 2, 3, 4, 5, 6))
+  p3 <- tile_rate_panel(df, "L_km", "L (km)", "rocket", c(1e-8, 1e-5, 1e-2, 1e1), trans = "log10", direction = -1) +
     theme(axis.text.y = element_blank(), axis.title.y = element_blank())
   p <- (p0 | p1) / (p2 | p3)
-  ggsave(out_path, plot = p, width = 7.0, height = 6.4, dpi = 300, bg = "white", create.dir = TRUE)
+  ggsave(out_path, plot = p, width = 6.5, height = 6.0, dpi = 300, bg = "white", create.dir = TRUE)
   log_artifact(out_path)
 }
 
@@ -487,49 +478,41 @@ visualize_regime_joint <- function(in_locals, split_csv, out_path) {
     return(invisible())
   }
   df <- read_split_data(in_locals, split_csv)
-  tag_df <- df |> filter(is_T) |> mutate(tag = case_when(
-    str_detect(model_id, "Zol3.0e0") & str_detect(model_id, "Vel20e-02") ~ "T1",
-    str_detect(model_id, "Vel5e-02") & str_detect(model_id, "Zol3.0e0") ~ "T2",
-    str_detect(model_id, "Zol7.0e0") & str_detect(model_id, "Vel20e-02") ~ "T3",
-    TRUE ~ "T4"))
   p_left <- ggplot(df, aes(x = L_km, y = vmax660)) +
-    geom_point(aes(color = suite, shape = suite), size = 2.5, alpha = 0.8,
-      stroke = 0.6) +
+    geom_point(aes(fill = suite, shape = suite, size = width660_km), alpha = 0.8, stroke = 0.5) +
     annotation_logticks(sides = "b", linewidth = 0.2) +
     geom_vline(xintercept = 5, linetype = "dashed", linewidth = 0.5) +
     geom_hline(yintercept = 0.5, linetype = "dashed", linewidth = 0.5) +
-    annotate("text", x = 1e-2, y = 6.3, label = "(1)", fontface = "bold", size = 5) +
-    annotate("text", x = 30, y = 4.2, label = "(2)", fontface = "bold", size = 5) +
-    annotate("text", x = 30, y = 0.22, label = "(3)", fontface = "bold", size = 5) +
+    annotate("text", x = 1e-7, y = 6.0, label = "(1)", fontface = "bold", size = 5) +
+    annotate("text", x = 1.5e2, y = 6.0, label = "(2)", fontface = "bold", size = 5) +
+    annotate("text", x = 1.5e2, y = -0.5, label = "(3)", fontface = "bold", size = 5) +
     scale_shape_manual(values = SUITE_SHAPES_SPLIT, drop = FALSE) +
-    scale_color_manual(values = SUITE_PAL_SPLIT, drop = FALSE) +
-    scale_x_log10(labels = label_log(), breaks = c(1e-6, 1e-3, 1e0, 1e2)) +
-    scale_y_continuous(breaks = c(0, 2, 4, 6)) +
-    labs(x = "Reaction Length Scale L (km)", y = "Descent Rate (cm/yr)",
-      color = NULL, shape = NULL) +
-    theme_bw(base_size = 14) +
-    theme_1() +
-    theme(legend.frame = element_blank(), legend.background = element_blank(),
-      legend.position = "bottom", legend.justification = "left",
-      legend.box = "vertical", legend.direction = "vertical",
-      legend.margin = margin(0, 0, 0, 0), legend.box.margin = margin(0, 0, 0, 0),
-      legend.text = element_text(size = 10))
+    scale_fill_manual(values = SUITE_PAL_SPLIT, drop = FALSE) +
+    scale_size_continuous(range = c(0.2, 6), guide = "none") +
+    scale_x_log10(labels = label_log(), limits = c(NA, 1e3), breaks = c(1e-8, 1e-6, 1e-4, 1e-2, 1e0, 1e2)) +
+    scale_y_continuous(limits = c(-1.0, NA), breaks = c(0, 2, 4, 6)) +
+    labs(x = "Reaction Length Scale L (km)", y = "Descent Rate (cm/yr)", fill = NULL, shape = NULL, size = NULL) +
+    theme_bw(base_size = 16) +
+    theme_1()
   p_right <- ggplot(df, aes(x = kin410_km, y = kin660_km)) +
-    geom_point(aes(color = suite, shape = suite, size = width660_km),
-      alpha = 0.8, stroke = 0.6) +
-    geom_text(data = tag_df, aes(label = tag), nudge_x = 1.2, nudge_y = 0.4, size = 3.5) +
+    geom_point(aes(fill = suite, shape = suite, size = width660_km), alpha = 0.8, stroke = 0.5) +
     scale_shape_manual(values = SUITE_SHAPES_SPLIT, drop = FALSE) +
-    scale_color_manual(values = SUITE_PAL_SPLIT, drop = FALSE) +
-    scale_size_continuous(range = c(1, 6)) +
+    scale_fill_manual(values = SUITE_PAL_SPLIT, drop = FALSE) +
+    scale_size_continuous(range = c(0.2, 6), guide = "none") +
     scale_x_continuous(breaks = c(0, 10, 20, 30, 40, 50)) +
-    scale_y_continuous(breaks = c(0, 20, 40, 60)) +
-    labs(x = "410 Kinetic Contribution (km)", y = "660 Kinetic Contribution (km)",
-      color = NULL, shape = NULL, size = NULL) +
-    theme_bw(base_size = 14) +
-    theme_1() +
-    theme(legend.position = "none", legend.frame = element_blank())
-  p <- p_left | p_right
-  ggsave(out_path, plot = p, width = 7.0, height = 3.2, dpi = 300, bg = "white", create.dir = TRUE)
+    scale_y_continuous(limits = c(NA, 65), breaks = c(0, 20, 40, 60)) +
+    labs(x = "410 Kinetic Contrib. (km)", y = "660 Kinetic Contrib. (km)", fill = NULL, shape = NULL, size = NULL) +
+    theme_bw(base_size = 16) +
+    theme_1()
+  p <- (p_left | p_right) + plot_layout(guides = "collect") &
+    theme(
+      legend.position = "top",
+      legend.margin = margin(0, 0, 15, 0),
+      legend.box.margin = margin(0, 0, 0, -30),
+      legend.text = element_text(size = 12, margin = margin(0, 0, 0, 2)),
+      legend.key.width = unit(0.8, "lines")
+    )
+  ggsave(out_path, plot = p, width = 6.5, height = 3.6, dpi = 300, bg = "white", create.dir = TRUE)
   log_artifact(out_path)
 }
 
@@ -670,8 +653,8 @@ theme_2 <- function() {
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
     panel.background = element_rect(fill = "grey90"),
-    plot.margin = margin(2, 5, 2, 5),
-    plot.title = element_text(siz = 14, hjust = 0.5),
+    plot.margin = margin(5, 5, 5, 5),
+    plot.title = element_text(size = 14, hjust = 0.5),
     plot.tag.location = "panel",
     plot.tag.position = "topleft",
     plot.tag = element_text(size = 18, margin = margin(5, 0, 0, 0), hjust = 0, color = "black", face = "bold"),
@@ -686,7 +669,7 @@ theme_2 <- function() {
     legend.box.spacing = unit(0.1, "lines"),
     legend.box.margin = margin(),
     legend.margin = margin(0, 0, 0, 0),
-    legend.title = element_text(hjust = 0.5, vjust = 0, size = 10, margin = margin(0, 0, 5, 0)),
+    legend.title = element_text(hjust = 0.5, vjust = 0, size = 12, margin = margin(0, 0, 5, 0)),
     legend.title.position = "top",
     legend.text = element_text(size = 11, margin = margin(2, 0, 0, 0)),
     legend.background = element_blank()

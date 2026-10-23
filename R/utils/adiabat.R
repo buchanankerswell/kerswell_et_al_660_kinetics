@@ -390,7 +390,7 @@ visualize_material_table <- function(profile_path, table_path, out_path) {
       ) +
       labs(x = "Temperature (K)", y = "Pressure (GPa)", fill = custom_labeller(props[1])) +
       coord_cartesian(expand = FALSE) +
-      theme_bw(base_size = 30) +
+      theme_bw(base_size = 26) +
       theme_table()
 
     p2 <-
@@ -407,13 +407,13 @@ visualize_material_table <- function(profile_path, table_path, out_path) {
       ) +
       labs(x = "Temperature (K)", y = "Pressure (GPa)", fill = custom_labeller(props[2])) +
       coord_cartesian(expand = FALSE) +
-      theme_bw(base_size = 30) +
+      theme_bw(base_size = 26) +
       theme_table() +
       theme(axis.title.y = element_blank(), axis.text.y = element_blank())
 
     p <- p1 + p2
 
-    ggsave(out_path, plot = p, width = 10, height = 5.5, dpi = 300, bg = "white", create.dir = TRUE)
+    ggsave(out_path, plot = p, width = 10.5, height = 5.5, dpi = 300, bg = "white", create.dir = TRUE)
     log_artifact(out_path)
   })
 }

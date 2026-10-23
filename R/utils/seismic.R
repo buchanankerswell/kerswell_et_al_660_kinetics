@@ -111,45 +111,50 @@ visualize_seismic_comparison <- function(data_dir_warm_sluggish, data_dir_cold_n
     return(invisible())
   }
   df <- bind_rows(
-    read_matched_profiles(data_dir_warm_sluggish, "Warm Sluggish Kinetics"),
-    read_matched_profiles(data_dir_cold_nominal, "Cold Nominal Kinetics")
+    read_matched_profiles(data_dir_warm_sluggish, "Warm Slab\nSluggish Kinetics"),
+    read_matched_profiles(data_dir_cold_nominal, "Cold Slab\nNominal Kinetics")
   )
   if (is.null(df) || !nrow(df)) {
     return(invisible())
   }
   df <- df |> mutate(suite = factor(suite,
-    levels = c("Warm Sluggish Kinetics", "Cold Nominal Kinetics")))
+    levels = c("Warm Slab\nSluggish Kinetics", "Cold Slab\nNominal Kinetics")
+  ))
 
   lim_vp <- range(df$seismic_Vp, na.rm = TRUE)
 
-  p_panel <- function(suite_label) {
+  p_panel <- function(suite_label, labels = TRUE) {
     d <- df |> filter(suite == suite_label)
-    ggplot(d, aes(x = seismic_Vp, y = depth, group = model_id)) +
-      geom_path(aes(color = z_ri), linewidth = 1.1, alpha = 0.85) +
-      geom_hline(yintercept = NOMINAL_410_KM, linetype = "dotted", linewidth = 0.8) +
-      geom_hline(yintercept = NOMINAL_520_KM, linetype = "dotted", linewidth = 0.8) +
-      geom_hline(yintercept = NOMINAL_660_KM, linetype = "dotted", linewidth = 0.8) +
-      annotate("label", x = 11.1, y = NOMINAL_410_KM - 25, label = "Nominal 410",
-        size = 4, fill = "white") +
-      annotate("label", x = 11.1, y = NOMINAL_520_KM - 25, label = "Nominal 520",
-        size = 4, fill = "white") +
-      annotate("label", x = 11.1, y = NOMINAL_660_KM - 25, label = "Nominal 660",
-        size = 4, fill = "white") +
+    panel <-
+      ggplot(d, aes(x = seismic_Vp, y = depth, group = model_id)) +
+      geom_path(aes(color = z_ri), linewidth = 2.2, alpha = 0.80) +
+      geom_hline(yintercept = NOMINAL_410_KM, linetype = "dotted", linewidth = 1.5) +
+      geom_hline(yintercept = NOMINAL_520_KM, linetype = "dotted", linewidth = 1.5) +
+      geom_hline(yintercept = NOMINAL_660_KM, linetype = "dotted", linewidth = 1.5) +
       scale_y_reverse() +
-      scale_x_continuous(limits = lim_vp, breaks = c(8, 9, 10, 11)) +
-      scale_color_continuous_sequential(
-        palette = "YlOrRd", rev = FALSE, trans = "log10",
-        breaks = c(1e-8, 1e-4, 1e0, 1e4), labels = label_log()) +
-      labs(title = suite_label, x = expression(V[p] ~ (km / s)), y = "Depth (km)",
-        color = expression(Z[ri])) +
-      theme_bw(base_size = 14) +
+      scale_x_continuous(limits = lim_vp, breaks = c(8, 9, 10, 11, 12)) +
+      scale_color_viridis_c(
+        option = "mako", trans = "log10",
+        breaks = c(1e-10, 1e-8, 1e-6, 1e-4, 1e-2, 1e0, 1e2, 1e4), labels = label_log()
+      ) +
+      labs(title = suite_label, x = expression(V[p] ~ (km / s)), y = "Depth (km)", color = expression(Z[ri])) +
+      theme_bw(base_size = 22) +
       theme_profile()
+
+    if (labels) {
+      panel + list(
+        annotate("text", x = 8.05, y = NOMINAL_410_KM + 35, label = "410", size = 7, hjust = 0),
+        annotate("text", x = 8.05, y = NOMINAL_520_KM + 35, label = "520", size = 7, hjust = 0),
+        annotate("text", x = 8.05, y = NOMINAL_660_KM + 35, label = "660", size = 7, hjust = 0)
+      )
+    } else {
+      panel
+    }
   }
 
-  p <- p_panel("Warm Sluggish Kinetics") |
-    (p_panel("Cold Nominal Kinetics") +
-      theme(axis.text.y = element_blank(), axis.title.y = element_blank()))
-  ggsave(out_path, plot = p, width = 12, height = 6, dpi = 300, bg = "white", create.dir = TRUE)
+  p <- p_panel("Warm Slab\nSluggish Kinetics") |
+    (p_panel("Cold Slab\nNominal Kinetics", FALSE) + theme(axis.text.y = element_blank(), axis.title.y = element_blank()))
+  ggsave(out_path, plot = p, width = 6.5, height = 6.5, dpi = 300, bg = "white", create.dir = TRUE)
   log_artifact(out_path)
 }
 
@@ -159,23 +164,23 @@ theme_profile <- function() {
     panel.grid.minor = element_blank(),
     panel.background = element_rect(fill = "grey90"),
     panel.spacing.x = unit(1.5, "cm"),
-    plot.margin = margin(5, 25, 5, 25),
-    plot.title = element_text(hjust = 0.5, size = 32, margin = margin(0, 0, 10, 0)),
+    plot.margin = margin(5, 5, 5, 5),
+    plot.title = element_text(hjust = 0.5, size = 20, margin = margin(0, 0, 10, 0)),
     axis.ticks = element_blank(),
-    legend.justification = "left",
+    legend.justification = "right",
     legend.position = "inside",
-    legend.position.inside = c(0.02, 0.85),
+    legend.position.inside = c(0.93, 0.90),
     legend.direction = "horizontal",
-    legend.key.height = unit(0.65, "cm"),
-    legend.key.width = unit(1, "cm"),
+    legend.key.height = unit(0.8, "lines"),
+    legend.key.width = unit(1.2, "lines"),
     legend.box.margin = margin(2, 2, 2, 2),
     legend.margin = margin(),
-    legend.title = element_text(vjust = 1, size = 32),
+    legend.title = element_text(size = 20, vjust = 1),
+    legend.text = element_text(size = 15, margin = margin(5, 0, 0, 0)),
     legend.background = element_blank(),
-    legend.ticks = element_line(color = "black", linewidth = 1.0),
+    legend.ticks = element_line(color = "black", linewidth = 0.4),
     legend.ticks.length = unit(0.2, "lines"),
-    legend.frame = element_rect(color = "black", linewidth = 1.0),
-    legend.text = element_text(size = 28, margin = margin(5, 0, 0, 0)),
+    legend.frame = element_rect(color = "black", linewidth = 0.4),
     legend.spacing.y = unit(1.0, "lines")
   )
 }
