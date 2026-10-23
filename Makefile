@@ -5,7 +5,7 @@
 include project.mk
 
 # Targets
-.PHONY: build models plume-models slab-models sync-barkla visualize manuscript download environments clean deep-clean help
+.PHONY: build models plume-models slab-models sync-barkla visualize visualize-submission manuscript download environments clean deep-clean help
 
 build: environments download visualize manuscript
 	$(call LOG_INFO,Study built successfully!)
@@ -26,6 +26,10 @@ sync-barkla:
 visualize:
 	@$(MAKE) --no-print-directory -C $(PYTHON) visualize
 	@$(MAKE) --no-print-directory -C $(R) visualize
+
+visualize-submission:
+	@$(MAKE) --no-print-directory -C $(PYTHON) visualize-submission
+	@$(MAKE) --no-print-directory -C $(R) visualize-submission
 
 manuscript:
 	@$(MAKE) --no-print-directory -C $(DRAFT) manuscript
@@ -57,6 +61,7 @@ help:
 	$(call LOG_DETAIL,slab-models   Run ASPECT slab models)
 	$(call LOG_DETAIL,sync-barkla   Sync data from barkla2)
 	$(call LOG_DETAIL,visualize     Visualize all results)
+	$(call LOG_DETAIL,visualize-submission Visualize submission figures (warm-sluggish only))
 	$(call LOG_DETAIL,environments  Create Conda environments)
 	$(call LOG_DETAIL,clean         Remove generated files (safe))
 	$(call LOG_DETAIL,deep-clean    Remove results and data (use with caution!))

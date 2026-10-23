@@ -56,16 +56,24 @@ COMBINED_CSV_FILTERED_WARM_SLUGGISH := $(DATA_WARM_SLUGGISH)/structure-summary-c
 COMBINED_CSV_RAW_COLD_NOMINAL       := $(DATA_COLD_NOMINAL)/structure-summary-combined.csv
 COMBINED_CSV_FILTERED_COLD_NOMINAL  := $(DATA_COLD_NOMINAL)/structure-summary-combined-filtered.csv
 
-# Merged warm-sluggish+cold-nominal outputs. FIGS_STRUCT_BOTH matches the figs/structure/ paths
-# referenced by draft/manuscript.md; the combined CSVs live in their own data
+# Merged warm-sluggish+cold-nominal+anchor outputs. Combined figures live under
+# figs/combined/ so the submission pipeline (warm-sluggish only) owns the
+# original figs/structure/, figs/simulation/, and per-suite seismic paths
+# referenced by draft/manuscript.md. The combined CSVs live in their own data
 # dir so per-suite tables stay untouched.
 DATA_BOTH                  := $(SIMULATION)/data/combined
-FIGS_STRUCT_BOTH           := $(FIGS)/structure
+FIGS_COMBINED              := $(FIGS)/combined
+FIGS_STRUCT_BOTH           := $(FIGS_COMBINED)/structure
 COMBINED_CSV_RAW_BOTH      := $(DATA_BOTH)/structure-summary-combined.csv
 COMBINED_CSV_FILTERED_BOTH := $(DATA_BOTH)/structure-summary-combined-filtered.csv
 SPLIT_CSV_BOTH             := $(DATA_BOTH)/thermal-kinetic-split.csv
-FIGS_SIM_BOTH              := $(FIGS)/simulation
-FIGS_SEISMIC_BOTH          := $(FIGS)/seismic
+FIGS_SIM_BOTH              := $(FIGS_COMBINED)/simulation
+FIGS_SEISMIC_BOTH          := $(FIGS_COMBINED)/seismic
+
+# Submission (warm-sluggish only) figure paths, matching the original
+# submission layout referenced by draft/manuscript.md.
+FIGS_SIM_SUBMISSION    := $(FIGS)/simulation
+FIGS_STRUCT_SUBMISSION := $(FIGS)/structure
 
 # Shared pipeline inputs (single source of truth)
 PERPLEX_MODELS         := $(shell find $(PERPLEX) -type f -name '*.dat' -exec basename {} .dat \;)

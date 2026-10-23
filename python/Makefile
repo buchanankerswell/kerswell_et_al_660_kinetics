@@ -11,12 +11,13 @@ MODELS_COLD_NOMINAL  := $(notdir $(RESULTS_KN_COLD_NOMINAL_SLAB))
 MODELS_ANCHOR_410  := $(notdir $(RESULTS_KN_ANCHOR_410_SLAB))
 
 CLEAN := $(PYTHON)/**/__pycache__ $(PYTHON)/simulation/**/__pycache__
-CLEAN += $(FIGS)/adiabat $(FIGS_SIM_WARM_SLUGGISH) $(FIGS_SIM_COLD_NOMINAL) $(FIGS_SIM_ANCHOR_410) $(FIGS_SIM_BOTH) $(FIGS)/setup $(DATA_WARM_SLUGGISH) $(DATA_COLD_NOMINAL) $(DATA_ANCHOR_410) $(DATA_BOTH)
+CLEAN += $(FIGS)/adiabat $(FIGS_SIM_WARM_SLUGGISH) $(FIGS_SIM_COLD_NOMINAL) $(FIGS_SIM_ANCHOR_410) $(FIGS_SIM_BOTH) $(FIGS_SIM_SUBMISSION) $(FIGS)/setup $(DATA_WARM_SLUGGISH) $(DATA_COLD_NOMINAL) $(DATA_ANCHOR_410) $(DATA_BOTH)
 
-.PHONY: all visualize sync-barkla sync-barkla-anchor-410 split compositions-main compositions-warm-sluggish compositions-cold-nominal compositions-pair setup kubo meshes meshes-warm-sluggish meshes-cold-nominal meshes-anchor-410 clean help
+.PHONY: all visualize visualize-submission sync-barkla sync-barkla-anchor-410 split compositions-main compositions-submission compositions-warm-sluggish compositions-cold-nominal compositions-pair setup kubo meshes meshes-warm-sluggish meshes-cold-nominal meshes-anchor-410 clean help
 
 all: visualize
 visualize: setup kubo meshes compositions-main
+visualize-submission: setup kubo meshes-warm-sluggish compositions-submission
 
 sync-barkla:
 	@FORCE_SYNC=$(FORCE_SYNC) $(BASH)/simulation/sync-barkla2.sh "$(notdir $(RESULTS_KN_WARM_SLUGGISH) $(RESULTS_KN_COLD_NOMINAL_SLAB) $(RESULTS_KN_ANCHOR_410_SLAB))" "$(TIMESTEPS_SYNC_PLUME)" "$(TIMESTEPS_SYNC_SLAB)" "$(SIMULATION)" "$(BARKLA2_SIMULATION)"
@@ -25,6 +26,14 @@ sync-barkla-anchor-410:
 	@FORCE_SYNC=$(FORCE_SYNC) $(BASH)/simulation/sync-barkla2.sh "$(MODELS_ANCHOR_410)" "$(TIMESTEPS_SYNC_PLUME)" "$(TIMESTEPS_SYNC_SLAB)" "$(SIMULATION)" "$(BARKLA2_SIMULATION)"
 
 compositions-main: compositions-warm-sluggish compositions-cold-nominal compositions-pair
+
+# Submission triples (warm-sluggish only) at the original submission paths.
+compositions-submission:
+	@$(BASH)/simulation/make-compositions.sh "$(FIGS_SIM_WARM_SLUGGISH)/meshes" "$(FIGS_SIM_SUBMISSION)/compositions" "0050" "b01" "$(ID_W1)" "$(ID_W2)" "$(ID_W3)"
+	@$(BASH)/simulation/make-compositions.sh "$(FIGS_SIM_WARM_SLUGGISH)/meshes" "$(FIGS_SIM_SUBMISSION)/compositions" "0100" "b01" "$(ID_W1)" "$(ID_W2)" "$(ID_W3)"
+	@$(BASH)/simulation/make-compositions.sh "$(FIGS_SIM_WARM_SLUGGISH)/meshes" "$(FIGS_SIM_SUBMISSION)/compositions" "0050" "b50" "$(ID_W4)" "$(ID_W5)" "$(ID_W6)"
+	@$(BASH)/simulation/make-compositions.sh "$(FIGS_SIM_WARM_SLUGGISH)/meshes" "$(FIGS_SIM_SUBMISSION)/compositions" "0100" "b50" "$(ID_W4)" "$(ID_W5)" "$(ID_W6)"
+	$(call LOG_ARTIFACT,$(FIGS_SIM_SUBMISSION)/compositions)
 
 compositions-warm-sluggish:
 	@$(BASH)/simulation/make-compositions.sh "$(FIGS_SIM_WARM_SLUGGISH)/meshes" "$(FIGS_SIM_WARM_SLUGGISH)/compositions" "0050" "b01" "$(ID_W1)" "$(ID_W2)" "$(ID_W3)"
@@ -131,6 +140,8 @@ clean:
 help:
 	$(call LOG_INFO,Available targets:)
 	$(call LOG_DETAIL,visualize          Visualize all results)
+	$(call LOG_DETAIL,visualize-submission Visualize submission figures (warm-sluggish only))
+	$(call LOG_DETAIL,compositions-submission Submission triples at original paths)
 	$(call LOG_DETAIL,sync-barkla        Fetch simulation results from barkla)
 	$(call LOG_DETAIL,setup              Visualize initial numerical setup)
 	$(call LOG_DETAIL,kubo               Visualize Kubo 2022 dataset regression)

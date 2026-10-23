@@ -4,12 +4,13 @@
 # Include definitions
 include $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/../project.mk)
 
-CLEAN := $(FIGS)/kubo $(FIGS_STRUCT_WARM_SLUGGISH) $(FIGS_STRUCT_COLD_NOMINAL) $(FIGS_STRUCT_BOTH) $(FIGS_SEISMIC_WARM_SLUGGISH) $(FIGS_SEISMIC_COLD_NOMINAL) $(FIGS_SEISMIC_BOTH)
+CLEAN := $(FIGS)/kubo $(FIGS_STRUCT_WARM_SLUGGISH) $(FIGS_STRUCT_COLD_NOMINAL) $(FIGS_STRUCT_BOTH) $(FIGS_STRUCT_SUBMISSION) $(FIGS_SEISMIC_WARM_SLUGGISH) $(FIGS_SEISMIC_COLD_NOMINAL) $(FIGS_SEISMIC_BOTH)
 
-.PHONY: all visualize tables tables-warm-sluggish tables-cold-nominal adiabat simulation simulation-warm-sluggish simulation-cold-nominal simulation-both seismic seismic-warm-sluggish seismic-cold-nominal seismic-both download upload clean help
+.PHONY: all visualize visualize-submission tables tables-warm-sluggish tables-cold-nominal adiabat simulation simulation-warm-sluggish simulation-cold-nominal simulation-both simulation-submission seismic seismic-warm-sluggish seismic-cold-nominal seismic-both seismic-submission download upload clean help
 
 all: visualize
 visualize: adiabat simulation seismic
+visualize-submission: adiabat simulation-submission seismic-submission
 
 tables: tables-warm-sluggish tables-cold-nominal
 
@@ -39,6 +40,9 @@ seismic-both: $(MESH_CSV_WARM_SLUGGISH) $(MESH_CSV_COLD_NOMINAL)
 seismic-both:
 	@Rscript $(R)/seismic-combined.R $(R)/utils $(DATA_WARM_SLUGGISH)/seismic_profiles $(DATA_COLD_NOMINAL)/seismic_profiles $(FIGS_SEISMIC_BOTH)
 
+# Submission seismic is the warm-sluggish per-suite figure (original path).
+seismic-submission: seismic-warm-sluggish
+
 simulation: simulation-warm-sluggish simulation-cold-nominal simulation-both
 
 $(LINK_WARM_SLUGGISH) $(LINK_COLD_NOMINAL): $(KERSWELL_410_DATA)
@@ -50,6 +54,10 @@ simulation-warm-sluggish: $(KERSWELL_410_DATA) $(LINK_WARM_SLUGGISH) $(MESH_CSV_
 simulation-cold-nominal: $(KERSWELL_410_DATA) $(LINK_COLD_NOMINAL) $(MESH_CSV_COLD_NOMINAL)
 simulation-warm-sluggish simulation-cold-nominal:
 	@Rscript $(R)/simulation.R $(R)/utils $(DATA_$(SUITE)) $(FIGS_STRUCT_$(SUITE)) $(COMBINED_CSV_RAW_$(SUITE)) $(COMBINED_CSV_FILTERED_$(SUITE)) $(SAVE_CSV) $(FORCE_REWRITE)
+
+# Submission structure figures (warm-sluggish only) at the original paths.
+simulation-submission: $(KERSWELL_410_DATA) $(LINK_WARM_SLUGGISH) $(MESH_CSV_WARM_SLUGGISH)
+	@Rscript $(R)/simulation.R $(R)/utils $(DATA_WARM_SLUGGISH) $(FIGS_STRUCT_SUBMISSION) $(COMBINED_CSV_RAW_WARM_SLUGGISH) $(COMBINED_CSV_FILTERED_WARM_SLUGGISH) $(SAVE_CSV) $(FORCE_REWRITE)
 
 $(SPLIT_CSV_BOTH):
 	@$(MAKE) --no-print-directory -C $(PYTHON) split
@@ -73,9 +81,12 @@ clean:
 help:
 	$(call LOG_INFO,Available targets:)
 	$(call LOG_DETAIL,visualize   Visualize all results)
+	$(call LOG_DETAIL,visualize-submission Visualize submission figures (warm-sluggish only))
 	$(call LOG_DETAIL,adiabat     Visualize adiabatic profiles)
 	$(call LOG_DETAIL,simulation  Visualize simulation results (warm-sluggish + cold-nominal + combined))
+	$(call LOG_DETAIL,simulation-submission Visualize submission structure figures)
 	$(call LOG_DETAIL,seismic     Visualize seismic profiles (warm-sluggish + cold-nominal))
+	$(call LOG_DETAIL,seismic-submission Identical to seismic-warm-sluggish)
 	$(call LOG_DETAIL,tables      Write result tables (warm-sluggish + cold-nominal))
 	$(call LOG_DETAIL,download    Download ASPECT results from OSF)
 	$(call LOG_DETAIL,upload      Upload ASPECT results to OSF)
