@@ -4,7 +4,7 @@
 # Include definitions
 include $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/../project.mk)
 
-CLEAN := $(FIGS)/kubo $(FIGS_STRUCT_WARM_SLUGGISH) $(FIGS_STRUCT_COLD_NOMINAL) $(FIGS_STRUCT_REVISIONS) $(FIGS_STRUCT_SUBMISSION) $(FIGS_SEISMIC_WARM_SLUGGISH) $(FIGS_SEISMIC_COLD_NOMINAL) $(FIGS_SEISMIC_REVISIONS)
+CLEAN := $(FIGS)/kubo $(FIGS_STRUCT_WARM_SLUGGISH) $(FIGS_STRUCT_COLD_NOMINAL) $(FIGS_STRUCT_REVISIONS) $(FIGS_STRUCT_SUBMISSION) $(FIGS_SEISMIC_WARM_SLUGGISH) $(FIGS_SEISMIC_COLD_NOMINAL) $(FIGS_SEISMIC_REVISIONS) $(KERSWELL_410_DATA)
 
 .PHONY: all visualize visualize-submission tables tables-warm-sluggish tables-cold-nominal adiabat simulation simulation-warm-sluggish simulation-cold-nominal simulation-revisions simulation-submission seismic seismic-warm-sluggish seismic-cold-nominal seismic-revisions seismic-submission download upload clean help
 

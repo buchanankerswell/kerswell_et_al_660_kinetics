@@ -1,3 +1,9 @@
+# Nominal equilibrium depths (m -> km): transition depth from the Mg100
+# Perple_X profile plus the ASPECT depth correction used at runtime.
+NOMINAL_410_KM <- 359.2 + 5.0
+NOMINAL_520_KM <- 506.2 + 5.0
+NOMINAL_660_KM <- 599.7 + 15.0
+
 read_seismic_profile <- function(filepath) {
   df <- read_csv(filepath, show_col_types = FALSE)
   fname <- basename(filepath)
@@ -30,24 +36,39 @@ visualize_seismic_profiles <- function(data_dir, out_path) {
   df_plume <- data |> filter(type == "Plume")
   df_slab <- data |> filter(type == "Slab")
 
-  p_profile <- function(data, x_var, title = "", x_label = "", show_y = TRUE, show_legend = FALSE) {
+  lim_zri <- range(data$z_ri, na.rm = TRUE)
+  lim_vp <- range(data$seismic_Vp, na.rm = TRUE)
+
+  p_profile <- function(data, x_var, title = "", x_label = "", show_y = TRUE, show_legend = FALSE, labels = FALSE) {
     p <- ggplot(data, aes(x = !!sym(x_var), y = depth, group = model_id)) +
+      geom_hline(yintercept = NOMINAL_410_KM, linetype = "dotted", linewidth = 1.2, color = "gray60") +
+      geom_hline(yintercept = NOMINAL_520_KM, linetype = "dotted", linewidth = 1.2, color = "gray60") +
+      geom_hline(yintercept = NOMINAL_660_KM, linetype = "dotted", linewidth = 1.2, color = "gray60") +
       geom_path(aes(color = z_ri), linewidth = 1.2, alpha = 0.8, show.legend = show_legend) +
       scale_y_reverse() +
       scale_color_continuous_sequential(
         palette = "YlOrRd",
         rev = FALSE,
         trans = "log10",
-        breaks = c(1e-2, 1e0, 1e2),
+        limits = lim_zri,
+        breaks = c(1e-9, 1e-7, 1e-5),
         labels = label_log()
       ) +
       labs(title = title, x = x_label, y = "Depth (km)", color = expression(Z[ri])) +
       theme_bw(base_size = 34) +
       theme_profile() +
-      theme(legend.position = "inside", legend.position.inside = c(0.37, 0.85))
+      theme(legend.position = "inside", legend.position.inside = c(0.30, 0.85))
 
     if (x_var != "trace_x") {
       p <- p + geom_path(data = filter(data_init, !is.na(!!sym(x_var))), color = "black", linewidth = 1.2, show.legend = show_legend)
+    }
+
+    if (labels) {
+      p <- p + list(
+        annotate("text", x = 8.05, y = NOMINAL_410_KM + 45, label = "410", size = 7, hjust = 0, color = "gray30"),
+        annotate("text", x = 8.05, y = NOMINAL_520_KM + 45, label = "520", size = 7, hjust = 0, color = "gray30"),
+        annotate("text", x = 8.05, y = NOMINAL_660_KM + 45, label = "660", size = 7, hjust = 0, color = "gray30")
+      )
     }
 
     if (!show_y) {
@@ -56,10 +77,8 @@ visualize_seismic_profiles <- function(data_dir, out_path) {
     p
   }
 
-  lim_vp <- range(data$seismic_Vp, na.rm = TRUE)
-
   p0 <- (
-    p_profile(df_plume, "seismic_Vp", "Plumes", expression(V[p] ~ (km / s)), TRUE, TRUE) +
+    p_profile(df_plume, "seismic_Vp", "Plumes", expression(V[p] ~ (km / s)), TRUE, TRUE, TRUE) +
       scale_x_continuous(limits = lim_vp) +
       annotate("segment", x = 9.4, xend = 9.4, y = 460, yend = 560, arrow = arrow(length = unit(0.3, "cm"), type = "closed"), linewidth = 1.2) +
       annotate("text", x = 9.4, y = 575, label = "+T", vjust = 1, parse = TRUE, size = 8) +
@@ -88,12 +107,6 @@ visualize_seismic_profiles <- function(data_dir, out_path) {
   ggsave(out_path, plot = p, width = 12, height = 6, dpi = 300, bg = "white", create.dir = TRUE)
   log_artifact(out_path)
 }
-
-# Nominal equilibrium depths (m -> km): transition depth from the Mg100
-# Perple_X profile plus the ASPECT depth correction used at runtime.
-NOMINAL_410_KM <- 359.2 + 5.0
-NOMINAL_520_KM <- 506.2 + 5.0
-NOMINAL_660_KM <- 599.7 + 15.0
 
 read_matched_profiles <- function(data_dir, suite_label) {
   files <- list.files(data_dir, pattern = "slab_.*_t100_representative\\.csv", full.names = TRUE)
@@ -202,7 +215,7 @@ theme_profile <- function() {
     legend.position.inside = c(0.02, 0.85),
     legend.direction = "horizontal",
     legend.key.height = unit(0.65, "cm"),
-    legend.key.width = unit(1, "cm"),
+    legend.key.width = unit(1.1, "cm"),
     legend.box.margin = margin(2, 2, 2, 2),
     legend.margin = margin(),
     legend.title = element_text(vjust = 1, size = 32),
