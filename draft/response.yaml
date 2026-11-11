@@ -1,0 +1,13 @@
+---
+title: "Response to Reviewers"
+subtitle: "Beyond Equilibrium II: Sluggish Ringwoodite Kinetics Amplify 660 km Discontinuity Depressions and Independently Promote Slab Stagnation"
+author: "Buchanan Kerswell et al."
+date: "13 November 2026"
+geometry: "margin=1in"
+fontsize: "11pt"
+colorlinks: true
+header-includes:
+  - \usepackage{amsmath}
+  - \usepackage{amssymb}
+  - \usepackage{amsfonts}
+---

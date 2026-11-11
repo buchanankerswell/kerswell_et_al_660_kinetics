@@ -5,10 +5,10 @@ dependencies:
   - tqdm
   - scipy
   - pip
-  - numba<0.59
   - python=3.11
   - pandas
+  - matplotlib
+  - pillow
   - pyvista
   - pip:
-      - autograd
       - burnman

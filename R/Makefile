@@ -1,55 +1,45 @@
+# Set the default goal before includes
+.DEFAULT_GOAL := help
+
 # Include definitions
 include $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/../project.mk)
 
-# Dependencies
-KERSWELL_410_DATA := $(SIMULATION)/data/structure-summary-kerswell-et-al-2026.csv
-PERPLEX_MODELS    := $(shell find $(PERPLEX) -type f -name '*.dat' -exec basename {} .dat \;)
+CLEAN := $(FIGS_KUBO) $(FIGS_STRUCTURE) $(FIGS_SEISMIC) $(POSTPROCESSED_CSV) $(POSTPROCESSED_MD)
 
-# Cleanup
-CLEAN      :=
-DEEP_CLEAN := $(FIGS)/kubo
-
-# Targets
-.PHONY: all visualize tables adiabat simulation download upload clean deep-clean help
+.PHONY: all visualize tables adiabat simulation seismic clean help
 
 all: visualize
 visualize: adiabat simulation seismic
 
-tables:
-	@Rscript $(R)/tables.R $(R)/utils $(SIMULATION)/data/structure-summary-combined-filtered.csv $(SIMULATION)/data
+tables: $(POSTPROCESSED_CSV)
+	@Rscript $(R)/tables.R $(R)/utils $(POSTPROCESSED_CSV) $(SIMULATION)/data
 
 adiabat:
 	@for model in $(PERPLEX_MODELS); do Rscript $(R)/adiabat.R $(R)/utils $$model $(SIMULATION)/data $(FIGS)/adiabat; done
 
-seismic: $(SEISMIC_PROFILES)
-	@Rscript $(R)/seismic.R $(R)/utils $(SIMULATION)/data/seismic_profiles $(FIGS)/seisimc_profiles
+seismic: $(MESH_CSV_SW_SUITE) $(MESH_CSV_NC_SUITE)
+	@Rscript $(R)/seismic.R $(R)/utils $(SEISMIC_SW_SUITE) $(SEISMIC_NC_SUITE) $(FIGS_SEISMIC) $(FORCE_REWRITE)
 
-simulation: $(KERSWELL_410_DATA)
-	@Rscript $(R)/simulation.R $(R)/utils $(SIMULATION)/data $(FIGS)/structure $(COMBINED_CSV_RAW) $(COMBINED_CSV_FILTERED) $(SAVE_CSV) $(FORCE_REWRITE)
+simulation: $(MESH_CSV_SW_SUITE) $(MESH_CSV_NC_SUITE) $(POSTPROCESSED_CSV)
+	@mkdir -p $(SIMULATION)/data
+	@Rscript $(R)/simulation.R $(R)/utils $(MESH_CSV_SW_SUITE) $(MESH_CSV_NC_SUITE) $(FIGS_STRUCTURE) $(FORCE_REWRITE) $(POSTPROCESSED_CSV)
 
-download:
-	@Rscript $(R)/osf.R $(R)/utils $(ASPECT_RESULTS) $(SIMULATION)/data "download"
+$(MESH_CSV_SW_SUITE):
+	@$(MAKE) --no-print-directory -C $(PYTHON) meshes-sw-suite
+$(MESH_CSV_NC_SUITE):
+	@$(MAKE) --no-print-directory -C $(PYTHON) meshes-nc-suite
 
-upload:
-	@Rscript $(R)/osf.R $(R)/utils $(ASPECT_RESULTS) $(SIMULATION)/data "upload"
-
-$(KERSWELL_410_DATA):
-	@Rscript $(R)/download.R $(R)/utils $(SIMULATION)/data
+$(POSTPROCESSED_CSV):
+	@$(MAKE) --no-print-directory -C $(PYTHON) postprocess
 
 clean:
 	@$(call SAFE_RM_LIST,$(CLEAN))
 
-deep-clean:
-	@$(call SAFE_RM_LIST,$(DEEP_CLEAN))
-
 help:
-	@echo "    --------------------------------------------------"
-	@echo "    Available targets:"
-	@echo "    --------------------------------------------------"
-	@echo "    visualize   Visualize all results"
-	@echo "    adiabat     Visualize adiabatic profiles"
-	@echo "    simulation  Visualize simulation results"
-	@echo "    download    Download ASPECT results from OSF"
-	@echo "    upload      Upload ASPECT results to OSF"
-	@echo "    clean       Remove generated files (safe)"
-	@echo "    deep-clean  Remove results and data (use with caution!)"
+	$(call LOG_INFO,Available targets:)
+	$(call LOG_DETAIL,visualize   Visualize all results (SW + NC + TEST + combined))
+	$(call LOG_DETAIL,adiabat     Visualize adiabatic profiles)
+	$(call LOG_DETAIL,simulation  Visualize combined simulation results)
+	$(call LOG_DETAIL,seismic     Visualize combined seismic profiles)
+	$(call LOG_DETAIL,tables      Write combined result tables)
+	$(call LOG_DETAIL,clean       Remove generated files (safe))

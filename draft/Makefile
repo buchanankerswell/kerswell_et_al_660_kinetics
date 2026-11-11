@@ -1,41 +1,49 @@
+# Set the default goal before includes
+.DEFAULT_GOAL := help
+
 # Include definitions
 include $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/../project.mk)
 include local.mk
 
 # Cleanup
-EXTS       := aux bbl blg log toc out tex pdf
-CLEAN      := $(foreach doc,$(DOCS) $(addprefix diff-,$(DOCS)),$(addprefix $(DRAFT)/$(doc).,$(EXTS))) $(addprefix $(DRAFT)/response.,$(EXTS))
+EXTS       := aux bbl blg log toc out tex pdf docx
+CLEAN      := $(foreach doc,$(DOCS) $(addprefix diff-,$(DOCS)),$(addprefix $(DRAFT)/$(doc).,$(EXTS)))
 DEEP_CLEAN :=
 
 # Prevent make from deleting .tex files on failure
 .PRECIOUS: $(DRAFT)/%.tex
 
 # Targets
-.PHONY: all diff clean deep-clean help
+.PHONY: all manuscript supplementary-information response diff clean deep-clean help
 
 all: $(PDFS) $(DOCXS)
+manuscript: $(DRAFT)/manuscript.pdf $(DRAFT)/manuscript.docx
+supplementary-information: $(DRAFT)/supplementary-information.pdf $(DRAFT)/supplementary-information.docx
+response: $(DRAFT)/response.pdf $(DRAFT)/response.docx
 diff: all $(DRAFT)/diff-manuscript.pdf $(DRAFT)/diff-supplementary-information.pdf
 
+UPDATE_DATE = $(if $(META),sed -i.bak -E "s/^date: \".*\"/date: \"$(shell date '+%d %B %Y')\"/" $(META) && rm -f $(META).bak)
+
 $(DRAFT)/%.docx: $(DRAFT)/%.md
-	@echo " -> $@"
-	@$(if $(META),sed -i '' -E "s/^date: \".*\"/date: \"$(shell date '+%d %B %Y')\"/" $(META))
+	$(call LOG_ARTIFACT,$@)
+	@$(UPDATE_DATE)
+	@pandoc $< -o $@ $(PANDOC_FLAGS)
+
+$(DRAFT)/%.tex: $(DRAFT)/%.md
+	$(call LOG_ARTIFACT,$@)
+	@$(UPDATE_DATE)
 	@pandoc $< -o $@ $(PANDOC_FLAGS)
 
 $(DRAFT)/%.pdf: $(DRAFT)/%.tex
-	@echo " -> $@"
+	$(call LOG_ARTIFACT,$@)
 	@pandoc $(subst .tex,.md,$<) -o $@ $(PANDOC_FLAGS)
 
 $(DRAFT)/bak/%.tex: ;
 
-$(DRAFT)/%.tex: $(DRAFT)/%.md
-	@echo " -> $@"
-	@$(if $(META),sed -i '' -E "s/^date: \".*\"/date: \"$(shell date '+%d %B %Y')\"/" $(META))
-	@pandoc $< -o $@ $(PANDOC_FLAGS)
-
 $(DRAFT)/diff-%.pdf: $(DRAFT)/bak/%-$(BACKUP_DATE).tex $(DRAFT)/%.tex
-	@echo " -> $@ [bak: $(BACKUP_DATE)]"
+	$(call LOG_ARTIFACT,$@ [bak: $(BACKUP_DATE)])
 	@if [ ! -f "$<" ]; then \
-	  echo "Error: Backup file $< not found!"; \
+	  . "$(BASH)/utils/log.sh"; log_error "Backup file $< not found!"; \
 	  exit 1; \
 	fi
 	@latexdiff $(DIFF_FLAGS) $< $(word 2,$^) > $(DRAFT)/diff-$*.tex
@@ -49,12 +57,11 @@ deep-clean:
 	@$(call SAFE_RM_LIST,$(DEEP_CLEAN))
 
 help:
-	@echo "    --------------------------------------------------"
-	@echo "    Available targets:"
-	@echo "    --------------------------------------------------"
-	@echo "    all                                Render manuscript and SI"
-	@echo "    diff-manuscript.pdf                Generate manuscript diff"
-	@echo "    diff-supplementary-information.pdf Generate SI diff"
-	@echo "    clean                              Cleanup unnecessary files"
-	@echo "    --------------------------------------------------"
-	@echo "    Note: Use BACKUP_DATE=DD-MMM-YYYY to change diff source."
+	$(call LOG_INFO,Available targets:)
+	$(call LOG_DETAIL,all                                 Render manuscript + SI + response)
+	$(call LOG_DETAIL,manuscript                          Render manuscript PDF and DOCX)
+	$(call LOG_DETAIL,supplementary-information           Render SI PDF and DOCX)
+	$(call LOG_DETAIL,response                            Render response PDF and DOCX)
+	$(call LOG_DETAIL,diff-manuscript.pdf                 Generate manuscript diff)
+	$(call LOG_DETAIL,diff-supplementary-information.pdf  Generate SI diff)
+	$(call LOG_DETAIL,clean                               Cleanup unnecessary files)

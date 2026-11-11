@@ -1,6 +1,3 @@
-#######################################################
-## .0. Load Libraries                            !!! ##
-#######################################################
 import sys
 import warnings
 from contextlib import redirect_stdout
@@ -11,22 +8,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 from burnman import Material, PerplexMaterial, constants
 from burnman.classes.perplex import create_perplex_table
+from utils.logging import log_artifact
 from scipy.integrate import odeint
 from scipy.interpolate import interp1d
 from scipy.optimize import newton
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Constants
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 EARTH_RADIUS: float = 6370e3  # m
 SURFACE_GRAVITY: float = 9.81  # m/s/s
 
-
-#######################################################
-## .1. Helpers                                   !!! ##
-#######################################################
 class LiveIndenter:
     def __init__(self, original_stdout, indent="    "):
         self.terminal = original_stdout
@@ -56,10 +48,6 @@ class LiveIndenter:
         # Keeps the output synchronized
         self.terminal.flush()
 
-
-#######################################################
-## .2. AdiabaticProfile                        !!! ##
-#######################################################
 @dataclass
 class AdiabaticProfile:
     """
@@ -86,7 +74,6 @@ class AdiabaticProfile:
     _gravity: np.ndarray | None = field(default=None, init=False)
     _velocities: dict[str, np.ndarray] | None = field(default=None, init=False)
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def __post_init__(self) -> None:
         """"""
         if not self.out_table.exists():
@@ -112,7 +99,6 @@ class AdiabaticProfile:
 
         self._write_profile()
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def material(self) -> PerplexMaterial:
         """"""
@@ -121,7 +107,6 @@ class AdiabaticProfile:
 
         return self._material
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def pressures(self) -> np.ndarray:
         """"""
@@ -131,7 +116,6 @@ class AdiabaticProfile:
 
         return self._pressures
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def temperatures(self) -> np.ndarray:
         """"""
@@ -140,7 +124,6 @@ class AdiabaticProfile:
 
         return self._temperatures
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def properties(self) -> dict[str, np.ndarray]:
         """"""
@@ -149,7 +132,6 @@ class AdiabaticProfile:
 
         return self._properties
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def velocities(self) -> dict[str, np.ndarray]:
         """"""
@@ -158,7 +140,6 @@ class AdiabaticProfile:
 
         return self._velocities
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def depths(self) -> np.ndarray:
         """"""
@@ -167,7 +148,6 @@ class AdiabaticProfile:
 
         return self._depths
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def gravity(self) -> np.ndarray:
         """"""
@@ -176,7 +156,6 @@ class AdiabaticProfile:
 
         return self._gravity
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_isentrope_temperatures(self) -> np.ndarray:
         """Evaluate temperatures along the isentrope at the specified pressures."""
         if self._material is None or self._pressures is None:
@@ -203,7 +182,6 @@ class AdiabaticProfile:
 
         return temperatures
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_material_properties(self) -> dict[str, np.ndarray]:
         """Evaluate material properties along the isentrope."""
         if self._material is None or self._pressures is None or self._temperatures is None:
@@ -241,7 +219,6 @@ class AdiabaticProfile:
             "molar_gibbs": molar_gibbs,
         }
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_velocity_derivatives(self) -> dict[str, np.ndarray]:
         """Evaluate seismic velocity derivatives with respect to temperature."""
         if self._material is None or self._pressures is None or self._temperatures is None:
@@ -268,7 +245,6 @@ class AdiabaticProfile:
 
         return {"vp": vp, "vs": vs, "dvp_dt": dvp_dt, "dvs_dt": dvs_dt}
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_depth_gravity_profiles(self) -> tuple[np.ndarray, np.ndarray]:
         """Evaluate depth and gravity profiles using iterative spline integration."""
         pressures = np.ravel(self.pressures).astype(float)
@@ -326,7 +302,6 @@ class AdiabaticProfile:
 
         return depths, gravity
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _write_profile(self) -> None:
         """Write adiabatic profile."""
 
@@ -371,12 +346,8 @@ class AdiabaticProfile:
             comments="",
         )
 
-        print(f" -> {self.out_profile}")
+        log_artifact(self.out_profile)
 
-
-#######################################################
-## .3. DrivingForceProfile                       !!! ##
-#######################################################
 @dataclass
 class DrivingForceProfile:
     """"""
@@ -418,7 +389,6 @@ class DrivingForceProfile:
     _equilibrium_depth: np.ndarray | None = field(default=None, init=False)
     _driving_force: np.ndarray | None = field(default=None, init=False)
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def __post_init__(self) -> None:
         """"""
         # Initialize arrays
@@ -441,7 +411,6 @@ class DrivingForceProfile:
 
         self._write_profile()
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def depths(self) -> np.ndarray:
         """"""
@@ -450,7 +419,6 @@ class DrivingForceProfile:
 
         return self._depths
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def pressures(self) -> np.ndarray:
         """"""
@@ -459,7 +427,6 @@ class DrivingForceProfile:
 
         return self._pressures
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def temperatures(self) -> np.ndarray:
         """"""
@@ -468,7 +435,6 @@ class DrivingForceProfile:
 
         return self._temperatures
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def density(self) -> np.ndarray:
         """"""
@@ -477,7 +443,6 @@ class DrivingForceProfile:
 
         return self._density
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def thermal_expansivity(self) -> np.ndarray:
         """"""
@@ -486,7 +451,6 @@ class DrivingForceProfile:
 
         return self._thermal_expansivity
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def specific_heat(self) -> np.ndarray:
         """"""
@@ -495,7 +459,6 @@ class DrivingForceProfile:
 
         return self._specific_heat
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def compressibility(self) -> np.ndarray:
         """"""
@@ -504,7 +467,6 @@ class DrivingForceProfile:
 
         return self._compressibility
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def pressure_wave_velocity(self) -> np.ndarray:
         """"""
@@ -513,7 +475,6 @@ class DrivingForceProfile:
 
         return self._pressure_wave_velocity
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def pressure_wave_velocity_T_derivative(self) -> np.ndarray:
         """"""
@@ -522,7 +483,6 @@ class DrivingForceProfile:
 
         return self._pressure_wave_velocity_T_derivative
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def shear_wave_velocity(self) -> np.ndarray:
         """"""
@@ -531,7 +491,6 @@ class DrivingForceProfile:
 
         return self._shear_wave_velocity
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def shear_wave_velocity_T_derivative(self) -> np.ndarray:
         """"""
@@ -540,7 +499,6 @@ class DrivingForceProfile:
 
         return self._shear_wave_velocity_T_derivative
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def internal_energy(self) -> np.ndarray:
         """"""
@@ -549,7 +507,6 @@ class DrivingForceProfile:
 
         return self._internal_energy
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def gibbs(self) -> np.ndarray:
         """"""
@@ -558,7 +515,6 @@ class DrivingForceProfile:
 
         return self._gibbs
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def entropy(self) -> np.ndarray:
         """"""
@@ -567,7 +523,6 @@ class DrivingForceProfile:
 
         return self._entropy
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def volume(self) -> np.ndarray:
         """"""
@@ -576,7 +531,6 @@ class DrivingForceProfile:
 
         return self._volume
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def delta_density(self) -> np.ndarray:
         """"""
@@ -585,7 +539,6 @@ class DrivingForceProfile:
 
         return self._delta_density
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def delta_thermal_expansivity(self) -> np.ndarray:
         """"""
@@ -594,7 +547,6 @@ class DrivingForceProfile:
 
         return self._delta_thermal_expansivity
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def delta_specific_heat(self) -> np.ndarray:
         """"""
@@ -603,7 +555,6 @@ class DrivingForceProfile:
 
         return self._delta_specific_heat
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def delta_compressibility(self) -> np.ndarray:
         """"""
@@ -612,7 +563,6 @@ class DrivingForceProfile:
 
         return self._delta_compressibility
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def delta_pressure_wave_velocity(self) -> np.ndarray:
         """"""
@@ -621,7 +571,6 @@ class DrivingForceProfile:
 
         return self._delta_pressure_wave_velocity
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def delta_pressure_wave_velocity_T_derivative(self) -> np.ndarray:
         """"""
@@ -630,7 +579,6 @@ class DrivingForceProfile:
 
         return self._delta_pressure_wave_velocity_T_derivative
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def delta_shear_wave_velocity(self) -> np.ndarray:
         """"""
@@ -639,7 +587,6 @@ class DrivingForceProfile:
 
         return self._delta_shear_wave_velocity
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def delta_shear_wave_velocity_T_derivative(self) -> np.ndarray:
         """"""
@@ -648,7 +595,6 @@ class DrivingForceProfile:
 
         return self._delta_shear_wave_velocity_T_derivative
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def delta_internal_energy(self) -> np.ndarray:
         """"""
@@ -657,7 +603,6 @@ class DrivingForceProfile:
 
         return self._delta_internal_energy
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def delta_gibbs(self) -> np.ndarray:
         """"""
@@ -666,7 +611,6 @@ class DrivingForceProfile:
 
         return self._delta_gibbs
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def delta_entropy(self) -> np.ndarray:
         """"""
@@ -675,7 +619,6 @@ class DrivingForceProfile:
 
         return self._delta_entropy
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def delta_volume(self) -> np.ndarray:
         """"""
@@ -684,7 +627,6 @@ class DrivingForceProfile:
 
         return self._delta_volume
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @property
     def equilibrium_depth(self) -> np.ndarray:
         """"""
@@ -693,7 +635,6 @@ class DrivingForceProfile:
 
         return self._equilibrium_depth
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_density(self) -> np.ndarray:
         """"""
         density_a = self.material_a.evaluate(["density"], self.pressures, self.temperatures)
@@ -701,7 +642,6 @@ class DrivingForceProfile:
 
         return np.stack([density_a, density_b])
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_thermal_expansivity(self) -> np.ndarray:
         """"""
         thermal_expansivity_a = self.material_a.evaluate(["thermal_expansivity"], self.pressures, self.temperatures)
@@ -709,7 +649,6 @@ class DrivingForceProfile:
 
         return np.stack([thermal_expansivity_a, thermal_expansivity_b])
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_specific_heat(self) -> np.ndarray:
         """"""
         molar_mass_a = self.material_a.evaluate(["molar_mass"], self.pressures, self.temperatures)
@@ -721,7 +660,6 @@ class DrivingForceProfile:
 
         return np.stack([specific_heat_a, specific_heat_b])
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_compressibility(self) -> np.ndarray:
         """"""
         compressibility_a = self.material_a.evaluate(["isentropic_compressibility_reuss"], self.pressures, self.temperatures)
@@ -729,7 +667,6 @@ class DrivingForceProfile:
 
         return np.stack([compressibility_a, compressibility_b])
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_pressure_wave_velocity(self) -> np.ndarray:
         """"""
         pressure_wave_velocity_a = self.material_a.evaluate(["p_wave_velocity"], self.pressures, self.temperatures)
@@ -737,7 +674,6 @@ class DrivingForceProfile:
 
         return np.stack([pressure_wave_velocity_a, pressure_wave_velocity_b])
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_pressure_wave_velocity_T_derivative(self) -> np.ndarray:
         """Evaluate seismic pressure wave velocity derivatives with respect to temperature."""
         dT = 0.1
@@ -752,7 +688,6 @@ class DrivingForceProfile:
 
         return np.stack([dVp_dT_a, dVp_dT_b])
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_shear_wave_velocity(self) -> np.ndarray:
         """"""
         shear_wave_velocity_a = self.material_a.evaluate(["shear_wave_velocity"], self.pressures, self.temperatures)
@@ -760,7 +695,6 @@ class DrivingForceProfile:
 
         return np.stack([shear_wave_velocity_a, shear_wave_velocity_b])
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_shear_wave_velocity_T_derivative(self) -> np.ndarray:
         """Evaluate seismic shear wave velocity derivatives with respect to temperature."""
         dT = 0.1
@@ -775,7 +709,6 @@ class DrivingForceProfile:
 
         return np.stack([dVs_dT_a, dVs_dT_b])
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_internal_energy(self) -> np.ndarray:
         """"""
         internal_energy_a = np.array(self.material_a.evaluate(["molar_internal_energy"], self.pressures, self.temperatures))
@@ -783,7 +716,6 @@ class DrivingForceProfile:
 
         return np.stack([internal_energy_a * self.n_total_a, internal_energy_b * self.n_total_b])
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_gibbs(self) -> np.ndarray:
         """"""
         gibbs_a = np.array(self.material_a.evaluate(["molar_gibbs"], self.pressures, self.temperatures))
@@ -791,7 +723,6 @@ class DrivingForceProfile:
 
         return np.stack([gibbs_a * self.n_total_a, gibbs_b * self.n_total_b])
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_entropy(self) -> np.ndarray:
         """"""
         entropy_a = np.array(self.material_a.evaluate(["molar_entropy"], self.pressures, self.temperatures))
@@ -799,7 +730,6 @@ class DrivingForceProfile:
 
         return np.stack([entropy_a * self.n_total_a, entropy_b * self.n_total_b])
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_volume(self) -> np.ndarray:
         """"""
         volume_a = np.array(self.material_a.evaluate(["molar_volume"], self.pressures, self.temperatures))
@@ -807,67 +737,54 @@ class DrivingForceProfile:
 
         return np.stack([volume_a * self.n_total_a, volume_b * self.n_total_b])
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_delta_density(self) -> np.ndarray:
         """"""
         return np.ravel(self.density[1] - self.density[0])
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_delta_thermal_expansivity(self) -> np.ndarray:
         """"""
         return np.ravel(self.thermal_expansivity[1] - self.thermal_expansivity[0])
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_delta_specific_heat(self) -> np.ndarray:
         """"""
         return np.ravel(self.specific_heat[1] - self.specific_heat[0])
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_delta_compressibility(self) -> np.ndarray:
         """"""
         return np.ravel(self.compressibility[1] - self.compressibility[0])
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_delta_pressure_wave_velocity(self) -> np.ndarray:
         """"""
         return np.ravel(self.pressure_wave_velocity[1] - self.pressure_wave_velocity[0])
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_delta_pressure_wave_velocity_T_derivative(self) -> np.ndarray:
         """"""
         return np.ravel(self.pressure_wave_velocity_T_derivative[1] - self.pressure_wave_velocity_T_derivative[0])
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_delta_shear_wave_velocity(self) -> np.ndarray:
         """"""
         return np.ravel(self.shear_wave_velocity[1] - self.shear_wave_velocity[0])
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_delta_shear_wave_velocity_T_derivative(self) -> np.ndarray:
         """"""
         return np.ravel(self.shear_wave_velocity_T_derivative[1] - self.shear_wave_velocity_T_derivative[0])
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_delta_internal_energy(self) -> np.ndarray:
         """"""
         return np.ravel(self.internal_energy[1] - self.internal_energy[0])
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_delta_gibbs(self) -> np.ndarray:
         """"""
         return np.ravel(self.gibbs[1] - self.gibbs[0])
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_delta_entropy(self) -> np.ndarray:
         """"""
         return np.ravel(self.entropy[1] - self.entropy[0])
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_delta_volume(self) -> np.ndarray:
         """"""
         return np.ravel(self.volume[1] - self.volume[0])
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _evaluate_equilibrium_depth(self):
         """"""
         # Find index where delta_gibbs crosses zero (sign change)
@@ -887,7 +804,6 @@ class DrivingForceProfile:
 
         return depth_at_zero
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _write_profile(self) -> None:
         """Write profile."""
 
@@ -952,9 +868,8 @@ class DrivingForceProfile:
             comments="",
         )
 
-        print(f" -> {self.out_profile}")
+        log_artifact(self.out_profile)
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def visualize(
         self,
         contour_lims_P: tuple[float, float] = (-1.2e9, 1.2e9),
@@ -975,7 +890,6 @@ class DrivingForceProfile:
             n_contours=n_contours,
         )
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _mask_arrays(
         self,
         depth_lims: tuple[float, float] = (300e3, 600e3),
@@ -997,7 +911,6 @@ class DrivingForceProfile:
 
         return depths, delta_internal_energy, delta_gibbs, delta_entropy, delta_volume
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _get_driving_force_grid_fixed_dT(
         self,
         depth_lims: tuple[float, float] = (300e3, 600e3),
@@ -1023,7 +936,6 @@ class DrivingForceProfile:
 
         return depths_grid, dP_grid, driving_force_grid, levels
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _get_driving_force_grid_fixed_dP(
         self,
         depth_lims: tuple[float, float] = (300e3, 600e3),
@@ -1049,7 +961,6 @@ class DrivingForceProfile:
 
         return depths_grid, dT_grid, driving_force_grid, levels
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _get_driving_force_grid_at_target_depth(
         self,
         target_depth: float = 410e3,
@@ -1081,7 +992,6 @@ class DrivingForceProfile:
 
         return dP_grid, dT_grid, driving_force_grid, levels
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @staticmethod
     def _set_rc_params() -> None:
         """"""
@@ -1099,7 +1009,6 @@ class DrivingForceProfile:
             }
         )
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @staticmethod
     def _plot_exists(out_path: Path) -> bool:
         """"""
@@ -1109,11 +1018,10 @@ class DrivingForceProfile:
         if not out_path.parent.exists():
             out_path.parent.mkdir(parents=True, exist_ok=True)
 
-        print(f" -> {out_path}")
+        log_artifact(out_path)
 
         return False
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _visualize_delta_PT_contours_fill(
         self,
         depth_lims: tuple[float, float] = (300e3, 600e3),

@@ -1,46 +1,133 @@
 # --------------------------------------------------
-# Environments and top-level directories (no edits)
+# Paths (no edits)
 # --------------------------------------------------
 # Canonical project root (works from any subdir)
-PROJECT_ROOT       := $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/.)
+PROJECT_ROOT := $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/.)
+export PROJECT_ROOT
 
-# Top-level directories
-ASPECT             := $(PROJECT_ROOT)/aspect/build
-DEALII             := $(PROJECT_ROOT)/dealii
-BASH               := $(PROJECT_ROOT)/bash
-DRAFT              := $(PROJECT_ROOT)/draft
-PYTHON             := $(PROJECT_ROOT)/python
-R                  := $(PROJECT_ROOT)/R
-SIMULATION         := $(PROJECT_ROOT)/simulation
-FIGS               := $(PROJECT_ROOT)/figs
-PERPLEX            := $(PROJECT_ROOT)/perplex
+ASPECT     := $(PROJECT_ROOT)/aspect
+DEALII     := $(PROJECT_ROOT)/dealii
+BASH       := $(PROJECT_ROOT)/bash
+DRAFT      := $(PROJECT_ROOT)/draft
+PYTHON     := $(PROJECT_ROOT)/python
+R          := $(PROJECT_ROOT)/R
+SIMULATION := $(PROJECT_ROOT)/simulation
+FIGS       := $(PROJECT_ROOT)/figs
+PERPLEX    := $(PROJECT_ROOT)/perplex
 
-# Remote Barkla2 directories
 BARKLA2_ROOT       := /users/kersweb/scratch/kerswell_et_al_660_kinetics
 BARKLA2_SIMULATION := $(BARKLA2_ROOT)/simulation
 
 # --------------------------------------------------
-# ASPECT model postprocessing (can edit)
+# Suites and outputs (can edit)
 # --------------------------------------------------
-MODEL_TYPES           := plume slab
-ASPECT_RESULTS        := $(SIMULATION)/results
-POSTPROCESS_MODE      := full
-POSTPROCESS_VERBOSITY := 0
-SAVE_CSV              := true
-FORCE_REPROCESS       := false
-COMBINED_CSV_RAW      := $(SIMULATION)/data/structure-summary-combined.csv
-COMBINED_CSV_FILTERED := $(SIMULATION)/data/structure-summary-combined-filtered.csv
-FORCE_REWRITE         := true
-SEISMIC_PROFILES      := $(SIMULATION)/data/seismic_profiles
-RESULTS_LH             = $(foreach type,$(MODEL_TYPES), $(addprefix $(ASPECT_RESULTS)/$(type)_, $(UIDS_LH)))
-RESULTS_KN             = $(foreach type,$(MODEL_TYPES), $(addprefix $(ASPECT_RESULTS)/$(type)_, $(UIDS_KN)))
-TIMESTEPS_SYNC        := $(shell seq -f "%03g" 0 50 100)
-TIMESTEPS_MESH        := $(shell seq -f "%03g" 0 50 100)
+ASPECT_RESULTS            := $(SIMULATION)/results
+POSTPROCESS_MODE          := full
+POSTPROCESS_VERBOSITY     := 0
+SAVE_CSV                  := true
+FORCE_REPROCESS           := false
+FORCE_REWRITE             := true
+RESULTS_SW_SUITE       = $(addprefix $(ASPECT_RESULTS)/slab_, $(UIDS_SW_SUITE))
+RESULTS_NC_SUITE       = $(addprefix $(ASPECT_RESULTS)/slab_, $(UIDS_NC_SUITE))
+RESULTS_TEST_SUITE     = $(addprefix $(ASPECT_RESULTS)/slab_, $(UIDS_TEST_SUITE))
+TIMESTEPS_SYNC            := 000 100
+FORCE_SYNC                := 0
+FORCE_COMPOSE             := 0
+FORCE_DOWNLOAD            := 0
+ZENODO_DATASET_DOI        := 10.5281/zenodo.24120946
+ZENODO_FILES              := results-sw.tar.gz results-nc.tar.gz results-test.tar.gz postprocessed-data.tar.gz
+TIMESTEPS_MESH_SW_SUITE   := 100
+TIMESTEPS_MESH_NC_SUITE   := 100
+TIMESTEPS_MESH_TEST_SUITE := 100
+CHUNK_SIZE                := 32
+
+# Namespaces: sw (SW), nc (NC), test (T1-T4). Per-suite mesh outputs live flat
+# under simulation/data/; shared physics inputs (PerpleX profiles,
+# figs/adiabat) stay at their top-level paths.
+TAG_SW_SUITE   := sw
+TAG_NC_SUITE   := nc
+TAG_TEST_SUITE := test
+FIGS_SW_SUITE       := $(FIGS)/sw_suite
+FIGS_NC_SUITE       := $(FIGS)/nc_suite
+FIGS_TEST_SUITE     := $(FIGS)/test_suite
+FIGS_SIM_SW_SUITE   := $(FIGS_SW_SUITE)/simulation
+FIGS_SIM_NC_SUITE   := $(FIGS_NC_SUITE)/simulation
+FIGS_SIM_TEST_SUITE := $(FIGS_TEST_SUITE)/simulation
+
+# Manuscript outputs (all suites) live directly under figs/ and simulation/data/.
+FIGS_SIMULATION       := $(FIGS)/simulation
+FIGS_STRUCTURE        := $(FIGS)/structure
+FIGS_SEISMIC          := $(FIGS)/seismic
+FIGS_SETUP            := $(FIGS)/setup
+FIGS_KUBO             := $(FIGS)/kubo
+POSTPROCESSED_CSV       := $(SIMULATION)/data/postprocessed.csv
+POSTPROCESSED_MD        := $(SIMULATION)/data/postprocessed.md
+
+# Shared pipeline inputs (single source of truth)
+PERPLEX_MODELS    := $(shell find $(PERPLEX) -type f -name '*.dat' -exec basename {} .dat \;)
+MESH_CSV_SW_SUITE := $(SIMULATION)/data/structure-summary-sw.csv
+MESH_CSV_NC_SUITE := $(SIMULATION)/data/structure-summary-nc.csv
+SEISMIC_SW_SUITE  := $(SIMULATION)/data/seismic_profiles_sw
+SEISMIC_NC_SUITE  := $(SIMULATION)/data/seismic_profiles_nc
+
+# Flat per-suite mesh outputs (regenerable from simulation/results/).
+DATA_MESH_SW_SUITE   := $(addprefix $(SIMULATION)/data/,structure-summary-sw.csv structure-cache-sw.pkl seismic-profile-cache-sw.pkl seismic_profiles_sw)
+DATA_MESH_NC_SUITE   := $(addprefix $(SIMULATION)/data/,structure-summary-nc.csv structure-cache-nc.pkl seismic-profile-cache-nc.pkl seismic_profiles_nc)
+DATA_MESH_TEST_SUITE := $(addprefix $(SIMULATION)/data/,structure-summary-test.csv structure-cache-test.pkl seismic-profile-cache-test.pkl seismic_profiles_test)
+
+# Composition reference models
+ID_SW1  := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-11_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
+ID_SW2  := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri1.90e-08_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
+ID_SW3  := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-05_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp5e+02
+ID_SW4  := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-11_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02
+ID_SW5  := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri1.90e-08_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02
+ID_SW6  := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-05_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp5e+02
+ID_SW7  := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-11_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel10e-02_Temp5e+02
+ID_SW8  := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri1.90e-08_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel10e-02_Temp5e+02
+ID_SW9  := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-05_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel10e-02_Temp5e+02
+ID_SW10 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-11_EtaTherm10_EtaTrans1-1-1-50_MG100_Vel10e-02_Temp5e+02
+ID_SW11 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri1.90e-08_EtaTherm10_EtaTrans1-1-1-50_MG100_Vel10e-02_Temp5e+02
+ID_SW12 := KN_Dynp0_Zol4.44e-04_Zwd4.44e-04_Zri5.08e-05_EtaTherm10_EtaTrans1-1-1-50_MG100_Vel10e-02_Temp5e+02
+
+ID_NC1  := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e-03_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp10e+02
+ID_NC2  := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp10e+02
+ID_NC3  := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e+03_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp10e+02
+ID_NC4  := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e-03_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp10e+02
+ID_NC5  := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp10e+02
+ID_NC6  := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e+03_EtaTherm5_EtaTrans1-1-1-50_MG100_Vel5e-02_Temp10e+02
+ID_NC7  := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e-03_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel10e-02_Temp10e+02
+ID_NC8  := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel10e-02_Temp10e+02
+ID_NC9  := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e+03_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel10e-02_Temp10e+02
+ID_NC10 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e-03_EtaTherm10_EtaTrans1-1-1-50_MG100_Vel10e-02_Temp10e+02
+ID_NC11 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri6.0e-01_EtaTherm10_EtaTrans1-1-1-50_MG100_Vel10e-02_Temp10e+02
+ID_NC12 := KN_Dynp0_Zol1.4e+04_Zwd1.4e+04_Zri1.6e+03_EtaTherm10_EtaTrans1-1-1-50_MG100_Vel10e-02_Temp10e+02
+
+# TEST_SUITE: explicit sluggish-410 tests (T1-T4, scenarios 16-19), not part of
+# the cartesian sweep. Must match UIDS_TEST_SUITE in simulation/local.mk.
+ID_T1 := KN_Dynp0_Zol3.0e0_Zwd3.0e0_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp10e+02
+ID_T2 := KN_Dynp0_Zol7.0e0_Zwd7.0e0_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel5e-02_Temp10e+02
+ID_T3 := KN_Dynp0_Zol3.0e0_Zwd3.0e0_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel20e-02_Temp10e+02
+ID_T4 := KN_Dynp0_Zol7.0e0_Zwd7.0e0_Zri6.0e-01_EtaTherm5_EtaTrans1-1-1-1_MG100_Vel20e-02_Temp10e+02
+
+# Visualization scope (can edit)
+VIS_ALL            := false
+VIS_ALL_SW_SUITE   := $(VIS_ALL)
+VIS_ALL_NC_SUITE   := $(VIS_ALL)
+VIS_ALL_TEST_SUITE := $(VIS_ALL)
+
+VIS_ON := true yes 1
+
+VIS_IDS_SW_SUITE      := $(ID_SW1) $(ID_SW2) $(ID_SW3) $(ID_SW4) $(ID_SW5) $(ID_SW6) $(ID_SW7) $(ID_SW8) $(ID_SW9) $(ID_SW10) $(ID_SW11) $(ID_SW12)
+VIS_IDS_NC_SUITE      := $(ID_NC1) $(ID_NC2) $(ID_NC3) $(ID_NC4) $(ID_NC5) $(ID_NC6) $(ID_NC7) $(ID_NC8) $(ID_NC9) $(ID_NC10) $(ID_NC11) $(ID_NC12)
+VIS_IDS_TEST_SUITE    := $(ID_T1) $(ID_T2) $(ID_T3) $(ID_T4)
+
+VIS_MODELS_SW_SUITE   = $(if $(filter $(VIS_ON),$(VIS_ALL_SW_SUITE)),$(notdir $(RESULTS_SW_SUITE)),$(foreach id,$(VIS_IDS_SW_SUITE),slab_$(id)))
+VIS_MODELS_NC_SUITE   = $(if $(filter $(VIS_ON),$(VIS_ALL_NC_SUITE)),$(notdir $(RESULTS_NC_SUITE)),$(foreach id,$(VIS_IDS_NC_SUITE),slab_$(id)))
+VIS_MODELS_TEST_SUITE = $(if $(filter $(VIS_ON),$(VIS_ALL_TEST_SUITE)),$(notdir $(RESULTS_TEST_SUITE)),$(foreach id,$(VIS_IDS_TEST_SUITE),slab_$(id)))
 
 # --------------------------------------------------
-# ASPECT model parameter space (can edit)
+# Model parameters (can edit)
 # --------------------------------------------------
-# Globals
 END_TIME            := 150e+06
 SURFACE_TEMPERATURE := 1706
 SURFACE_PRESSURE    := 2e+09
@@ -48,80 +135,68 @@ SOLVER_TOLERANCE    := 1e-04
 MAX_SOLVER_ITER     := 100
 MAX_SOLVER_TSTEP    := 25e+04
 
-# Postprocess
-VIZ_OUT_TIME        := 1e+06
-CHECKPOINT_TIME     := 300
+VIZ_OUT_TIME    := 1e+06
+CHECKPOINT_TIME := 300
+DYNAMIC_P       := 0
+MG_NUM          := 100
 
-# Use dynamic pressure correction [0: false, 1: true]
-DYNAMIC_P           := 0
+ETA_REF   := 1e+21
+ETA_MIN   := 1e+19
+ETA_MAX   := 1e+24
+ETA_GIBBS := 1e+03
+ETA_THERM := 5 10
 
-# Material composition [100: pure MgO, 90: Mg90, etc.]
-MG_NUM              := 100
-
-# Viscosity [reference, min, max, thermal exponent, Gibbs: defines width of ETA jump]
-ETA_REF     := 1e+21
-ETA_MIN     := 1e+19
-ETA_MAX     := 1e+24
-ETA_GIBBS   := 1e+03
-ETA_THERM   := 5 10
-
-# Material prefactors [1: no contrast, 100: 100x contrast, etc.]
 ETA_PREF_OL := 1
 ETA_PREF_WD := 1
 ETA_PREF_RI := 1
 ETA_PREF_PS := 1 50
 
-# Phase transition kinetics [Z: prefactor, H: activation enthalpy, V: activation volume, E: activation energy]
-Z_OL := 1.4e+04
-Z_WD := 1.4e+04
-Z_RI := 1.6e-03 1.2e-02 8.3e-02 6.0e-01 4.3e+00 3.1e+01 2.2e+02 1.6e+03
+# SW kinetics (sluggish Z, Temp5e+02)
+Z_OL_SW_SUITE := 4.44e-04
+Z_WD_SW_SUITE := 4.44e-04
+Z_RI_SW_SUITE := 5.08e-11 3.81e-10 2.63e-09 1.90e-08 1.37e-07 9.84e-07 6.98e-06 5.08e-05
+
+# NC kinetics (nominal Z, Temp10e+02 slabs)
+Z_OL_NC_SUITE := 1.4e+04
+Z_WD_NC_SUITE := 1.4e+04
+Z_RI_NC_SUITE := 1.6e-03 1.2e-02 8.3e-02 6.0e-01 4.3e+00 3.1e+01 2.2e+02 1.6e+03
 
 V_OL := 3.3e-06
 V_WD := 3.3e-06
-
 H_OL := 274e+03
 H_WD := 274e+03
-
 E_RI := 355e+03
 
 DEPTH_CORRECTION_OL_WD := 5e+03
 DEPTH_CORRECTION_WD_RI := 5e+03
 DEPTH_CORRECTION_RI_PS := 15e+03
 
-# Plume/slab initial and boundary conditions
-VELOCITY_BC        :=    5e-02 10e-02
-TEMPERATURE_BC     :=    5e+02
+VELOCITY_BC             := 5e-02 10e-02
+TEMPERATURE_BC_SW_SUITE := 5e+02
+TEMPERATURE_BC_NC_SUITE := 10e+02
 
-# Geometry inputs
 MODEL_WIDTH        := 1500e+03
 MODEL_HEIGHT       := 1000e+03
-MESH_X             :=        3
-MESH_Y             :=        2
-MESH_REFINE_GLOBAL :=        3
-MESH_REFINE_ADAPT  :=        3
-MESH_REFINE_TSTEP  :=       10
+MESH_X             := 3
+MESH_Y             := 2
+MESH_REFINE_GLOBAL := 3
+MESH_REFINE_ADAPT  := 3
+MESH_REFINE_TSTEP  := 10
 
-SLAB_XC            :=  617e+03
-SLAB_YC            := 1050e+03
-SLAB_L             :=  250e+03
-SLAB_FW            :=   66e+03
-SLAB_A             :=    5e+03
-SLAB_DIP           :=       65
-
-PLUME_XC           :=  750e+03
-PLUME_YC           :=    0e+03
-PLUME_L            :=  280e+03
-PLUME_FW           :=   66e+03
-PLUME_A            :=    5e+03
+SLAB_XC  := 617e+03
+SLAB_YC  := 1050e+03
+SLAB_L   := 250e+03
+SLAB_FW  := 66e+03
+SLAB_A   := 5e+03
+SLAB_DIP := 65
 
 # --------------------------------------------------
-# Evaluate slab/plume geometry
+# Derived geometry (no edits)
 # --------------------------------------------------
 CONDA_ENV    := kerswell-et-al-mtz-kinetics
 CONDA_PYTHON := $(shell conda run -n $(CONDA_ENV) which python 2>/dev/null || echo python3)
 
-_SLAB  := $(shell $(CONDA_PYTHON) -u $(PYTHON)/simulation/params/geometry.py slab $(SLAB_XC) $(SLAB_YC) $(SLAB_L) $(SLAB_FW) --dip $(SLAB_DIP))
-_PLUME := $(shell $(CONDA_PYTHON) -u $(PYTHON)/simulation/params/geometry.py plume $(PLUME_XC) $(PLUME_YC) $(PLUME_L) $(PLUME_FW))
+_SLAB := $(shell $(CONDA_PYTHON) -u $(PYTHON)/simulation/params/geometry.py slab $(SLAB_XC) $(SLAB_YC) $(SLAB_L) $(SLAB_FW) --dip $(SLAB_DIP))
 
 X0_SLAB := $(word 1,$(_SLAB))
 Y0_SLAB := $(word 2,$(_SLAB))
@@ -133,87 +208,56 @@ W_SLAB  := $(word 7,$(_SLAB))
 L_SLAB  := $(SLAB_L)
 A_SLAB  := $(SLAB_A)
 
-X0_PLUME := $(word 1,$(_PLUME))
-Y0_PLUME := $(word 2,$(_PLUME))
-X1_PLUME := $(word 3,$(_PLUME))
-Y1_PLUME := $(word 4,$(_PLUME))
-DX_PLUME := $(word 5,$(_PLUME))
-DY_PLUME := $(word 6,$(_PLUME))
-W_PLUME  := $(word 7,$(_PLUME))
-L_PLUME  := $(PLUME_L)
-A_PLUME  := $(PLUME_A)
-
 # --------------------------------------------------
-# Macro definitions
+# Macros (no edits)
 # --------------------------------------------------
-# Derived phase transitions
 define COMPUTE_PHASES
-  $(eval _OL_WD  := $(SIMULATION)/data/olivine-wadsleyite-profile-Mg$(1).tsv)
-  $(eval _WD_RI  := $(SIMULATION)/data/wadsleyite-ringwoodite-profile-Mg$(1).tsv)
-  $(eval _RI_PS  := $(SIMULATION)/data/ringwoodite-postspinel-profile-Mg$(1).tsv)
-  $(eval _PH_OUT := $(shell $(CONDA_PYTHON) -u $(PYTHON)/simulation/params/transitions.py $(_OL_WD) $(_WD_RI) $(_RI_PS) $(MODEL_HEIGHT) $(SURFACE_PRESSURE)))
-  $(eval TRANS_OL_WD_Y_$(1)      := $(word 1,$(_PH_OUT)))
-  $(eval TRANS_OL_WD_DEPTH_$(1)  := $(word 2,$(_PH_OUT)))
-  $(eval TRANS_OL_WD_T_$(1)      := $(word 3,$(_PH_OUT)))
-  $(eval TRANS_OL_WD_CLAP_$(1)   := $(word 4,$(_PH_OUT)))
-  $(eval TRANS_OL_WD_DRHO_$(1)   := $(word 5,$(_PH_OUT)))
-  $(eval TRANS_WD_RI_Y_$(1)      := $(word 6,$(_PH_OUT)))
-  $(eval TRANS_WD_RI_DEPTH_$(1)  := $(word 7,$(_PH_OUT)))
-  $(eval TRANS_WD_RI_T_$(1)      := $(word 8,$(_PH_OUT)))
-  $(eval TRANS_WD_RI_CLAP_$(1)   := $(word 9,$(_PH_OUT)))
-  $(eval TRANS_WD_RI_DRHO_$(1)   := $(word 10,$(_PH_OUT)))
-  $(eval TRANS_RI_PS_Y_$(1)      := $(word 11,$(_PH_OUT)))
-  $(eval TRANS_RI_PS_DEPTH_$(1)  := $(word 12,$(_PH_OUT)))
-  $(eval TRANS_RI_PS_T_$(1)      := $(word 13,$(_PH_OUT)))
-  $(eval TRANS_RI_PS_CLAP_$(1)   := $(word 14,$(_PH_OUT)))
-  $(eval TRANS_RI_PS_DRHO_$(1)   := $(word 15,$(_PH_OUT)))
+  $(eval _OL_WD                 := $(SIMULATION)/data/olivine-wadsleyite-profile-Mg$(1).tsv)
+  $(eval _WD_RI                 := $(SIMULATION)/data/wadsleyite-ringwoodite-profile-Mg$(1).tsv)
+  $(eval _RI_PS                 := $(SIMULATION)/data/ringwoodite-postspinel-profile-Mg$(1).tsv)
+  $(eval _PH_OUT                := $(shell $(CONDA_PYTHON) -u $(PYTHON)/simulation/params/transitions.py $(_OL_WD) $(_WD_RI) $(_RI_PS) $(MODEL_HEIGHT) $(SURFACE_PRESSURE)))
+  $(eval TRANS_OL_WD_Y_$(1)     := $(word 1,$(_PH_OUT)))
+  $(eval TRANS_OL_WD_DEPTH_$(1) := $(word 2,$(_PH_OUT)))
+  $(eval TRANS_OL_WD_T_$(1)     := $(word 3,$(_PH_OUT)))
+  $(eval TRANS_OL_WD_CLAP_$(1)  := $(word 4,$(_PH_OUT)))
+  $(eval TRANS_OL_WD_DRHO_$(1)  := $(word 5,$(_PH_OUT)))
+  $(eval TRANS_WD_RI_Y_$(1)     := $(word 6,$(_PH_OUT)))
+  $(eval TRANS_WD_RI_DEPTH_$(1) := $(word 7,$(_PH_OUT)))
+  $(eval TRANS_WD_RI_T_$(1)     := $(word 8,$(_PH_OUT)))
+  $(eval TRANS_WD_RI_CLAP_$(1)  := $(word 9,$(_PH_OUT)))
+  $(eval TRANS_WD_RI_DRHO_$(1)  := $(word 10,$(_PH_OUT)))
+  $(eval TRANS_RI_PS_Y_$(1)     := $(word 11,$(_PH_OUT)))
+  $(eval TRANS_RI_PS_DEPTH_$(1) := $(word 12,$(_PH_OUT)))
+  $(eval TRANS_RI_PS_T_$(1)     := $(word 13,$(_PH_OUT)))
+  $(eval TRANS_RI_PS_CLAP_$(1)  := $(word 14,$(_PH_OUT)))
+  $(eval TRANS_RI_PS_DRHO_$(1)  := $(word 15,$(_PH_OUT)))
 endef
 
-# UID generators
-define MAKE_KN_UID
+define MAKE_UID
   KN_Dynp$(1)_Zol$(2)_Zwd$(3)_Zri$(4)_EtaTherm$(5)_EtaTrans$(6)-$(7)-$(8)-$(9)_MG$(10)_Vel$(11)_Temp$(12)
 endef
 
-define MAKE_LH_UID
-  LH_EtaTherm$(1)_EtaTrans$(2)-$(3)-$(4)-$(5)_MG$(6)_Vel$(7)_Temp$(8)
+define REGISTER_UIDS
+  $(eval _uid := $(strip $(call MAKE_UID,$(2),$(3),$(4),$(5),$(6),$(7),$(8),$(9),$(10),$(11),$(12),$(13))))
+  $(1)                   += $(_uid)
+  PARAM_dynp_$(_uid)     := $(2)
+  PARAM_zol_$(_uid)      := $(3)
+  PARAM_zwd_$(_uid)      := $(4)
+  PARAM_zri_$(_uid)      := $(5)
+  PARAM_etatherm_$(_uid) := $(6)
+  PARAM_etaol_$(_uid)    := $(7)
+  PARAM_etawd_$(_uid)    := $(8)
+  PARAM_etari_$(_uid)    := $(9)
+  PARAM_etaps_$(_uid)    := $(10)
+  PARAM_mgnum_$(_uid)    := $(11)
+  PARAM_vel_$(_uid)      := $(12)
+  PARAM_dt_$(_uid)       := $(13)
 endef
 
-# Derived UIDs
-define REGISTER_UIDS_KN
-  $(eval _uid := $(strip $(call MAKE_KN_UID,$(1),$(2),$(3),$(4),$(5),$(6),$(7),$(8),$(9),$(10),$(11),$(12))))
-  UIDS_KN                += $(_uid)
-  PARAM_dynp_$(_uid)     := $(1)
-  PARAM_zol_$(_uid)      := $(2)
-  PARAM_zwd_$(_uid)      := $(3)
-  PARAM_zri_$(_uid)      := $(4)
-  PARAM_etatherm_$(_uid) := $(5)
-  PARAM_etaol_$(_uid)    := $(6)
-  PARAM_etawd_$(_uid)    := $(7)
-  PARAM_etari_$(_uid)    := $(8)
-  PARAM_etaps_$(_uid)    := $(9)
-  PARAM_mgnum_$(_uid)    := $(10)
-  PARAM_vel_$(_uid)      := $(11)
-  PARAM_dt_$(_uid)       := $(12)
-endef
-
-define REGISTER_UIDS_LH
-  $(eval _uid := $(strip $(call MAKE_LH_UID,$(1),$(2),$(3),$(4),$(5),$(6),$(7),$(8))))
-  UIDS_LH                += $(_uid)
-  PARAM_etatherm_$(_uid) := $(1)
-  PARAM_etaol_$(_uid)    := $(2)
-  PARAM_etawd_$(_uid)    := $(3)
-  PARAM_etari_$(_uid)    := $(4)
-  PARAM_etaps_$(_uid)    := $(5)
-  PARAM_mgnum_$(_uid)    := $(6)
-  PARAM_vel_$(_uid)      := $(7)
-  PARAM_dt_$(_uid)       := $(8)
-endef
-
-# Parameter file generator
 define GENERATE_PRM
 	$(eval _MG := $(PARAM_mgnum_$(2)))
 	$(call COMPUTE_PHASES,$(_MG))
-	@echo " -> $(3)"
+	$(call LOG_ARTIFACT,$(3))
 	@mkdir -p $(dir $(3))
 	@$(CONDA_PYTHON) $(PYTHON)/simulation/params/generator.py $(1) $(3) \
 	  "end-time=$(END_TIME)" \
@@ -276,20 +320,11 @@ define GENERATE_PRM
 	  "l-slab=$(L_SLAB)" \
 	  "w-slab=$(W_SLAB)" \
 	  "a-slab=$(A_SLAB)" \
-	  "x0-plume=$(X0_PLUME)" \
-	  "x1-plume=$(X1_PLUME)" \
-	  "dx-plume=$(DX_PLUME)" \
-	  "y0-plume=$(Y0_PLUME)" \
-	  "y1-plume=$(Y1_PLUME)" \
-	  "dy-plume=$(DY_PLUME)" \
-	  "l-plume=$(L_PLUME)" \
-	  "w-plume=$(W_PLUME)" \
-	  "a-plume=$(A_PLUME)" \
 	  "uid=$(2)"
 endef
 
 # --------------------------------------------------
-# Check dependencies
+# Environment checks (no edits)
 # --------------------------------------------------
 ifeq ($(shell command -v conda 2>/dev/null),)
   $(error !! ERROR: 'conda' not found in PATH)
@@ -304,77 +339,63 @@ ifeq ($(shell command -v Rscript 2>/dev/null),)
   $(error !! ERROR: 'Rscript' not found in PATH. This project requires R)
 endif
 
-# ifeq ($(shell command -v pandoc 2>/dev/null),)
-#   $(error !! ERROR: 'pandoc' not found in PATH. Required for rendering the manuscript)
-# endif
-
 # --------------------------------------------------
-# DEAL.II and ASPECT configuration
+# ASPECT and deal.II (only needed for `make models`)
 # --------------------------------------------------
-# Check operating system
 UNAME_SHELL := $(shell uname)
 OS_SYSTEM   := $(shell [ -f /etc/os-release ] && . /etc/os-release && echo $$ID || echo unknown)
 
-ASPECT_EXE     := $(ASPECT)/aspect-release
-DEALII_VERSION := v9.7.0
+ASPECT_EXE    := $(ASPECT)/aspect-release
+DEALII_ENABLE := $(DEALII)/configuration/enable.sh
+
+define CHECK_SIM_DEPS
+  $(error !! ERROR: simulation dependencies not found (missing $(1)). Link your installs at the project root as 'aspect/aspect-release' and 'dealii/configuration/enable.sh'. To install from source, see https://github.com/dealii/candi (deal.II >= v9.7.0) and https://github.com/geodynamics/aspect (ASPECT >= 3.1.0))
+endef
+
+$(ASPECT_EXE) $(DEALII_ENABLE):
+	$(call CHECK_SIM_DEPS,$@)
 
 ifeq ($(UNAME_SHELL), Darwin)
-  # Install config
-  DEALII_LIB       := $(DEALII)/deal.II-$(DEALII_VERSION)/lib/libdeal_II.dylib
-  INSTALL_DEALII   := $(INSTALL)/dealii-macos.sh
-  INSTALL_ASPECT   := $(INSTALL)/aspect-macos.sh
-  TRILINOS_VERSION := AUTO
-
-  # Run config
-  RUN_ASPECT       := $(BASH)/simulation/run-aspect-macos.sh
-  NTASKS           := 8
+  RUN_ASPECT := $(BASH)/simulation/run-aspect-macos.sh
+  NTASKS     := 8
 else ifeq ($(OS_SYSTEM), rocky)
-  # Install config
-  DEALII_LIB       := $(DEALII)/deal.II-$(DEALII_VERSION)/lib/libdeal_II.so
-  INSTALL_DEALII   := $(INSTALL)/dealii-barkla2.sh
-  INSTALL_ASPECT   := $(INSTALL)/aspect-barkla2.sh
-  TRILINOS_VERSION := AUTO
-  GCC              := gcc/14.2.0
-  OPENMPI          := openmpi/5.0.8-gcc14.2.0
-  OPENBLAS         := openblas/0.3.29/gcc-14.2.0
-  CMAKE            := cmake/3.30.5-gcc14.2.0
+  GCC      := gcc/14.2.0
+  OPENMPI  := openmpi/5.0.8-gcc14.2.0
+  OPENBLAS := openblas/0.3.29/gcc-14.2.0
+  CMAKE    := cmake/3.30.5-gcc14.2.0
 
-  # Run config
-  RUN_ASPECT       := $(BASH)/simulation/run-aspect-barkla2.sh
-  NTASKS           := 128
-  NTASKSPERNODE    := 168
-  TIME             := 2-12:00:00
-  MAIL_ADDRESS     := b.kerswell@liverpool.ac.uk
-  MAIL_TYPE        := ALL
+  RUN_ASPECT    := $(BASH)/simulation/run-aspect-barkla2.sh
+  NTASKS        := 128
+  NTASKSPERNODE := 168
+  TIME          := 2-12:00:00
+  MAIL_ADDRESS  := b.kerswell@liverpool.ac.uk
+  MAIL_TYPE     := ALL
 else
   $(error Unsupported OS: Only macOS and Rocky Linux are supported!)
 endif
 
 # --------------------------------------------------
-# Logging
+# Logging (no edits)
 # --------------------------------------------------
-DATE            := $(shell date +"%d-%m-%Y")
-LOG_FILE        := .log/log-$(DATE).log
-LOGGER          := 2>&1 | tee -a $(LOG_FILE)
-SUPPRESS_STDERR := 2>/dev/null
-SUPPRESS_STDOUT := > /dev/null
+# Gutter logging for recipes (dim gutter, cyan steps, green artifacts).
+LOG_SH       := $(BASH)/utils/log.sh
+LOG_INFO     = @bash -c 'source $(LOG_SH); log_info "$(1)"'
+LOG_DETAIL   = @bash -c 'source $(LOG_SH); log_detail "$(1)"'
+LOG_ARTIFACT = @bash -c 'source $(LOG_SH); log_artifact "$(1)"'
 
 # --------------------------------------------------
-# Safe removal macro
+# Safe removal (no edits)
 # --------------------------------------------------
 define SAFE_RM
 	if [ -e "$(1)" ]; then \
 	  ABS_PATH=$$(realpath "$(1)"); \
 	  if [[ "$$ABS_PATH" == $(PROJECT_ROOT)* ]]; then \
-	    echo " xx $$ABS_PATH"; \
+	    log_delete "$$ABS_PATH"; \
 	    rm -rf "$$ABS_PATH"; \
 	  fi; \
 	fi
 endef
 
-# --------------------------------------------------
-# Loop removal macro
-# --------------------------------------------------
 define SAFE_RM_LIST
-	for item in $(1); do $(call SAFE_RM,$$item); done
+	. "$(BASH)/utils/log.sh"; for item in $(1); do $(call SAFE_RM,$$item); done
 endef

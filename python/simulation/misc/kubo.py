@@ -1,18 +1,12 @@
-#######################################################
-## .0. Load Libraries                            !!! ##
-#######################################################
 from argparse import ArgumentParser, Namespace
 from dataclasses import dataclass
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
+from utils.logging import log_artifact, log_detail, log_info
 from scipy import stats
 
-
-#######################################################
-## .1. Dataclasses                               !!! ##
-#######################################################
 @dataclass(frozen=True)
 class RegressionResults:
     """
@@ -39,7 +33,6 @@ class RegressionResults:
     slope_samples: np.ndarray
     intercept_samples: np.ndarray
 
-
 @dataclass(frozen=True)
 class KuboConstants:
     """Thermodynamic constants for the Ringwoodite-Postspinel transition."""
@@ -54,10 +47,6 @@ class KuboConstants:
         """Molar volume change [m^3/mol]."""
         return abs(self.v_postspinel - self.v_ringwoodite)
 
-
-#######################################################
-## .2. Logic                                     !!! ##
-#######################################################
 def parse_arguments() -> Namespace:
     """
     Handles command-line argument parsing for Kubo regression.
@@ -69,7 +58,6 @@ def parse_arguments() -> Namespace:
     parser.add_argument("--out-fig-dir", type=str, help="Output figure directory")
 
     return parser.parse_args()
-
 
 def regress_kubo2002_dataset(n_monte_carlo: int = 10000) -> RegressionResults:
     """
@@ -138,12 +126,11 @@ def regress_kubo2002_dataset(n_monte_carlo: int = 10000) -> RegressionResults:
         intercept_samples=intercepts,
     )
 
-    print(f"    Mean E_a          = {res.ea_mean/1e3:.0f} ± {np.std(res.ea_samples)/1e3:.0f} kJ/mol")
-    print(f"    Mean ln(K')       = {lnk_mean:.1f} ± {lnk_std:.1f}")
-    print(f"    Geometric mean K' = {res.kp_geo_mean:.3e}")
+    log_detail(f"Mean E_a = {res.ea_mean/1e3:.0f} ± {np.std(res.ea_samples)/1e3:.0f} kJ/mol")
+    log_detail(f"Mean ln(K') = {lnk_mean:.1f} ± {lnk_std:.1f}")
+    log_detail(f"Geometric mean K' = {res.kp_geo_mean:.3e}")
 
     return res
-
 
 def visualize(results: RegressionResults, out_path: Path) -> None:
     """
@@ -224,14 +211,94 @@ def visualize(results: RegressionResults, out_path: Path) -> None:
 
     plt.savefig(out_path)
 
+def visualize_parameter_ranges(out_path: Path) -> None:
+    """Single-panel permitted Z_ri range for the SI.
 
-#######################################################
-## .3. Main                                      !!! ##
-#######################################################
+    Z_ri = 6.67 K' / (d V_ps^2) with lnK' = -29.8 +/- 22.1 (2 sigma) and
+    V_ps = 3.381e-5 m^3/mol. Suite bands span d = 1-10 mm, projected
+    along 1/d from the quoted Z ranges anchored at the coarse-grain end
+    (10 mm), so band edges run parallel to the best-fit line while
+    staying inside the permitted envelope.
+    """
+    import matplotlib.transforms as mtransforms
+
+    v_ps = 3.381e-5
+    lnk_best, lnk_low, lnk_high = -29.8, -51.9, -7.7
+    z_warm = (5.08e-11, 5.08e-05)
+    z_cold = (1.6e-03, 1.6e3)
+    d_ref = 10.0
+
+    plt.rcParams.update(
+        {
+            "figure.dpi": 300,
+            "savefig.bbox": "tight",
+            "axes.facecolor": "0.9",
+            "axes.edgecolor": "#4D4D4D",
+            "legend.frameon": False,
+            "figure.autolayout": True,
+            "axes.labelsize": 17,
+            "xtick.labelsize": 14,
+            "ytick.labelsize": 14,
+            "xtick.color": "#4D4D4D",
+            "ytick.color": "#4D4D4D",
+        }
+    )
+
+    d_mm = np.logspace(np.log10(0.7), np.log10(15.0), 200)
+    d_m = d_mm * 1e-3
+    denom = d_m * v_ps**2
+    z_best = 6.67 * np.exp(lnk_best) / denom
+    z_low = 6.67 * np.exp(lnk_low) / denom
+    z_high = 6.67 * np.exp(lnk_high) / denom
+
+    d_band = np.logspace(0.0, 1.0, 100)
+    z_warm_lo = z_warm[0] * (d_ref / d_band)
+    z_warm_hi = z_warm[1] * (d_ref / d_band)
+    z_cold_lo = z_cold[0] * (d_ref / d_band)
+    z_cold_hi = z_cold[1] * (d_ref / d_band)
+
+    fig, ax = plt.subplots(figsize=(6.8, 3.8))
+    ax.fill_between(d_mm, z_low, z_high, color="black", alpha=0.1, label="Permitted (95% CI)", zorder=1)
+    ax.fill_between(d_band, z_warm_lo, z_warm_hi, color="#E41A1C", alpha=0.25, label="SW suite", zorder=2)
+    ax.fill_between(d_band, z_cold_lo, z_cold_hi, color="#377EB8", alpha=0.25, label="NC suite", zorder=2)
+    ax.plot(d_mm, z_best, color="black", linewidth=1.5, label="Best fit", zorder=3)
+    ax.plot(d_mm, z_low, color="black", linewidth=0.8, linestyle="--", zorder=3)
+    ax.plot(d_mm, z_high, color="black", linewidth=0.8, linestyle="--", zorder=3)
+
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlim(0.7, 15.0)
+    ax.set_ylim(1e-12, 1e10)
+    ax.set_xlabel("Grain size d (mm)")
+    ax.set_ylabel("$Z_\\mathrm{ri}$ (mol$^2$ J$^{-2}$ s$^{-1}$)")
+    ax.tick_params(axis="both", which="both", length=0)
+    ax.legend(fontsize=13, loc="center left", bbox_to_anchor=(1.02, 0.5))
+
+    fig.canvas.draw()
+    x0, x1 = 3.5, 6.5
+    y0 = float(6.67 * np.exp(lnk_best) / ((x0 * 1e-3) * v_ps**2))
+    y1 = float(6.67 * np.exp(lnk_best) / ((x1 * 1e-3) * v_ps**2))
+    p0 = ax.transData.transform((x0, y0))
+    p1 = ax.transData.transform((x1, y1))
+    ang = float(np.degrees(np.arctan2(p1[1] - p0[1], p1[0] - p0[0])))
+    ax.text(
+        3.1, float(6.67 * np.exp(lnk_best) / ((5.0 * 1e-3) * v_ps**2)) * 2.2,
+        "Best-fit $Z_\\mathrm{ri}$ ~0.07-0.7", ha="center", va="bottom", fontsize=13,
+        rotation=ang, rotation_mode="anchor",
+    )
+    plt.savefig(out_path)
+
+
 def main() -> None:
     """Main execution path."""
     args = parse_arguments()
     out_dir = Path(args.out_fig_dir) if args.out_fig_dir else Path("./figures")
+    out_path_ranges = out_dir / "kubo-parameter-ranges.png"
+    if not out_path_ranges.exists():
+        out_dir.mkdir(parents=True, exist_ok=True)
+        log_info("Rendering Kubo Z_ri range figure")
+        visualize_parameter_ranges(out_path_ranges)
+        log_artifact(out_path_ranges)
     out_path = out_dir / "regression.png"
 
     if out_path.exists():
@@ -239,11 +306,10 @@ def main() -> None:
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    print(" .. Processing Kubo et al. (2002) Dataset")
+    log_info("Processing Kubo et al. (2002) Dataset")
     results = regress_kubo2002_dataset()
     visualize(results, out_path)
-    print(f" -> {out_path}")
-
+    log_artifact(out_path)
 
 if __name__ == "__main__":
     main()

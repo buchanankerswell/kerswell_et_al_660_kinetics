@@ -1,14 +1,7 @@
-#######################################################
-## .0. Load Libraries                            !!! ##
-#######################################################
 import argparse
 import math
 from dataclasses import dataclass
 
-
-#######################################################
-## .1. Geometry                              !!! ##
-#######################################################
 @dataclass(frozen=True)
 class Geometry:
     """Container for calculated ASPECT geometry parameters (Slab or Plume)."""
@@ -20,7 +13,6 @@ class Geometry:
     dx: float
     dy: float
     sigma_w: float
-
 
 def parse_args() -> argparse.Namespace:
     """Handles command-line argument parsing."""
@@ -36,7 +28,6 @@ def parse_args() -> argparse.Namespace:
 
     return parser.parse_args()
 
-
 def calculate_slab(x0: float, y0: float, length: float, fwhm: float, dip_deg: float) -> Geometry:
     """Calculates endpoints and sigma for a dipping slab."""
     rad_dip = math.radians(dip_deg)
@@ -45,15 +36,10 @@ def calculate_slab(x0: float, y0: float, length: float, fwhm: float, dip_deg: fl
 
     return Geometry(x0=x0, y0=y0, x1=x0 + dx, y1=y0 + dy, dx=dx, dy=dy, sigma_w=fwhm / 2.355)
 
-
 def calculate_plume(x0: float, y0: float, length: float, fwhm: float) -> Geometry:
     """Calculates endpoints and sigma for a vertical plume."""
     return Geometry(x0=x0, y0=y0, x1=x0, y1=y0 + length, dx=0.0, dy=length, sigma_w=fwhm / 2.355)
 
-
-#######################################################
-## .2. Main                                      !!! ##
-#######################################################
 def main():
     """ """
     args = parse_args()
@@ -65,7 +51,6 @@ def main():
 
     # Print formatted output as space-separated integers
     print(f"{geo.x0:.0f} {geo.y0:.0f} {geo.x1:.0f} {geo.y1:.0f} " f"{geo.dx:.0f} {geo.dy:.0f} {geo.sigma_w:.0f}")
-
 
 if __name__ == "__main__":
     main()

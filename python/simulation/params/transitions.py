@@ -1,16 +1,9 @@
-#######################################################
-## .0. Load Libraries                            !!! ##
-#######################################################
 import argparse
 import os
 from dataclasses import dataclass
 
 import numpy as np
 
-
-#######################################################
-## .1. PhaseTransition                           !!! ##
-#######################################################
 @dataclass
 class PhaseTransition:
     """
@@ -29,7 +22,6 @@ class PhaseTransition:
     temperature: float
     clapeyron: float
     density_jump: float
-
 
 def parse_arguments() -> argparse.Namespace:
     """
@@ -53,7 +45,6 @@ def parse_arguments() -> argparse.Namespace:
             parser.error(f"Profile file not found: {f}")
 
     return args
-
 
 def read_dG_profile(filepath: str) -> tuple[list[str], np.ndarray]:
     """
@@ -86,10 +77,9 @@ def read_dG_profile(filepath: str) -> tuple[list[str], np.ndarray]:
 
     # Logic check to satisfy the type checker and ensure file integrity
     if headers is None or not data:
-        raise ValueError(f" !! ERROR: No valid header or data rows found in {filepath}")
+        raise ValueError(f" XX Error: No valid header or data rows found in {filepath}")
 
     return headers, np.array(data)
-
 
 def find_surface_depth_offset(headers: list[str], data: np.ndarray, surface_pressure: float) -> float:
     """
@@ -108,7 +98,6 @@ def find_surface_depth_offset(headers: list[str], data: np.ndarray, surface_pres
     # Linear interpolation
     t = (surface_pressure - pressures[idx]) / (pressures[idx + 1] - pressures[idx])
     return float(depths[idx] + t * (depths[idx + 1] - depths[idx]))
-
 
 def find_transition(headers: list[str], data: np.ndarray, model_height: float, surface_depth_offset: float) -> PhaseTransition:
     """
@@ -141,7 +130,7 @@ def find_transition(headers: list[str], data: np.ndarray, model_height: float, s
             trans_drho = interp(delta_density)
 
             if abs(trans_dV) < 1e-20:
-                raise ValueError(" !! ERROR: delta_molar_volume is zero at transition.")
+                raise ValueError(" XX Error: delta_molar_volume is zero at transition.")
 
             clapeyron = trans_dS / trans_dV
             model_depth = trans_depth_profile - surface_depth_offset
@@ -149,12 +138,8 @@ def find_transition(headers: list[str], data: np.ndarray, model_height: float, s
 
             return PhaseTransition(y=model_y, depth=model_depth, temperature=trans_T, clapeyron=clapeyron, density_jump=trans_drho)
 
-    raise ValueError(" !! ERROR: no zero crossing found in delta_molar_gibbs")
+    raise ValueError(" XX Error: no zero crossing found in delta_molar_gibbs")
 
-
-#######################################################
-## .2. Main                                      !!! ##
-#######################################################
 def main() -> None:
     """
     Main execution logic: extracts transition data for all three mantle phases.
@@ -186,7 +171,6 @@ def main() -> None:
         return f"{v:.1f}"
 
     print(" ".join(fmt(v, i) for i, v in enumerate(output_values)))
-
 
 if __name__ == "__main__":
     main()

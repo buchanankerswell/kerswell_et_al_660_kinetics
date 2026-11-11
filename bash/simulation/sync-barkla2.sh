@@ -1,14 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../utils/log.sh"
+
 if [ $# -ne 4 ]; then
-    echo "    Usage: $0 <CONFIG_LIST> <TIMESTEP_LIST> <LOCAL_SIM_DIR> <REMOTE_SIM_DIR>"
-    exit 1
+  log_warn "Usage: $0 <CONFIG_LIST> <TIMESTEPS> <LOCAL_SIM_DIR> <REMOTE_SIM_DIR>"
+  exit 1
 fi
 
 # Read input arrays
 read -r -a CONFIG_LIST <<<"$1"
-read -r -a TIMESTEP_LIST <<<"$2"
+read -r -a MODEL_TIMESTEPS <<<"$2"
 LOCAL_SIM_DIR="$3"
 REMOTE_SIM_DIR="$4"
 
@@ -23,19 +26,24 @@ SSH_BASE=(ssh -o ControlMaster=auto -o ControlPersist=15m -o ControlPath="$CONTR
 # rsync options: archive, compression, filename-only output
 RSYNC_OPTS=(-az --out-format='%f' -e "${SSH_BASE[*]}")
 
-echo " .. Establishing SSH multiplexed connection"
-"${SSH_BASE[@]}" -MNf "${REMOTE_USER}@${REMOTE_HOST}" 2>&1 | sed 's/^/    /'
+log_info "Establishing SSH multiplexed connection"
+"${SSH_BASE[@]}" -MNf "${REMOTE_USER}@${REMOTE_HOST}" 2>&1 | log_pipe
 
 # Sync .run files
 REMOTE_CONFIGS_DIR="${REMOTE_SIM_DIR}/configs"
 LOCAL_CONFIGS_DIR="${LOCAL_SIM_DIR}/configs"
 mkdir -p "$LOCAL_CONFIGS_DIR"
 
-echo " .. Syncing .run files"
-rsync "${RSYNC_OPTS[@]}" "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_CONFIGS_DIR}/*.run" "$LOCAL_CONFIGS_DIR/" 2>/dev/null | sed 's/^/    /' || true
+log_info "Syncing .run files"
+rsync "${RSYNC_OPTS[@]}" "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_CONFIGS_DIR}/*.run" "$LOCAL_CONFIGS_DIR/" 2>/dev/null | log_pipe || true
 
 # Loop over models
+SYNCED=0
+SKIPPED=0
+TOTAL=${#CONFIG_LIST[@]}
+COUNT=0
 for prm_path in "${CONFIG_LIST[@]}"; do
+    COUNT=$((COUNT + 1))
     model_name="$(basename "$prm_path" .prm)"
 
     REMOTE_RESULTS_DIR="${REMOTE_SIM_DIR}/results/$model_name"
@@ -44,16 +52,40 @@ for prm_path in "${CONFIG_LIST[@]}"; do
     LOCAL_SOLUTION_DIR="${LOCAL_RESULTS_DIR}/solution"
     mkdir -p "$LOCAL_SOLUTION_DIR"
 
-    echo " .. Syncing $model_name"
+    # Slabs sync at 000 and 100 Ma.
+    # Skip models whose target timesteps are already present locally.
+    # Set FORCE_SYNC=1 to re-sync everything.
+    if [[ "${FORCE_SYNC:-0}" != "1" ]]; then
+        model_complete=true
+        for tstep in "${MODEL_TIMESTEPS[@]}"; do
+            if ! compgen -G "$LOCAL_SOLUTION_DIR/solution-00*${tstep}.pvtu" > /dev/null; then
+                model_complete=false
+                break
+            fi
+            if ! compgen -G "$LOCAL_SOLUTION_DIR/solution-00*${tstep}.*.vtu" > /dev/null; then
+                model_complete=false
+                break
+            fi
+        done
+        if $model_complete; then
+            log_info "[$COUNT/$TOTAL] Skipping $model_name (already synced)"
+            SKIPPED=$((SKIPPED + 1))
+            continue
+        fi
+    fi
 
-    # Build rsync filters for the specific timesteps
+    log_info "[$COUNT/$TOTAL] Syncing $model_name"
     RSYNC_FILTERS=()
-    for tstep in "${TIMESTEP_LIST[@]}"; do
+    for tstep in "${MODEL_TIMESTEPS[@]}"; do
         RSYNC_FILTERS+=(--include="solution-00*${tstep}.*.vtu")
         RSYNC_FILTERS+=(--include="solution-00*${tstep}.pvtu")
     done
     RSYNC_FILTERS+=(--include="*/" --exclude="*") # include dirs, exclude everything else
 
     # Run a single rsync per model
-    rsync "${RSYNC_OPTS[@]}" "${RSYNC_FILTERS[@]}" "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_SOLUTION_DIR}/" "$LOCAL_SOLUTION_DIR/" 2>/dev/null | sed 's/^/    /' || true
+    rsync "${RSYNC_OPTS[@]}" "${RSYNC_FILTERS[@]}" \
+      "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_SOLUTION_DIR}/" "$LOCAL_SOLUTION_DIR/" 2>/dev/null | log_pipe || true
+    SYNCED=$((SYNCED + 1))
 done
+
+log_info "Synced: $SYNCED, skipped: $SKIPPED"

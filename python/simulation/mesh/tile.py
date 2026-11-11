@@ -1,18 +1,12 @@
-#######################################################
-## .0. Load Libraries                            !!! ##
-#######################################################
 import platform
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
 from config import MeshConfig
+from utils.logging import log_warn
 from PIL import Image, ImageDraw, ImageFont
 
-
-#######################################################
-## .1. ImageTiler                                !!! ##
-#######################################################
 @dataclass
 class ImageTiler:
     """Tiles per-field mesh plots side-by-side and saves the combined images.
@@ -42,7 +36,6 @@ class ImageTiler:
 
     verbosity: int = 1
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def __post_init__(self) -> None:
         """Resolve output directories, image lists, and field ID maps."""
         self.tiles_dir = self.out_fig_dir / "tiles"
@@ -57,7 +50,6 @@ class ImageTiler:
         self.images_field3 = self._get_images(self.field3) if self.field3 else []
         self.field_file_maps = [self.plot_config.file_map.get(f) for f in self.fields_list]
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _get_images(self, field: str | None) -> list[Path]:
         """Return sorted PNG paths for field in out_fig_dir, or [] if unmapped."""
         if not field:
@@ -67,13 +59,11 @@ class ImageTiler:
             return []
         return sorted(self.out_fig_dir.glob(f"{self.prefix}-{file_id}-*.png"))
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _extract_timestep(self, path: Path) -> str | None:
         """Return the zero-padded 4-digit timestep string from a filename, or None."""
         match = re.search(r"-(\d{4})\.png$", path.name)
         return match.group(1) if match else None
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _parse_tags(self) -> list[str | None]:
         """Return a list of three per-panel tag characters (or None) from self.tags.
 
@@ -86,7 +76,6 @@ class ImageTiler:
         padded = self.tags.ljust(3)[:3]
         return [c.lower() if c.strip() else None for c in padded]
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _get_default_font(self) -> ImageFont.ImageFont | ImageFont.FreeTypeFont:
         """Return a bold TrueType font at tag_size points, falling back to the
         PIL default if no system font is found.
@@ -102,13 +91,12 @@ class ImageTiler:
                 return ImageFont.truetype(font_path, self.tag_size)
             except IOError:
                 if self.verbosity >= 1:
-                    print(f" !! Warning: failed to load truetype font at {font_path}.")
+                    log_warn(f"failed to load truetype font at {font_path}.")
 
         if self.verbosity >= 1:
-            print(" !! Warning: falling back to default font (tiny and non-scalable).")
+            log_warn("falling back to default font (tiny and non-scalable).")
         return ImageFont.load_default()
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _annotate_image(self, img_path: Path, tag: str | None) -> Image.Image:
         """Open an image, optionally draw a tag character in the top-left, and
         return it as an RGB image.
@@ -127,7 +115,6 @@ class ImageTiler:
         draw.text((25, 10), tag, font=self._get_default_font(), fill="black")
         return image
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _concatenate_images_horizontally(self, images: list[Image.Image]) -> Image.Image:
         """Return a new RGB image with all images pasted side-by-side.
 
@@ -148,7 +135,6 @@ class ImageTiler:
             x_offset += img.size[0]
         return combined
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _build_tile_path(self, timestep: str, tags: list[str | None]) -> Path:
         """Construct the output path for a tiled image.
 
@@ -164,7 +150,6 @@ class ImageTiler:
         tag_suffix = f"-tagged-{tag_chars}" if tag_chars else ""
         return self.tiles_dir / f"{self.prefix}-{field_ids}-{timestep}{tag_suffix}.png"
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def _tile_single(self, img1: Path, img2: Path, img3: Path | None, tags: list[str | None]) -> None:
         """Tile one matched set of per-field images and save the result.
 
@@ -183,12 +168,12 @@ class ImageTiler:
 
         if ts1 is None or ts2 is None or ts3 is None:
             if self.verbosity >= 1:
-                print(f" !! Warning: failed to extract timestep ({ts1}, {ts2}, {ts3})")
+                log_warn(f"failed to extract timestep ({ts1}, {ts2}, {ts3})")
             return
 
         if ts1 != ts2 or ts1 != ts3:
             if self.verbosity >= 1:
-                print(f" !! Warning: timestep mismatch ({ts1}, {ts2}, {ts3})")
+                log_warn(f"timestep mismatch ({ts1}, {ts2}, {ts3})")
             return
 
         out_tile = self._build_tile_path(ts1, tags)
@@ -204,9 +189,7 @@ class ImageTiler:
         combined.save(out_tile)
 
         self.tiled_images.append(out_tile)
-        print(f" -> {out_tile.name}")
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def tile_images(self) -> None:
         """Tile all matched timestep images across the configured fields.
 

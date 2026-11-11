@@ -1,65 +1,52 @@
+# Set the default goal before includes
+.DEFAULT_GOAL := help
+
 # Include definitions
 include $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/../project.mk)
 include local.mk
 
-# All simulation runs
-ALL_RUNS := $(PRMS_PLUME_LH:.prm=.run) $(PRMS_SLAB_LH:.prm=.run) $(PRMS_PLUME_KN:.prm=.run) $(PRMS_SLAB_KN:.prm=.run)
+ALL_RUNS := $(PRMS_SLAB_SW_SUITE:.prm=.run) $(PRMS_SLAB_NC_SUITE:.prm=.run) $(PRMS_SLAB_TEST_SUITE:.prm=.run)
 
-# Core components for each type of model
-CORE_LH := $(PRMS_GLOBALS_LH) $(PRMS_SOLVER_LH) $(PRMS_GEOMETRY_LH) $(PRMS_MATERIAL_LH) $(PRMS_POSTPROCESS_LH)
-CORE_KN := $(PRMS_GLOBALS_KN) $(PRMS_SOLVER_KN) $(PRMS_GEOMETRY_KN) $(PRMS_MATERIAL_KN) $(PRMS_COMPOSITION_KN) $(PRMS_POSTPROCESS_KN)
+CORE_SW_SUITE   := $(PRMS_GLOBALS_SW_SUITE) $(PRMS_SOLVER_SW_SUITE) $(PRMS_GEOMETRY_SW_SUITE) $(PRMS_MATERIAL_SW_SUITE) $(PRMS_COMPOSITION_SW_SUITE) $(PRMS_POSTPROCESS_SW_SUITE)
+CORE_NC_SUITE   := $(PRMS_GLOBALS_NC_SUITE) $(PRMS_SOLVER_NC_SUITE) $(PRMS_GEOMETRY_NC_SUITE) $(PRMS_MATERIAL_NC_SUITE) $(PRMS_COMPOSITION_NC_SUITE) $(PRMS_POSTPROCESS_NC_SUITE)
+CORE_TEST_SUITE := $(PRMS_GLOBALS_TEST_SUITE) $(PRMS_SOLVER_TEST_SUITE) $(PRMS_GEOMETRY_TEST_SUITE) $(PRMS_MATERIAL_TEST_SUITE) $(PRMS_COMPOSITION_TEST_SUITE) $(PRMS_POSTPROCESS_TEST_SUITE)
 
-# Cleanup
 CLEAN      := $(ASPECT_PLUGIN) $(ASPECT_CONFIGS)
 DEEP_CLEAN := $(ASPECT_RESULTS) $(ASPECT_DATA)
 
-# Targets
-.PHONY: all all-models plume-models-lh slab-models-lh plume-models-kn slab-models-kn clean deep-clean help
+.PHONY: all all-models slab-models-sw-suite slab-models-nc-suite slab-models-test-suite configs configs-sw-suite configs-nc-suite configs-test-suite clean deep-clean help
 .PRECIOUS: $(ASPECT_CONFIGS)
 
 all: all-models
 all-models: $(ALL_RUNS)
-plume-models-lh: $(ASPECT_EXE) $(ASPECT_PROFILES) $(PRMS_PLUME_LH:.prm=.run)
-slab-models-lh: $(ASPECT_EXE) $(ASPECT_PROFILES) $(PRMS_SLAB_LH:.prm=.run)
-plume-models-kn: $(ASPECT_EXE) $(ASPECT_PROFILES) $(PRMS_PLUME_KN:.prm=.run)
-slab-models-kn: $(ASPECT_EXE) $(ASPECT_PROFILES) $(PRMS_SLAB_KN:.prm=.run)
+configs: configs-sw-suite configs-nc-suite configs-test-suite
+configs-sw-suite: $(PRMS_SLAB_SW_SUITE)
+configs-nc-suite: $(PRMS_SLAB_NC_SUITE)
+configs-test-suite: $(PRMS_SLAB_TEST_SUITE)
+slab-models-sw-suite: $(ASPECT_EXE) $(DEALII_ENABLE) $(ASPECT_PROFILES) $(PRMS_SLAB_SW_SUITE:.prm=.run)
+slab-models-nc-suite: $(ASPECT_EXE) $(DEALII_ENABLE) $(ASPECT_PROFILES) $(PRMS_SLAB_NC_SUITE:.prm=.run)
+slab-models-test-suite: $(ASPECT_EXE) $(DEALII_ENABLE) $(ASPECT_PROFILES) $(PRMS_SLAB_TEST_SUITE:.prm=.run)
 
-$(PRMS_PLUME_KN:.prm=.run): $(ASPECT_PLUGIN)
-$(PRMS_SLAB_KN:.prm=.run): $(ASPECT_PLUGIN)
+$(PRMS_SLAB_SW_SUITE:.prm=.run): $(ASPECT_PLUGIN)
+$(PRMS_SLAB_NC_SUITE:.prm=.run): $(ASPECT_PLUGIN)
+$(PRMS_SLAB_TEST_SUITE:.prm=.run): $(ASPECT_PLUGIN)
 
-$(PRMS_SLAB_LH): $(CORE_LH) $(PRMS_VELOCITY_SLAB_LH) $(PRMS_TEMPERATURE_SLAB_LH)
-$(PRMS_PLUME_LH): $(CORE_LH) $(PRMS_VELOCITY_PLUME_LH) $(PRMS_TEMPERATURE_PLUME_LH)
-
-$(PRMS_SLAB_KN): $(CORE_KN) $(PRMS_VELOCITY_SLAB_KN) $(PRMS_TEMPERATURE_SLAB_KN)
-$(PRMS_PLUME_KN): $(CORE_KN) $(PRMS_VELOCITY_PLUME_KN) $(PRMS_TEMPERATURE_PLUME_KN)
+$(PRMS_SLAB_SW_SUITE): $(CORE_SW_SUITE) $(PRMS_VELOCITY_SLAB_SW_SUITE) $(PRMS_TEMPERATURE_SLAB_SW_SUITE)
+$(PRMS_SLAB_NC_SUITE): $(CORE_NC_SUITE) $(PRMS_VELOCITY_SLAB_NC_SUITE) $(PRMS_TEMPERATURE_SLAB_NC_SUITE)
+$(PRMS_SLAB_TEST_SUITE): $(CORE_TEST_SUITE) $(PRMS_VELOCITY_SLAB_TEST_SUITE) $(PRMS_TEMPERATURE_SLAB_TEST_SUITE)
 
 $(ASPECT_CONFIGS)/%.prm: $(ASPECT_PROFILES)
 
-$(PRMS_GLOBALS_KN) $(PRMS_GLOBALS_LH): | $(ASPECT_CONFIGS)
+$(PRMS_GLOBALS_SW_SUITE): | $(ASPECT_CONFIGS)
 
 $(ASPECT_CONFIGS):
 	@mkdir -p $@
 
+# Delegates to bash/Makefile so each .sh is invoked once.
 %.run: %.prm
-	@$(eval PRM_NAME := $(basename $(notdir $<)))
-	@mkdir -p $(SIMULATION)/results/$(PRM_NAME)
-	@if [ ! -f "$@" ]; then \
-	  if [ "$(OS_SYSTEM)" = "rocky" ]; then \
-	    sbatch --job-name="$(PRM_NAME)" \
-	      --output="$(SIMULATION)/results/$(PRM_NAME)/$(PRM_NAME).log" \
-	      --partition="nodes" \
-	      --ntasks=$(NTASKS) \
-	      --ntasks-per-node=$(NTASKSPERNODE) \
-	      --time=$(TIME) \
-	      --mail-user=$(MAIL_ADDRESS) \
-	      --mail-type=$(MAIL_TYPE) \
-	      $(RUN_ASPECT) $(ASPECT_EXE) "$<" 2>&1 | sed 's/^/ .. /'; \
-	  else \
-	    $(RUN_ASPECT) $(NTASKS) $(ASPECT_EXE) "$<" 2>&1 | tee -a "$(SIMULATION)/results/$(PRM_NAME)/$(PRM_NAME).log"; \
-	  fi \
-	fi
+	@$(MAKE) --no-print-directory -C $(BASH) run-aspect PRM=$<
 
-$(ASPECT_PLUGIN):
+$(ASPECT_PLUGIN): $(ASPECT_EXE) $(DEALII_ENABLE)
 	@if [ "$(OS_SYSTEM)" = "rocky" ]; then \
 	  module load $(GCC) $(OPENMPI) $(OPENBLAS) $(CMAKE); \
 	  cd $(SIMULATION)/plugins; \
@@ -78,7 +65,7 @@ clean:
 	@$(call SAFE_RM_LIST,$(CLEAN))
 	@find $(PROJECT_ROOT)/simulation -type l -path '*/plugins/aspect*' | while read -r item; do \
 	  if [[ "$$item" == $(PROJECT_ROOT)* ]]; then \
-	    echo " xx $$item"; \
+	    . "$(BASH)/utils/log.sh"; log_delete "$$item"; \
 	    rm "$$item"; \
 	  fi; \
 	done
@@ -87,11 +74,11 @@ deep-clean:
 	@$(call SAFE_RM_LIST,$(DEEP_CLEAN))
 
 help:
-	@echo "    --------------------------------------------------"
-	@echo "    Available targets:"
-	@echo "    --------------------------------------------------"
-	@echo "    models        Run ASPECT models"
-	@echo "    plume-models  Run ASPECT plume models"
-	@echo "    slab-models   Run ASPECT slab models"
-	@echo "    clean         Remove generated files (safe)"
-	@echo "    deep-clean    Remove results and data (use with caution!)"
+	$(call LOG_INFO,Available targets:)
+	$(call LOG_DETAIL,all-models                 Run all ASPECT models (SW + NC + TEST))
+	$(call LOG_DETAIL,slab-models-sw-suite    Run SW-suite ASPECT slab models)
+	$(call LOG_DETAIL,slab-models-nc-suite    Run NC-suite ASPECT slab models)
+	$(call LOG_DETAIL,slab-models-test-suite  Run TEST-suite ASPECT slabs (T1-T4))
+	$(call LOG_DETAIL,configs                    Generate configs only (all suites))
+	$(call LOG_DETAIL,clean                      Remove generated files (safe))
+	$(call LOG_DETAIL,deep-clean                 Remove results and data (use with caution!))

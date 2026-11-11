@@ -1,52 +1,65 @@
-#######################################################
-## Write markdown tables                         !!! ##
-#######################################################
-write_simulation_results_summary_table <- function(csv_path, out_dir, quiet = TRUE) {
-  if (!file.exists(csv_path)) {
-    if (!quiet) cat(" !! Error: Input CSV file not found:", csv_path, "\n")
+write_postprocessed_summary_table <- function(postprocessed_csv, out_dir, quiet = TRUE) {
+  if (!file.exists(postprocessed_csv)) {
+    if (!quiet) log_error(paste("Input postprocessed CSV not found:", postprocessed_csv))
     return(invisible())
   }
 
-  if (!quiet) cat(" .. Reading and formatting plume simulation data\n")
+  if (!quiet) log_info("Reading and formatting postprocessed slab data")
 
-  summary_data <- read_csv(csv_path, show_col_types = FALSE)
+  postprocessed_data <- suppressWarnings(read_csv(postprocessed_csv, show_col_types = FALSE))
 
-  if (!is.null(summary_data) && nrow(summary_data) > 0) {
-    md_dir <- file.path(out_dir, "markdown")
-    if (!dir.exists(md_dir)) dir.create(md_dir, recursive = TRUE)
-
-    csv_filename <- basename(csv_path)
-    md_filename <- sub("\\.csv$", ".md", csv_filename)
-    out_path_md <- file.path(md_dir, md_filename)
-
-    if (!quiet) cat(" -> ", out_path_md, "\n", sep = "")
-
-    formatted_summary <- summary_data |>
-      select(-z_ol_wd) |>
-      filter(scenario != 9) |>
-      mutate(simulation_type = str_extract(model_id, "^(plume|slab)")) |>
-      mutate(characteristic_length_scale = max_velocity_vertical / max_reaction_rate * 10) |>
-      select(
-        Type = simulation_type,
-        Scenario = scenario,
-        `$Z_\\mathrm{ri}$` = z_ri_ps,
-        Displacement = displacement,
-        Width = width,
-        `$\\dot{X}_\\mathrm{max}$` = max_reaction_rate,
-        `$\\vec{v}_\\mathrm{max}$` = max_velocity_vertical,
-        `$L$` = characteristic_length_scale,
-        Regime = regime
-      ) |>
-      arrange(`Type`, Scenario, desc(`$Z_\\mathrm{ri}$`)) |>
-      mutate(across(c(`$Z_\\mathrm{ri}$`, `$L$`), ~ formatC(.x, format = "e", digits = 1))) |>
-      mutate(across(c(`$\\dot{X}_\\mathrm{max}$`), ~ formatC(.x, format = "e", digits = 2))) |>
-      mutate(across(c(`$\\vec{v}_\\mathrm{max}$`), ~ formatC(.x, format = "f", digits = 2))) |>
-      mutate(across(c(Displacement, Width), ~ formatC(.x, format = "f", digits = 1))) |>
-      select(-`$L$`)
-
-    col_align <- c("l", rep("r", ncol(formatted_summary) - 1), "l")
-
-    md_table <- kable(formatted_summary, format = "pipe", escape = FALSE, align = col_align)
-    writeLines(md_table, out_path_md)
+  if (is.null(postprocessed_data) || !nrow(postprocessed_data)) {
+    return(invisible())
   }
+
+  out_path_md <- file.path(out_dir, "postprocessed.md")
+
+  if (!quiet) log_artifact(out_path_md)
+
+  formatted <- postprocessed_data |>
+    mutate(
+      test = case_when(
+        is_T & scenario == 16 ~ "T1",
+        is_T & scenario == 17 ~ "T2",
+        is_T & scenario == 18 ~ "T3",
+        is_T & scenario == 19 ~ "T4",
+        TRUE ~ ""
+      ),
+      regime = case_when(
+        L_km <= 5 & vmax660 > 0.5 ~ 1L,
+        L_km > 5 & vmax660 > 0.5 ~ 2L,
+        TRUE ~ 3L
+      ),
+      suite_ord = factor(suite, levels = c("sw-suite", "nc-suite")),
+      suite_abbr = case_when(
+        is_T ~ test,
+        suite == "sw-suite" ~ "SW",
+        TRUE ~ "NC"
+      )
+    ) |>
+    select(
+      Suite = suite_abbr,
+      Scenario = scenario,
+      `$Z_\\mathrm{ri}$` = z_ri_ps,
+      `$\\delta z$` = disp660_km,
+      `$\\delta w$` = width660_km,
+      `$\\dot{X}_\\mathrm{max}$` = rate660,
+      `$\\vec{v}_\\mathrm{max}$` = vmax660,
+      `$\\delta z_t$` = therm660_km,
+      `$\\delta z_k$` = kin660_km,
+      Regime = regime,
+      suite_ord = suite_ord,
+      test_ord = test
+    ) |>
+    arrange(suite_ord, Scenario, test_ord, desc(`$Z_\\mathrm{ri}$`)) |>
+    select(-suite_ord, -test_ord) |>
+    mutate(across(c(`$Z_\\mathrm{ri}$`), ~ formatC(.x, format = "e", digits = 1))) |>
+    mutate(across(c(`$\\dot{X}_\\mathrm{max}$`), ~ formatC(.x, format = "e", digits = 2))) |>
+    mutate(across(c(`$\\vec{v}_\\mathrm{max}$`), ~ formatC(.x, format = "f", digits = 2))) |>
+    mutate(across(c(`$\\delta z$`, `$\\delta w$`, `$\\delta z_t$`, `$\\delta z_k$`), ~ formatC(.x, format = "f", digits = 1)))
+
+  col_align <- c("l", rep("r", ncol(formatted) - 1))
+
+  md_table <- kable(formatted, format = "pipe", escape = FALSE, align = col_align)
+  writeLines(md_table, out_path_md)
 }

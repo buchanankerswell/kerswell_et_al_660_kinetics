@@ -391,10 +391,15 @@ namespace aspect
             }
 
           // Compute reaction rates with phase-topology constraints
+          // NOTE: Z prefactors are in native SI units (K^-1 s^-1 for
+          // interface-controlled, mol^2 J^-2 s^-1 for diffusion-controlled).
+          // Reaction rates are returned in s^-1. No time-scale conversion is
+          // applied here: ASPECT integrates rates internally in SI seconds
+          // (see simulator/helper_functions.cc and parameters.cc, where
+          // user-facing year inputs are converted with year_in_seconds).
           if (reaction_rate_out != nullptr)
             {
-              const double time_scale = this->convert_output_to_years() ? year_in_seconds : 1.0;
-              auto         clamp_exp  = [](double x) { return std::exp(std::clamp(x, -700.0, 700.0)); };
+              auto clamp_exp = [](double x) { return std::exp(std::clamp(x, -700.0, 700.0)); };
 
               // Olivine-wadsleyite reaction rate (interface-controlled)
               if (enable_ol_wd_transformation)
@@ -425,7 +430,7 @@ namespace aspect
                     }
 
                   mtz_kinetics_out->thermodynamic_ol_wd[q]           = gibbs_ol_wd < 0.0 ? thermodynamic_ol_wd : -thermodynamic_ol_wd;
-                  reaction_rate_out->reaction_rates[q][xi_ol_wd_idx] = reaction_rate_ol_wd / time_scale;
+                  reaction_rate_out->reaction_rates[q][xi_ol_wd_idx] = reaction_rate_ol_wd;
                 }
 
               // Wadsleyite-ringwoodite reaction rate (interface-controlled)
@@ -457,7 +462,7 @@ namespace aspect
                     }
 
                   mtz_kinetics_out->thermodynamic_wd_ri[q]           = gibbs_wd_ri < 0.0 ? thermodynamic_wd_ri : -thermodynamic_wd_ri;
-                  reaction_rate_out->reaction_rates[q][xi_wd_ri_idx] = reaction_rate_wd_ri / time_scale;
+                  reaction_rate_out->reaction_rates[q][xi_wd_ri_idx] = reaction_rate_wd_ri;
                 }
 
               // Ringwoodite-postspinel reaction rate (diffusion-controlled)
@@ -484,7 +489,7 @@ namespace aspect
                   else // Reverse: postspinel -> ringwoodite
                     reaction_rate_ri_ps = kinetic_factor_ri_ps * thermodynamic_ri_ps * arrhenius_ri_ps * X_ps;
 
-                  reaction_rate_out->reaction_rates[q][xi_ri_ps_idx] = reaction_rate_ri_ps / time_scale;
+                  reaction_rate_out->reaction_rates[q][xi_ri_ps_idx] = reaction_rate_ri_ps;
                 }
 
               // Zero out all other reaction rates

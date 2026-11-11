@@ -2,8 +2,11 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../utils/log.sh"
+
 if [ $# -ne 7 ]; then
-  echo "    Usage: $0 <FIG_DIR> <OUT_DIR> <TIMESTEP> <BATCH_NAME> <ID1> <ID2> <ID3>"
+  log_warn "Usage: $0 <FIG_DIR> <OUT_DIR> <TIMESTEP> <BATCH_NAME> <ID1> <ID2> <ID3>"
   exit 1
 fi
 
@@ -26,11 +29,9 @@ compose_figures() {
 
   local OUT_PATH="${OUT_DIR}/${OUT_NAME}-${BATCH}-${TIMESTEP}.png"
 
-  if [[ -f "$OUT_PATH" ]]; then
+  if [[ "${FORCE_COMPOSE:-0}" != "1" && -f "$OUT_PATH" ]]; then
     return
   fi
-
-  echo " -> ${OUT_PATH}"
 
   if [[ "$MODE" == "triple" ]]; then
     local DIR1="${TYPE}_${ID1}"
@@ -49,24 +50,34 @@ compose_figures() {
       "${FIG_DIR}/${DIR1}/tiles/${FILE1}-${SUFFIX}-${TIMESTEP}.png" \
       "${FIG_DIR}/${DIR2}/tiles/${FILE2}-${SUFFIX}-${TIMESTEP}.png" \
       "${FIG_DIR}/${DIR3}/tiles/${FILE3}-${SUFFIX}-${TIMESTEP}.png"; do
-      [[ -f "$f" ]] || exit 0
+      [[ -f "$f" ]] || return 0
     done
 
-    magick \
-      \( "${FIG_DIR}/${DIR1}/tiles/${FILE1}-${SUFFIX}-${TIMESTEP}.png" -gravity south -chop "0x${Y_CROP}%" \) \
-      \( "${FIG_DIR}/${DIR2}/tiles/${FILE2}-${SUFFIX}-${TIMESTEP}.png" -gravity south -chop "0x${Y_CROP}%" \) \
-      \( "${FIG_DIR}/${DIR3}/tiles/${FILE3}-${SUFFIX}-${TIMESTEP}.png" -gravity south -chop "0x${Y_CROP}%" \) \
-      -append "${OUT_PATH}" || true
+    if [[ "${TITLE_ROWS:-0}" == "1" ]]; then
+      conda run -n kerswell-et-al-mtz-kinetics python "$(dirname "$SCRIPT_DIR")/../python/simulation/misc/pair_titles.py" \
+        "${FIG_DIR}/${DIR1}/tiles/${FILE1}-${SUFFIX}-${TIMESTEP}.png" \
+        "${FIG_DIR}/${DIR2}/tiles/${FILE2}-${SUFFIX}-${TIMESTEP}.png" \
+        "${FIG_DIR}/${DIR3}/tiles/${FILE3}-${SUFFIX}-${TIMESTEP}.png" \
+        "${OUT_PATH}" \
+        --crop-pct "$Y_CROP" || true
+    else
+      magick \
+        \( "${FIG_DIR}/${DIR1}/tiles/${FILE1}-${SUFFIX}-${TIMESTEP}.png" -gravity south -chop "0x${Y_CROP}%" \) \
+        \( "${FIG_DIR}/${DIR2}/tiles/${FILE2}-${SUFFIX}-${TIMESTEP}.png" -gravity south -chop "0x${Y_CROP}%" \) \
+        \( "${FIG_DIR}/${DIR3}/tiles/${FILE3}-${SUFFIX}-${TIMESTEP}.png" -gravity south -chop "0x${Y_CROP}%" \) \
+        -append "${OUT_PATH}" || true
+    fi
   fi
 }
 
 COMP_SETS=(
   "set1:temperature-nonadiabatic-density-nonadiabatic-velocity-vertical"
   "set2:temperature-nonadiabatic-viscosity-X-ps"
-  "set3:another-composition-suffix-here"
 )
 
-for TYPE in "slab" "plume"; do
+TYPES=("slab")
+
+for TYPE in "${TYPES[@]}"; do
   for ITEM in "${COMP_SETS[@]}"; do
     SET_NAME="${ITEM%%:*}"
     SUFFIX="${ITEM#*:}"

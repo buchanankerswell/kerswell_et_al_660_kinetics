@@ -1,9 +1,5 @@
 #!/usr/bin/env Rscript
 
-#######################################################
-## Prepare R Environment                         !!! ##
-#######################################################
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 main <- function() {
   options(repos = c(CRAN = "https://cloud.r-project.org"))
 
@@ -16,7 +12,7 @@ main <- function() {
   if (file.exists(lockfile)) {
     renv::restore(prompt = FALSE)
   } else {
-    cran_pkgs <- c("tidyverse", "patchwork", "colorspace", "osfr", "knitr")
+    cran_pkgs <- c("tidyverse", "patchwork", "colorspace", "scales", "knitr")
 
     suppressWarnings({
       renv::install(cran_pkgs, verbose = FALSE)

@@ -1,6 +1,6 @@
 ---
 title: "Beyond Equilibrium II"
-subtitle: "Ringwoodite Decomposition Kinetics Amplify 660 km Discontinuity Depressions and Offer an Independent Control on Slab Stagnation"
+subtitle: "Sluggish Ringwoodite Kinetics Amplify 660 km Discontinuity Depressions and Independently Promote Slab Stagnation"
 author: ["Kerswell B.", "Wheeler J.", "Gassmöller R.", "Davies, J.H.", "Papanagnou, I.", "Cottaar, S.", "Dobson, D.P."]
 date: "05 August 2026"
 subject: "Mantle Convection"
@@ -27,4 +27,5 @@ header-includes:
   - \usepackage{amsmath}
   - \usepackage{amssymb}
   - \usepackage{amsfonts}
+  - \usepackage{pdflscape}
 ---

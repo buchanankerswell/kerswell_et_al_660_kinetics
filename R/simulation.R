@@ -1,34 +1,31 @@
 #!/usr/bin/env Rscript
 
-#######################################################
-## Visualize MTZ structure                       !!! ##
-#######################################################
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 main <- function() {
   args <- commandArgs(trailingOnly = TRUE)
 
   if (length(args) < 5) {
-    cat(" !! Usage: Rscript simulation.R [util_dir] [data_dir] [out_dir] [csv_path_raw] [csv_path_filtered]\n")
+    cat(" !! Warning: Usage: simulation.R [util_dir] [summary_sw] [summary_nc] [out_dir] [force_rewrite] [postprocessed_csv]\n")
     return(invisible())
   }
 
   util_dir <- args[1]
-  data_dir <- args[2]
-  out_dir <- args[3]
-  csv_path_raw <- args[4]
-  csv_path_filtered <- args[5]
+  in_data <- c(args[2], args[3])
+  out_dir <- args[4]
 
   lapply(list.files(util_dir, pattern = "\\.R$", full.names = TRUE), source)
 
-  save_csv <- parse_logical(args[6])
-  force_rewrite <- parse_logical(args[7])
+  force_rewrite <- parse_logical(args[5])
+  postprocessed_csv <- if (length(args) >= 6) args[6] else ""
 
-  in_data <- file.path(data_dir, "structure-summary-local.csv")
-  out_path_composition <- file.path(out_dir, "composition.png")
-  out_path_tiles <- file.path(out_dir, "tiles-660.png")
+  out_path_contributions <- file.path(out_dir, "contributions.png")
+  out_path_tiles_rate <- file.path(out_dir, "tiles-rate.png")
+  out_path_interactions_quant <- file.path(out_dir, "interactions-quantitative.png")
 
-  visualize_composition(data_dir, out_path_composition, csv_path_raw, csv_path_filtered, save_csv, force_rewrite)
-  visualize_tiles(in_data, out_path_tiles)
+  if (nzchar(postprocessed_csv)) {
+    visualize_contributions(in_data, postprocessed_csv, out_path_contributions, force_rewrite = force_rewrite)
+    visualize_tiles_rate(in_data, postprocessed_csv, out_path_tiles_rate, force_rewrite = force_rewrite)
+    visualize_interactions_quantitative(in_data, postprocessed_csv, out_path_interactions_quant, force_rewrite = force_rewrite)
+  }
 }
 
 if (!interactive() && (sys.nframe() == 0 || identical(environment(), globalenv()))) {
