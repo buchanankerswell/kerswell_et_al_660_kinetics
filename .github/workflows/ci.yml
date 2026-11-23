@@ -1,0 +1,31 @@
+---
+name: ci
+
+# Static checks only: simulations need data/HPC and stay local (see AGENTS.md).
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  markdownlint:
+    uses: buchanankerswell/actions/.github/workflows/markdownlint.yml@v1
+    with:
+      globs: |
+        README.md
+        AGENTS.md
+  typos:
+    uses: buchanankerswell/actions/.github/workflows/typos.yml@v1
+  lint-r:
+    uses: buchanankerswell/actions/.github/workflows/lint-r.yml@v1
+  lint-python:
+    uses: buchanankerswell/actions/.github/workflows/lint-python.yml@v1
+    with:
+      python-version: "3.11"
+      paths: python
+      check-format: false

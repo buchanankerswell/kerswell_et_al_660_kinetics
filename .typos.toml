@@ -1,0 +1,10 @@
+[default.extend-words]
+# Citation key prefix for Bao et al. 2025 (@ba2025)
+ba = "ba"
+Ba = "Ba"
+
+# Bibliography entries and publisher templates contain arbitrary tokens;
+# draft .tex is generated from manuscript.md; perplex/ ships thermodynamic
+# datasets with mineral abbreviations
+[files]
+extend-exclude = ["*.bib", "*.cls", "*.sty", "draft/**/*.tex", "perplex/**"]

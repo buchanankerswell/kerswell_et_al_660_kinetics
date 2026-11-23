@@ -8,7 +8,6 @@ import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
 import pyvista as pv
-import vtk
 from config import MeshConfig
 from utils.logging import install_stderr_filter, log_warn
 from PIL import Image
