@@ -1,0 +1,5 @@
+# No format gate in this repo (no `ruff format` target); this file only
+# pins the lint rule set to the pre-0.15 defaults so future ruff releases
+# can't fail CI on clean code.
+[lint]
+select = ["E4", "E7", "E9", "F"]

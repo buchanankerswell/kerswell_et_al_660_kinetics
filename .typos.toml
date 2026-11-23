@@ -3,6 +3,9 @@
 ba = "ba"
 Ba = "Ba"
 
+# matplotlib API (plt.setp)
+setp = "setp"
+
 # Bibliography entries and publisher templates contain arbitrary tokens;
 # draft .tex is generated from manuscript.md; perplex/ ships thermodynamic
 # datasets with mineral abbreviations
