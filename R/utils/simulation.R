@@ -4,7 +4,7 @@ SUITE_PAL_SPLIT <- c("SW suite" = "#E41A1C", "NC suite" = "#377EB8")
 SUITE_SHAPES_SPLIT <- c("SW suite" = 21, "NC suite" = 21)
 RATE_BREAKS_SPLIT <- c(1e-1, 1e1, 1e3, 1e5, 1e7, 1e9)
 
-read_postprocessed_data <- function(in_locals, postprocessed_csv, include_T = FALSE) {
+read_postprocessed_data <- function(in_locals, postprocessed_csv, include_t = FALSE) {
   # Slab 660 traces at the analysis timestep from the Python
   # postprocessed table (simulation/data/postprocessed.csv).
   if (!file.exists(postprocessed_csv)) {
@@ -12,7 +12,7 @@ read_postprocessed_data <- function(in_locals, postprocessed_csv, include_T = FA
     return(invisible())
   }
   df_post <- suppressWarnings(read_csv(postprocessed_csv, show_col_types = FALSE))
-  if (!include_T) {
+  if (!include_t) {
     df_post <- df_post |> filter(!is_T)
   }
   df_post <- df_post |>
@@ -72,7 +72,7 @@ visualize_contributions <- function(in_locals, postprocessed_csv, out_path, forc
     return(invisible())
   }
   ensure_output_dir(out_path)
-  df <- read_postprocessed_data(in_locals, postprocessed_csv, include_T = FALSE)
+  df <- read_postprocessed_data(in_locals, postprocessed_csv, include_t = FALSE)
   p_regime <- regime_panel(df, show_legend = FALSE)
   p_kin <- contrib_point(df, "kin660_km", "Kinetic Contribution (km)", show_legend = FALSE)
   p_therm <- contrib_point(df, "therm660_km", "Thermal Contribution (km)", show_legend = TRUE)
@@ -86,7 +86,7 @@ visualize_interactions_quantitative <- function(in_locals, postprocessed_csv, ou
     return(invisible())
   }
   ensure_output_dir(out_path)
-  df <- read_postprocessed_data(in_locals, postprocessed_csv, include_T = FALSE) |>
+  df <- read_postprocessed_data(in_locals, postprocessed_csv, include_t = FALSE) |>
     mutate(
       vel_cm = round(prescribed_velocity * 100),
       kin_rheo_label = factor(

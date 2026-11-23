@@ -220,7 +220,6 @@ def visualize_parameter_ranges(out_path: Path) -> None:
     (10 mm), so band edges run parallel to the best-fit line while
     staying inside the permitted envelope.
     """
-    import matplotlib.transforms as mtransforms
 
     v_ps = 3.381e-5
     lnk_best, lnk_low, lnk_high = -29.8, -51.9, -7.7

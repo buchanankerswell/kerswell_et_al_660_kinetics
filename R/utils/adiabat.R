@@ -352,8 +352,14 @@ visualize_material_table <- function(profile_path, table_path, out_path) {
     filter(pressure >= 0 & pressure <= 43 & temperature >= 1053 & temperature <= 2673)
 
   props <- c("entropy", "density")
-  units <- c("density" = "g/cm^3", "thermal_expansivity" = "K%*%10^-5", "compressibility" = "Pa%*%10^-12", "specific_heat" = "KJ/K~kg", "entropy" = "kJ/K~kg")
-  labs <- c("density" = "bar(rho)", "thermal_expansivity" = "bar(alpha)", "compressibility" = "bar(beta)", "specific_heat" = "bar(C[p])", "entropy" = "bar(S)")
+  units <- c(
+    "density" = "g/cm^3", "thermal_expansivity" = "K%*%10^-5", "compressibility" = "Pa%*%10^-12", "specific_heat" = "KJ/K~kg",
+    "entropy" = "kJ/K~kg"
+  )
+  labs <- c(
+    "density" = "bar(rho)", "thermal_expansivity" = "bar(alpha)", "compressibility" = "bar(beta)", "specific_heat" = "bar(C[p])",
+    "entropy" = "bar(S)"
+  )
   color_map <- c("density" = "mako", "thermal_expansivity" = "magma", "compressibility" = "mako", "specific_heat" = "magma", "entropy" = "mako")
 
   color_lims <- list(
