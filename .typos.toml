@@ -1,13 +1,6 @@
-[default.extend-words]
-# Citation key prefix for Bao et al. 2025 (@ba2025)
-ba = "ba"
-Ba = "Ba"
-
-# matplotlib API (plt.setp)
-setp = "setp"
-
 # Bibliography entries and publisher templates contain arbitrary tokens;
 # draft .tex is generated from manuscript.md; perplex/ ships thermodynamic
-# datasets with mineral abbreviations
+# datasets with mineral abbreviations. Spelling exceptions live centrally
+# in actions/config/typos.toml.
 [files]
 extend-exclude = ["*.bib", "*.cls", "*.sty", "draft/**/*.tex", "perplex/**"]
